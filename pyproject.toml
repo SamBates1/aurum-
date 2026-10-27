@@ -15,4 +15,5 @@ ignore = ["B905"]  # zip() without strict= is fine for our fixed-length pairs
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]  # import the local aurum package without installing it
 addopts = "-q"

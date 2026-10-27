@@ -72,7 +72,7 @@ def research(
         cost_bps=cost_bps(ticker, cfg),
         cash_rate=rf,
         target_vol=scfg["target_vol"],
-        stop_atr_mult=scfg["stop_atr_mult"],
+        rules=S.rules_from_config(scfg),
     )
     return Research(
         ticker=ticker,

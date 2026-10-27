@@ -49,7 +49,7 @@ def run_all(
     """Simulate every comparison over prices.loc[start:]."""
     p = prices.loc[start:]
     vol = features["vol_21"]
-    common = dict(cost_bps=cost_bps, cash_rate=rf, target_vol=scfg["target_vol"], stop_atr_mult=scfg["stop_atr_mult"])
+    common = dict(cost_bps=cost_bps, cash_rate=rf, target_vol=scfg["target_vol"], rules=S.rules_from_config(scfg))
 
     def sized(score):
         return S.simulate(p, score_to_decisions(score.loc[start:], scfg), vol, atr, **common)

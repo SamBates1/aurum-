@@ -17,8 +17,9 @@ Rules
     SELL    score <= sell_below while long -> exit
     HOLD    otherwise keep the current position
     size    sleeve * min(1, target_vol / volatility), fixed at entry (no averaging in)
-    stop    entry - stop_atr_mult * ATR, fixed at entry (never loosened); after a stop, wait for the
-            score to leave BUY territory before re-entering
+    stop    entry - stop_atr_mult * ATR, fixed at entry (never loosened). Filled intrabar:
+            at the stop price when the day's low touches it, or at the open after a gap.
+            After a stop, wait for the score to leave BUY territory before re-entering.
 """
 
 from __future__ import annotations
@@ -174,6 +175,39 @@ class SimResult:
     trades: pd.DataFrame  # one row per round trip
 
 
+@dataclass
+class RiskRules:
+    """Exit and entry-gating rules. Defaults reproduce the traded strategy; the
+    optional ones exist for experiments (research/experiments) and are off
+    unless an experiment, or a decision recorded in research/decisions.md, turns them on.
+
+    stop_mode       "intrabar": stop fills when the day's low touches it, at the stop
+                    price, or at the open if the price gapped through it (the convention
+                    used by LEAN, Backtrader, VectorBT and Freqtrade, and how a live stop
+                    order behaves). "close": stop checked on the close, exit next open.
+    trail_atr_mult  chandelier trailing stop: highest close since entry - k*ATR (only tightens)
+    take_profit_atr_mult  limit exit at entry + k*ATR, filled intrabar (gap -> open)
+    max_hold_days   time exit after this many trading days (vertical barrier)
+    dd_breaker      (max drawdown of the sleeve from its peak, cooldown days): exit and
+                    block entries (Freqtrade MaxDrawdown / LEAN MaximumDrawdownPercent analogue)
+    stop_guard      (stops, lookback days, cooldown days): after that many stop-outs within
+                    the lookback, block entries (Freqtrade StoplossGuard analogue)
+    """
+
+    stop_atr_mult: float | None = 2.0
+    stop_mode: str = "intrabar"
+    trail_atr_mult: float | None = None
+    take_profit_atr_mult: float | None = None
+    max_hold_days: int | None = None
+    dd_breaker: tuple[float, int] | None = None
+    stop_guard: tuple[int, int, int] | None = None
+
+
+def rules_from_config(scfg: dict) -> RiskRules:
+    """The traded risk rules, as configured in config.yaml -> strategy."""
+    return RiskRules(stop_atr_mult=scfg["stop_atr_mult"], stop_mode=scfg.get("stop_mode", "intrabar"))
+
+
 def simulate(
     prices: pd.DataFrame,
     decision: pd.Series,
@@ -186,15 +220,26 @@ def simulate(
     stop_atr_mult: float | None = 2.0,
     initial: float = 1.0,
     fixed_exposure: float | None = None,
+    rules: RiskRules | None = None,
+    block_entries: pd.Series | None = None,
 ) -> SimResult:
-    """Simulate one sleeve. Decisions at close t are filled at the open of t+1.
+    """Simulate one sleeve. Decisions at close t are filled at the open of t+1;
+    stops and take-profits fill intrabar (see RiskRules).
 
     fixed_exposure: invest this fraction instead of volatility targeting (buy & hold).
-    stop_atr_mult=None disables stops.
+    stop_atr_mult=None disables the stop (ignored if `rules` is given).
+    block_entries: boolean series; True at close t forbids a new entry decided at t.
     """
+    rules = rules or RiskRules(stop_atr_mult=stop_atr_mult)
     idx = prices.index
     opens, closes = prices["Open"].to_numpy(float), prices["Close"].to_numpy(float)
+    highs, lows = prices["High"].to_numpy(float), prices["Low"].to_numpy(float)
     dec = decision.reindex(idx).fillna(HOLD).to_numpy(object)
+    blocked = (
+        block_entries.reindex(idx).fillna(False).to_numpy(bool)
+        if block_entries is not None
+        else np.zeros(len(idx), bool)
+    )
     vol = ann_vol.reindex(idx).to_numpy(float)
     atr_ = atr.reindex(idx).to_numpy(float)
     rate = (
@@ -204,14 +249,37 @@ def simulate(
     )
     c = cost_bps / 1e4
 
-    cash, shares, stop, stopped_out, pending = float(initial), 0.0, np.nan, False, None
-    entry = None
+    cash, shares, stop, take, stopped_out, pending = float(initial), 0.0, np.nan, np.nan, False, None
+    entry, entry_i, high_close, peak_value, cooldown_until = None, -1, np.nan, float(initial), -1
+    stop_days: list[int] = []
     rows, trades = [], []
+
+    def close_position(i, price, reason):
+        nonlocal cash, shares, stop, take, entry, high_close
+        proceeds = shares * price
+        cost = proceeds * c
+        cash += proceeds - cost
+        pnl = proceeds - cost - entry["entry_value"]
+        trades.append(
+            {
+                **entry,
+                "exit_date": idx[i],
+                "exit_price": price,
+                "cost": entry["cost"] + cost,
+                "pnl": pnl,
+                "ret": pnl / entry["entry_value"],
+                "exit_reason": reason,
+                "days": int((idx[i] - entry["entry_date"]).days),
+            }
+        )
+        shares, stop, take, entry, high_close = 0.0, np.nan, np.nan, None, np.nan
+        return cost, proceeds
+
     for i in range(len(idx)):
         cost_today, traded_today = 0.0, 0.0
         if i > 0:
             cash *= 1 + rate[i - 1] / 252  # overnight interest on uninvested cash
-        # --- fill orders decided at the previous close, at today's open
+        # --- 1. fill orders decided at the previous close, at today's open
         if pending == "BUY" and shares == 0 and np.isfinite(opens[i]):
             e = fixed_exposure if fixed_exposure is not None else target_exposure(vol[i - 1], target_vol)
             if e > 0:
@@ -219,46 +287,66 @@ def simulate(
                 shares = notional / opens[i]
                 cost_today, traded_today = notional * c, notional
                 cash -= notional + cost_today
-                stop = initial_stop(opens[i], atr_[i - 1], stop_atr_mult) if stop_atr_mult else np.nan
-                entry = {
-                    "entry_date": idx[i],
-                    "entry_price": opens[i],
-                    "shares": shares,
-                    "cost": cost_today,
-                    "entry_value": notional + cost_today,
-                }
+                a = atr_[i - 1]
+                stop = initial_stop(opens[i], a, rules.stop_atr_mult) if rules.stop_atr_mult else np.nan
+                take = opens[i] + rules.take_profit_atr_mult * a if rules.take_profit_atr_mult and a > 0 else np.nan
+                entry, entry_i, high_close = (
+                    {
+                        "entry_date": idx[i],
+                        "entry_price": opens[i],
+                        "shares": shares,
+                        "cost": cost_today,
+                        "entry_value": notional + cost_today,
+                    },
+                    i,
+                    opens[i],
+                )
             pending = None
         elif pending and pending.startswith("EXIT") and shares > 0 and np.isfinite(opens[i]):
-            proceeds = shares * opens[i]
-            cost_today, traded_today = proceeds * c, proceeds
-            cash += proceeds - cost_today
-            pnl = proceeds - cost_today - entry["entry_value"]
-            trades.append(
-                {
-                    **entry,
-                    "exit_date": idx[i],
-                    "exit_price": opens[i],
-                    "cost": entry["cost"] + cost_today,
-                    "pnl": pnl,
-                    "ret": pnl / entry["entry_value"],
-                    "exit_reason": pending[5:],
-                    "days": int((idx[i] - entry["entry_date"]).days),
-                }
-            )
-            shares, stop, entry, pending = 0.0, np.nan, None, None
-        # --- mark to market at the close
+            cost_today, traded_today = close_position(i, opens[i], pending[5:])
+            pending = None
+        # --- 2. intrabar exits: stop first (pessimistic if both are touched), then take-profit
+        if shares > 0 and rules.stop_mode == "intrabar" and np.isfinite(stop) and lows[i] <= stop:
+            px = opens[i] if opens[i] <= stop else stop  # gap through the stop -> open
+            c2, t2 = close_position(i, px, "stop")
+            cost_today, traded_today = cost_today + c2, traded_today + t2
+            stopped_out = True
+            stop_days.append(i)
+        elif shares > 0 and np.isfinite(take) and highs[i] >= take:
+            px = opens[i] if opens[i] >= take else take
+            c2, t2 = close_position(i, px, "take_profit")
+            cost_today, traded_today = cost_today + c2, traded_today + t2
+        # --- 3. mark to market at the close
         value = cash + shares * closes[i]
         exposure = shares * closes[i] / value if value > 0 else 0.0
-        # --- decide at the close, for tomorrow's open
+        peak_value = max(peak_value, value)
         if shares > 0:
-            if np.isfinite(stop) and closes[i] <= stop:
+            high_close = max(high_close, closes[i])
+            if rules.trail_atr_mult and np.isfinite(atr_[i]) and atr_[i] > 0:
+                trail = high_close - rules.trail_atr_mult * atr_[i]
+                stop = trail if not np.isfinite(stop) else max(stop, trail)  # only ever tightens
+        # --- 4. decide at the close, for tomorrow's open
+        if rules.stop_guard:
+            k, look, cool = rules.stop_guard
+            if sum(1 for d in stop_days if i - d < look) >= k:
+                cooldown_until, stop_days = i + cool, []
+        breaker_hit = rules.dd_breaker is not None and value / peak_value - 1 <= -rules.dd_breaker[0]
+        if breaker_hit:
+            cooldown_until, peak_value = i + rules.dd_breaker[1], value  # reset the peak after a breaker
+        if shares > 0:
+            if rules.stop_mode == "close" and np.isfinite(stop) and closes[i] <= stop:
                 pending, stopped_out = "EXIT:stop", True
+                stop_days.append(i)
+            elif breaker_hit:
+                pending = "EXIT:breaker"
             elif dec[i] == SELL:
                 pending = "EXIT:signal"
+            elif rules.max_hold_days and i - entry_i >= rules.max_hold_days:
+                pending = "EXIT:time"
         else:
             if dec[i] != BUY:
                 stopped_out = False  # signal reset: a fresh BUY may enter again
-            if dec[i] == BUY and not stopped_out:
+            if dec[i] == BUY and not stopped_out and not blocked[i] and i >= cooldown_until:
                 pending = "BUY"
         rows.append((value, cash, shares, float(shares > 0), exposure, cost_today, traded_today))
 

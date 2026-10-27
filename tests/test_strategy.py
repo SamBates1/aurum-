@@ -99,16 +99,57 @@ def test_volatility_targeting_sets_exposure():
     assert r.daily["exposure"].iloc[2] == pytest.approx(0.5, rel=1e-3)
 
 
-def test_stop_exits_next_open_and_waits_for_fresh_signal():
+def test_intrabar_stop_fills_at_stop_price_when_touched():
+    # entry at day-1 open 100, ATR 2 -> stop 96; day 2 trades down to 95 intraday from a 99 open
+    p = make_prices(closes=[100, 100, 97, 98], opens=[100, 100, 99, 97])
+    p.loc[p.index[2], "Low"] = 95.0
+    r = sim(p, ["BUY", "HOLD", "HOLD", "HOLD"], atr=2.0, stop_atr_mult=2.0)
+    t = r.trades.iloc[0]
+    assert t["exit_reason"] == "stop" and t["exit_date"] == p.index[2] and t["exit_price"] == 96.0
+
+
+def test_intrabar_stop_gap_fills_at_open():
+    p = make_prices(closes=[100, 100, 90, 90], opens=[100, 100, 91, 90])
+    r = sim(p, ["BUY", "HOLD", "HOLD", "HOLD"], atr=2.0, stop_atr_mult=2.0)
+    t = r.trades.iloc[0]
+    assert t["exit_date"] == p.index[2] and t["exit_price"] == 91.0  # gapped through 96: worse fill
+
+
+def test_close_mode_stop_exits_next_open():
+    p = make_prices(closes=[100, 100, 90, 95, 95], opens=[100, 100, 99, 93, 95])
+    r = sim(p, ["BUY"] + ["HOLD"] * 4, atr=2.0, rules=S.RiskRules(stop_atr_mult=2.0, stop_mode="close"))
+    t = r.trades.iloc[0]
+    assert t["exit_date"] == p.index[3] and t["exit_price"] == 93.0
+
+
+def test_after_a_stop_waits_for_fresh_signal():
     closes = [100, 100, 100, 90, 95, 100, 100, 100]
     p = make_prices(closes)
     dec = ["BUY", "BUY", "BUY", "BUY", "BUY", "HOLD", "BUY", "HOLD"]
     r = sim(p, dec, vol=0.15, atr=2.0, stop_atr_mult=2.0)
-    first = r.trades.iloc[0]
-    assert first["exit_reason"] == "stop"  # stop = 100 - 4 = 96; close 90 breaches it
-    assert first["exit_date"] == p.index[4]  # exits at the next open
-    assert r.daily["shares"].iloc[5] == 0  # still BUY at day 4 close, but stopped out: no re-entry
+    assert r.trades.iloc[0]["exit_reason"] == "stop"
+    assert r.daily["shares"].iloc[5] == 0  # BUY persisted through day 4, but stopped out: no re-entry
     assert r.trades.iloc[1]["entry_date"] == p.index[7]  # HOLD on day 5 resets; BUY on day 6 fills day 7
+
+
+def test_take_profit_time_exit_and_trailing_stop():
+    p = make_prices(closes=[100, 100, 103, 104, 104, 104], opens=[100, 100, 101, 104, 104, 104])
+    p.loc[p.index[2], "High"] = 106.0
+    r = sim(p, ["BUY"] + ["HOLD"] * 5, atr=2.0, rules=S.RiskRules(stop_atr_mult=2.0, take_profit_atr_mult=2.5))
+    assert r.trades.iloc[0]["exit_reason"] == "take_profit" and r.trades.iloc[0]["exit_price"] == 105.0
+    r = sim(p, ["BUY"] + ["HOLD"] * 5, atr=2.0, rules=S.RiskRules(stop_atr_mult=2.0, max_hold_days=2))
+    assert r.trades.iloc[0]["exit_reason"] == "time" and r.trades.iloc[0]["exit_date"] == p.index[4]
+    rising = make_prices(closes=[100, 100, 110, 120, 113], opens=[100, 100, 105, 115, 119])
+    rising.loc[rising.index[4], "Low"] = 112.0
+    r = sim(rising, ["BUY"] + ["HOLD"] * 4, atr=2.0, rules=S.RiskRules(stop_atr_mult=2.0, trail_atr_mult=3.0))
+    assert r.trades.iloc[0]["exit_reason"] == "stop" and r.trades.iloc[0]["exit_price"] == 114.0  # 120 - 3*2
+
+
+def test_entry_blocks_and_stop_guard():
+    p = make_prices([100] * 6)
+    blocked = pd.Series([True, True, False, False, False, False], index=p.index)
+    r = sim(p, ["BUY"] * 6, block_entries=blocked)
+    assert r.trades.iloc[0]["entry_date"] == p.index[3]  # first unblocked decision is day 2
 
 
 def test_sell_signal_exits():

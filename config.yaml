@@ -49,6 +49,7 @@ strategy:                       # ONE definition, used by backtest, live signals
   target_vol: 0.15              # exposure = min(1, target_vol / asset volatility)
   max_position_pct: 0.20        # cap per asset as a share of the whole portfolio
   stop_atr_mult: 2.0            # stop-loss distance below entry, in ATRs; never moved down
+  stop_mode: intrabar           # stop fills when the low touches it (gap -> open), like a live stop order
 
 costs:                          # one-way cost per trade in bps: spread + slippage + fees (assumption)
   default_bps: 10

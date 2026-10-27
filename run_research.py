@@ -155,7 +155,7 @@ def analyse_ticker(t, macro, cfg, gdx_prices=None):
             cost_bps=bps,
             cash_rate=res.rf,
             target_vol=scfg["target_vol"],
-            stop_atr_mult=scfg["stop_atr_mult"],
+            rules=S.rules_from_config(scfg),
         )
         for period in ("full", "holdout"):
             lo, hi = bounds[period]
@@ -183,7 +183,7 @@ def analyse_ticker(t, macro, cfg, gdx_prices=None):
             cost_bps=cost_bps(t, cfg),
             cash_rate=res.rf,
             target_vol=scfg["target_vol"],
-            stop_atr_mult=scfg["stop_atr_mult"],
+            rules=S.rules_from_config(scfg),
         )
         p = performance(slice_sim(sim, dlo, dhi), res.rf)
         grid_rows.append(

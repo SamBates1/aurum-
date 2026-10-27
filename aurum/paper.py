@@ -1,90 +1,167 @@
-"""Local paper-trading portfolio: simulated money, stored in a JSON ledger.
+"""Local paper-trading portfolio: simulated money in a JSON ledger.
 
-Risk rules:
-  * Long-only. BUY opens/tops up, SELL closes, HOLD does nothing.
-  * Position size = max_position_pct scaled down by volatility
-    (target_vol / asset_vol), so a volatile miner gets less money than GLD.
-  * Every position has a stop-loss `stop_atr_mult` ATRs below entry.
+It applies the same rules as the backtest (strategy.py):
+  * Long-only. BUY enters if flat; BUY while already long does nothing
+    (no averaging in, so position size and stop are fixed at entry).
+  * SELL exits. HOLD does nothing.
+  * Size = equity * sleeve weight * min(1, target_vol / volatility).
+  * Stop = entry - stop_atr_mult * ATR. Stops only ever tighten. After a stop,
+    the ticker waits for the signal to leave BUY before it can re-enter.
+  * Costs are charged at the per-ticker rate from config.yaml.
+
+Fills are simulated at the latest price the bot saw. Real fills differ
+(spreads move, orders queue, prices gap), so paper results are an
+approximation of live trading, not a reproduction of it.
+This module never sends orders anywhere.
 """
+
+from __future__ import annotations
+
 import json
+import math
 from datetime import datetime
 from pathlib import Path
 
-from .config import CFG, ROOT
+from . import strategy as S
+from .config import CFG, ROOT, all_tickers, cost_bps
+
+
+def _valid_price(p) -> bool:
+    return isinstance(p, (int, float)) and math.isfinite(p) and p > 0
 
 
 class PaperPortfolio:
     def __init__(self, path: str | Path | None = None, cfg: dict = CFG):
-        self.cfg = cfg["paper"]
-        self.path = Path(path or ROOT / self.cfg["ledger_path"])
-        if self.path.exists():
-            self.state = json.loads(self.path.read_text())
-        else:
-            self.state = {"cash": float(self.cfg["starting_cash"]), "positions": {}, "trades": [], "history": []}
+        self.cfg = cfg
+        self.path = Path(path or ROOT / cfg["paper"]["ledger_path"])
+        self.state = json.loads(self.path.read_text()) if self.path.exists() else self._fresh()
+        self.state.setdefault("stopped_out", {})
+        self.state.setdefault("fees", 0.0)
+        self.state.setdefault("realised_pnl", 0.0)
+        for p in self.state["positions"].values():  # migrate ledgers written by v0.1
+            p.setdefault("entry_price", p.get("avg_price", 0.0))
+            p.setdefault("entry_fee", 0.0)
+            p.setdefault("last_price", p["entry_price"])
+
+    def _fresh(self) -> dict:
+        return {
+            "cash": float(self.cfg["paper"]["starting_cash"]),
+            "positions": {},
+            "trades": [],
+            "history": [],
+            "stopped_out": {},
+            "fees": 0.0,
+            "realised_pnl": 0.0,
+        }
 
     # --- persistence -------------------------------------------------------
     def save(self):
-        self.path.write_text(json.dumps(self.state, indent=2, default=str))
+        tmp = self.path.with_suffix(".tmp")
+        tmp.write_text(json.dumps(self.state, indent=2, default=str))
+        tmp.replace(self.path)  # atomic: a crash mid-write can't corrupt the ledger
 
     def reset(self):
-        self.state = {"cash": float(self.cfg["starting_cash"]), "positions": {}, "trades": [], "history": []}
+        self.state = self._fresh()
         self.save()
 
     # --- valuation ---------------------------------------------------------
-    def equity(self, prices: dict[str, float]) -> float:
-        pos = self.state["positions"]
-        return self.state["cash"] + sum(p["qty"] * prices.get(t, p["avg_price"]) for t, p in pos.items())
+    def mark_prices(self, prices: dict[str, float]):
+        for t, p in self.state["positions"].items():
+            if _valid_price(prices.get(t)):
+                p["last_price"] = float(prices[t])
+
+    def equity(self, prices: dict[str, float] | None = None) -> float:
+        if prices:
+            self.mark_prices(prices)
+        return self.state["cash"] + sum(p["qty"] * p["last_price"] for p in self.state["positions"].values())
+
+    def unrealised_pnl(self) -> float:
+        return sum(
+            p["qty"] * (p["last_price"] - p["entry_price"]) - p["entry_fee"] for p in self.state["positions"].values()
+        )
 
     def mark(self, prices: dict[str, float]):
-        self.state["history"].append({"time": datetime.now().isoformat(timespec="seconds"),
-                                      "equity": round(self.equity(prices), 2)})
+        self.state["history"].append(
+            {"time": datetime.now().isoformat(timespec="seconds"), "equity": round(self.equity(prices), 2)}
+        )
 
     # --- trading -----------------------------------------------------------
-    def _trade(self, ticker, side, qty, price, reason):
-        cost = qty * price
-        if side == "BUY":
-            self.state["cash"] -= cost
-        else:
-            self.state["cash"] += cost
-        self.state["trades"].append({"time": datetime.now().isoformat(timespec="seconds"), "ticker": ticker,
-                                     "side": side, "qty": round(qty, 4), "price": round(price, 4), "reason": reason})
+    def _log(self, ticker, side, qty, price, fee, reason, pnl=None):
+        self.state["trades"].append(
+            {
+                "time": datetime.now().isoformat(timespec="seconds"),
+                "ticker": ticker,
+                "side": side,
+                "qty": round(qty, 6),
+                "price": round(price, 4),
+                "fee": round(fee, 4),
+                "pnl": None if pnl is None else round(pnl, 2),
+                "reason": reason,
+            }
+        )
 
-    def target_weight(self, ann_vol: float) -> float:
-        if not ann_vol or ann_vol <= 0:
-            return self.cfg["max_position_pct"]
-        return min(self.cfg["max_position_pct"], self.cfg["max_position_pct"] * self.cfg["target_vol"] / ann_vol)
+    def _close(self, ticker: str, price: float, reason: str) -> str:
+        pos = self.state["positions"].pop(ticker)
+        proceeds = pos["qty"] * price
+        fee = proceeds * cost_bps(ticker, self.cfg) / 1e4
+        pnl = proceeds - fee - pos["qty"] * pos["entry_price"] - pos["entry_fee"]
+        self.state["cash"] += proceeds - fee
+        self.state["fees"] += fee
+        self.state["realised_pnl"] += pnl
+        self._log(ticker, "SELL", pos["qty"], price, fee, reason, pnl)
+        kind = "STOP" if reason.startswith("stop") else "SELL"
+        return f"{kind} {ticker} {pos['qty']:.4f} @ {price:.2f} (P&L {pnl:+.2f})"
 
-    def apply(self, ticker: str, decision: str, price: float, ann_vol: float, atr_value: float,
-              prices: dict[str, float]) -> str | None:
+    def apply(
+        self,
+        ticker: str,
+        decision: str,
+        price: float,
+        ann_vol: float,
+        atr_value: float,
+        prices: dict[str, float],
+        tradeable: bool = True,
+    ) -> str | None:
         """Act on one signal. Returns a description of any trade made."""
+        scfg = self.cfg["strategy"]
+        if not tradeable:
+            return None
+        if not _valid_price(price):
+            return f"SKIP {ticker}: invalid price {price!r}"
         pos = self.state["positions"].get(ticker)
+        if pos:
+            pos["last_price"] = float(price)
+            if price <= pos["stop"]:
+                self.state["stopped_out"][ticker] = True
+                return self._close(ticker, price, f"stop-loss hit at {pos['stop']:.2f}")
+            if decision == S.SELL:
+                return self._close(ticker, price, "signal SELL")
+            return None  # BUY while long: no averaging in, so size and stop stay as set at entry
 
-        if pos and price <= pos["stop"]:
-            self._trade(ticker, "SELL", pos["qty"], price, f"stop-loss hit at {pos['stop']:.2f}")
-            del self.state["positions"][ticker]
-            return f"STOP {ticker} @ {price:.2f}"
-
-        if decision == "SELL" and pos:
-            self._trade(ticker, "SELL", pos["qty"], price, "signal SELL")
-            del self.state["positions"][ticker]
-            return f"SELL {ticker} {pos['qty']:.4f} @ {price:.2f}"
-
-        if decision == "BUY":
-            equity = self.equity(prices)
-            target_value = equity * self.target_weight(ann_vol)
-            current_value = pos["qty"] * price if pos else 0.0
-            add_value = min(target_value - current_value, self.state["cash"])
-            if add_value < 0.02 * equity:  # ignore tiny top-ups
-                return None
-            qty = add_value / price
-            self._trade(ticker, "BUY", qty, price, "signal BUY")
-            if pos:
-                new_qty = pos["qty"] + qty
-                pos["avg_price"] = (pos["avg_price"] * pos["qty"] + price * qty) / new_qty
-                pos["qty"] = new_qty
-            else:
-                pos = {"qty": qty, "avg_price": price}
-                self.state["positions"][ticker] = pos
-            pos["stop"] = price - self.cfg["stop_atr_mult"] * atr_value
-            return f"BUY {ticker} {qty:.4f} @ {price:.2f}"
-        return None
+        # flat
+        if decision != S.BUY:
+            self.state["stopped_out"].pop(ticker, None)  # signal has reset
+            return None
+        if self.state["stopped_out"].get(ticker):
+            return None  # wait for a fresh signal after a stop
+        equity = self.equity(prices)
+        weight = S.sleeve_weight(len(all_tickers(self.cfg)), scfg["max_position_pct"])
+        exposure = S.target_exposure(ann_vol, scfg["target_vol"])
+        c = cost_bps(ticker, self.cfg) / 1e4
+        notional = min(equity * weight * exposure, self.state["cash"] / (1 + c))
+        if notional <= 0.005 * equity:
+            return None
+        qty, fee = notional / price, notional * c
+        self.state["cash"] -= notional + fee
+        self.state["fees"] += fee
+        stop = S.initial_stop(price, atr_value, scfg["stop_atr_mult"])
+        self.state["positions"][ticker] = {
+            "qty": qty,
+            "entry_price": float(price),
+            "entry_fee": fee,
+            "last_price": float(price),
+            "stop": stop,
+            "opened": datetime.now().isoformat(timespec="seconds"),
+        }
+        self._log(ticker, "BUY", qty, price, fee, "signal BUY")
+        return f"BUY {ticker} {qty:.4f} @ {price:.2f} (stop {stop:.2f})"

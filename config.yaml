@@ -1,54 +1,81 @@
-# Aurum configuration. Edit tickers here to switch sector.
+# Aurum configuration. Every research choice lives here so runs are reproducible.
+# Edit tickers to switch sector. Values marked "assumption" are judgement calls,
+# not facts; the research script reports how sensitive results are to them.
 
 universe:
   core: [GLD, SLV, GDX]        # gold, silver, gold-miner ETFs
-  equities: [NEM, AEM, WPM]    # individual miners (fundamentals apply)
+  equities: [NEM, AEM, WPM]    # individual miners (fundamentals shown live)
+  miner_benchmark: GDX         # benchmark for the individual miners
 
 macro:
   yahoo:                        # daily closes from Yahoo Finance
     dxy: "DX-Y.NYB"             # US dollar index
     us10y: "^TNX"               # 10y Treasury yield
     vix: "^VIX"                 # equity volatility / risk appetite
+    gold: "GC=F"                # gold futures (miners' main driver)
+    spx: "^GSPC"                # equity market (miners are equities too)
+    oil: "CL=F"                 # crude oil, proxy for miners' energy costs
   fred:                         # free FRED series (no API key needed)
-    real_yield_10y: DFII10      # 10y TIPS real yield: gold's key driver
+    real_yield_10y: DFII10      # 10y TIPS real yield: gold's opportunity cost
     breakeven_10y: T10YIE       # 10y inflation expectations
+  fred_lag_days: 2              # business days before a FRED value is assumed known
+  cash_rate:
+    fred: DTB3                  # 3-month T-bill: what uninvested cash earns, and Sharpe's risk-free rate
+    fallback_annual: 0.0        # used only if the series can't be downloaded
+
+data:
+  start: "2010-01-01"
+  cache_hours: 12               # reuse downloaded data younger than this
+  max_stale_days: 4             # refuse to trade if the last bar is older than this (calendar days)
+  min_history_days: 1000        # refuse to model a ticker with less history than this
 
 model:
-  horizon_days: 5               # predict direction of the next 5 trading days
+  horizon_days: 5               # label: is price higher 5 trading days ahead?
   threshold: 0.0                # "up" means forward return > threshold
   min_train_days: 756           # ~3 years before first out-of-sample prediction
   retrain_every_days: 63        # walk-forward retrain frequency (~quarterly)
-  buy_prob: 0.55
-  sell_prob: 0.45
+  random_state: 0
 
-backtest:
-  start: "2010-01-01"
-  cost_bps: 5                   # cost per unit of turnover, in basis points
+strategy:                       # ONE definition, used by backtest, live signals and paper trading
+  weights: {ml: 0.6, technical: 0.4, sentiment: 0.0, fundamentals: 0.0}
+  # Sentiment and fundamentals have no point-in-time history, so they cannot be
+  # backtested. They are shown live for context with weight 0. Giving them
+  # weight means trading something untested; the dashboard flags it if you do.
+  buy_above: 0.20               # score >= this -> BUY (enter long if flat)
+  sell_below: -0.20             # score <= this -> SELL (exit if long); in between -> HOLD
+  ml_auc_floor: 0.50            # ML vote weighted by out-of-sample AUC: 0 at floor...
+  ml_auc_full: 0.56             # ...full weight at this AUC (point-in-time in the backtest)
+  ml_skill_min_obs: 252         # out-of-sample days needed before the ML gets any vote
+  target_vol: 0.15              # exposure = min(1, target_vol / asset volatility)
+  max_position_pct: 0.20        # cap per asset as a share of the whole portfolio
+  stop_atr_mult: 2.0            # stop-loss distance below entry, in ATRs; never moved down
 
-signals:
-  weights: {ml: 0.5, technical: 0.25, sentiment: 0.15, fundamentals: 0.10}
-  buy_above: 0.20
-  sell_below: -0.20
-  # The ML vote is scaled by its proven out-of-sample skill:
-  # AUC <= ml_auc_floor gets zero weight, AUC >= ml_auc_full gets full weight.
-  ml_auc_floor: 0.50
-  ml_auc_full: 0.56
+costs:                          # one-way cost per trade in bps: spread + slippage + fees (assumption)
+  default_bps: 10
+  per_ticker: {GLD: 3, SLV: 5, GDX: 5, NEM: 8, AEM: 10, WPM: 10}
+  sensitivity_bps: [0, 5, 10, 25, 50]
+
+research:
+  holdout_start: "2024-01-01"   # untouched out-of-sample period, reported separately
+  bootstrap_reps: 1000
+  bootstrap_block_days: 21      # mean block length for the stationary bootstrap
+  threshold_grid: [0.1, 0.2, 0.3]
+  seed: 42
+
+signals:                        # live-only context
   news_max_age_days: 7
-  # Extra Yahoo tickers whose headlines also count (ETFs often have little news of their own)
-  news_aliases:
-    GLD: ["GC=F"]       # gold futures
-    SLV: ["SI=F"]       # silver futures
+  news_aliases:                 # extra Yahoo tickers whose headlines also count
+    GLD: ["GC=F"]
+    SLV: ["SI=F"]
     GDX: ["GC=F", "NEM"]
 
 paper:
   starting_cash: 10000
-  max_position_pct: 0.20        # never more than 20% of equity in one name
-  target_vol: 0.15              # scale position size down for volatile assets
-  stop_atr_mult: 2.0            # stop-loss distance in ATRs
   ledger_path: paper_ledger.json
 
 live:
   interval: 5m
   refresh_seconds: 60
+  use_partial_bar: false        # false = signals use completed daily bars only, exactly as backtested
 
-offline: false                  # true = synthetic data, no internet needed
+offline: false                  # true = clearly-labelled synthetic data, no internet needed

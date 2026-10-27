@@ -1,73 +1,84 @@
-"""Run with:  AURUM_OFFLINE=1 pytest -q"""
-import os
+"""End-to-end checks on synthetic data, including live/backtest consistency."""
 
-os.environ["AURUM_OFFLINE"] = "1"
+from unittest import mock
 
 import numpy as np
 import pandas as pd
+import pytest
 
-from aurum import data
-from aurum.backtest import run_backtest
-from aurum.config import load_config
-from aurum.features import build_dataset, technical_features
-from aurum.paper import PaperPortfolio
-from aurum.pipeline import analyse
-
-CFG = load_config()
-CFG["offline"] = True
+from aurum import benchmarks, data, pipeline
+from aurum import strategy as S
+from aurum.features import atr
 
 
-def test_no_lookahead_in_features():
-    """Features computed on truncated history must equal those on full history.
-    If any feature peeked at the future, cutting the future off would change it."""
-    prices = data.daily_prices("GLD", cfg=CFG)
-    full = technical_features(prices)
-    cut = 2000
-    partial = technical_features(prices.iloc[:cut])
-    pd.testing.assert_frame_equal(full.iloc[:cut], partial)
+@pytest.fixture(scope="module")
+def res():
+    from aurum.config import load_config
+
+    c = load_config()
+    c["offline"] = True
+    return pipeline.research("GLD", cfg=c), c
 
 
-def test_backtest_trades_next_day():
-    """A perfect-foresight signal applied *without* the one-day shift would be
-    impossible; with the shift, a signal about today's return earns nothing extra."""
-    prices = data.daily_prices("GLD", cfg=CFG)
-    today_up = (prices["Close"].pct_change() > 0).astype(float)  # knows today's return
-    res, _ = run_backtest(prices, today_up, 0.55, 0.45, cost_bps=0)
-    # executed tomorrow, knowledge of today's move is worth ~nothing
-    assert abs(res["strategy"].mean() * 252) < 0.10
+def test_research_produces_out_of_sample_backtest(res):
+    r, _ = res
+    assert r.wf.probs.loc[: r.eval_start].iloc[:-1].isna().all()  # nothing before the first fold
+    assert r.perf["days"] > 1000 and np.isfinite(r.perf["sharpe"])
+    assert len(r.wf.folds) > 10
 
 
-def test_backtest_perfect_foresight_wins():
-    prices = data.daily_prices("GLD", cfg=CFG)
-    tomorrow_up = (prices["Close"].pct_change().shift(-1) > 0).astype(float)
-    res, summary = run_backtest(prices, tomorrow_up, 0.55, 0.45, cost_bps=5)
-    assert summary.loc["Sharpe", "Strategy"] > 3
+def test_live_decision_uses_exactly_the_backtest_rule(res):
+    """With the same model probability, the live score must equal the backtested score."""
+    r, cfg = res
+    day = r.prices.index[-3]
+    prices = r.prices.loc[:day]
+    prob = float(r.wf.probs.loc[day])
+    after_close = pd.Timestamp(day).tz_localize("America/New_York") + pd.Timedelta(hours=17)
+    with mock.patch("aurum.model.predict_row", return_value=prob):
+        d = pipeline.decide("GLD", r, cfg, prices=prices, now=after_close, context=False)
+    assert d.as_of == str(day.date())
+    assert d.score == pytest.approx(r.score.loc[day])
+    assert d.decision == S.decision_for(r.score.loc[day], cfg["strategy"]["buy_above"], cfg["strategy"]["sell_below"])
 
 
-def test_labels_are_future_only():
-    prices = data.daily_prices("GLD", cfg=CFG)
-    X, y, fwd = build_dataset(prices, None, horizon=5)
-    assert y.iloc[-5:].isna().all() and y.iloc[:-5].notna().all()
+def test_decide_rebuilds_features_from_fresh_prices(res):
+    """Regression: run_bot.py used to refresh prices but keep the morning's features."""
+    r, cfg = res
+    old = r.prices.iloc[:-10]
+    after = pd.Timestamp(old.index[-1]).tz_localize("America/New_York") + pd.Timedelta(hours=17)
+    d_old = pipeline.decide("GLD", r, cfg, prices=old, now=after, context=False)
+    assert d_old.as_of == str(old.index[-1].date())
+    assert d_old.features.index[-1] == old.index[-1]
 
 
-def test_end_to_end_and_paper(tmp_path):
-    a = analyse("NEM", cfg=CFG)
-    assert a.signal["decision"] in {"BUY", "SELL", "HOLD"}
-    assert 0 <= a.prob_up <= 1
-    assert set(a.signal["components"]) >= {"ml", "technical"}
-    book = PaperPortfolio(tmp_path / "ledger.json", cfg=CFG)
-    px = {"NEM": a.last_price}
-    book.apply("NEM", "BUY", a.last_price, a.ann_vol, a.atr, px)
-    assert abs(book.equity(px) - 10000) < 1e-6  # buying at market price doesn't change equity
-    assert book.state["positions"]["NEM"]["qty"] * a.last_price <= 0.2 * 10000 + 1e-6
-    book.apply("NEM", "SELL", a.last_price * 1.1, a.ann_vol, a.atr, px)
-    assert "NEM" not in book.state["positions"] and book.state["cash"] > 10000
+def test_stale_data_is_not_tradeable(res):
+    r, cfg = res
+    later = pd.Timestamp(r.prices.index[-1]).tz_localize("America/New_York") + pd.Timedelta(days=10)
+    d = pipeline.decide("GLD", r, cfg, now=later, context=False)
+    assert not d.tradeable and d.decision == S.HOLD
 
 
-def test_ml_vote_scaled_by_skill():
-    from aurum.signals import combine, ml_skill
-    assert ml_skill(0.50) == 0 and ml_skill(0.56) == 1 and 0.4 < ml_skill(0.53) < 0.6
-    comps = {"ml": (1.0, []), "technical": (-0.5, [])}
-    w = {"ml": 0.5 * ml_skill(0.50), "technical": 0.25, "sentiment": 0.15, "fundamentals": 0.1}
-    # a coin-flip model at full confidence must not override the other signals
-    assert combine(comps, w, 0.2, -0.2)["decision"] == "SELL"
+def test_missing_model_prediction_falls_back_to_technical(res):
+    r, cfg = res
+    with mock.patch("aurum.model.predict_row", return_value=float("nan")):
+        d = pipeline.decide("GLD", r, cfg, context=False)
+    assert d.components["ml"]["weight"] == 0
+    assert d.score == pytest.approx(d.components["technical"]["score"])
+
+
+def test_benchmarks_share_dates_and_costs(res):
+    r, cfg = res
+    sims = benchmarks.run_all(
+        r.prices, r.X, r.score, r.wf.probs, None, atr(r.prices), r.rf, cfg["strategy"], 5.0, r.eval_start
+    )
+    idx = sims["strategy"].daily.index
+    for name, s in sims.items():
+        assert s.daily.index.equals(idx), name
+    assert sims["buy_hold"].daily["invested"].iloc[1:].all()
+    assert not sims["cash"].daily["invested"].any()
+
+
+def test_research_refuses_short_history(cfg):
+    cfg["data"]["min_history_days"] = 10**6
+    with pytest.raises(data.DataError):
+        pipeline.research("GLD", cfg=cfg)

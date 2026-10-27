@@ -4,6 +4,7 @@ Prices follow a regime-switching random walk with a weak, *genuine* link to a
 synthetic real-yield series, so the ML model has something real (but small)
 to find. Nothing here resembles actual market history.
 """
+
 import zlib
 from datetime import datetime, timedelta
 
@@ -46,7 +47,7 @@ def daily_prices(ticker: str, start: str | None = None) -> pd.DataFrame:
     low = np.minimum(open_, close) * (1 - spread)
     vol = rng.lognormal(15, 0.3, n)
     df = pd.DataFrame({"Open": open_, "High": high, "Low": low, "Close": close, "Volume": vol}, index=dates)
-    return df.loc[pd.Timestamp(start or "2010-01-01"):]
+    return df.loc[pd.Timestamp(start or "2010-01-01") :]
 
 
 def intraday_prices(ticker: str, interval: str = "5m") -> pd.DataFrame:
@@ -54,8 +55,16 @@ def intraday_prices(ticker: str, interval: str = "5m") -> pd.DataFrame:
     rng = _rng(ticker + datetime.now().strftime("%Y%m%d%H"))
     idx = pd.date_range(end=datetime.now().replace(second=0, microsecond=0), periods=78, freq="5min")
     close = last * np.exp(np.cumsum(rng.normal(0, 0.001, len(idx))))
-    df = pd.DataFrame({"Open": close, "High": close * 1.001, "Low": close * 0.999, "Close": close,
-                       "Volume": rng.lognormal(12, 0.3, len(idx))}, index=idx)
+    df = pd.DataFrame(
+        {
+            "Open": close,
+            "High": close * 1.001,
+            "Low": close * 0.999,
+            "Close": close,
+            "Volume": rng.lognormal(12, 0.3, len(idx)),
+        },
+        index=idx,
+    )
     return df
 
 
@@ -65,6 +74,13 @@ def macro(names: list[str]) -> pd.DataFrame:
     for name in names:
         if name == "real_yield_10y":
             out[name] = _real_yield(dates)
+        elif name in ("gold", "spx", "oil"):  # price-like: geometric random walk
+            rng = _rng(name)
+            start_px = {"gold": 1200.0, "spx": 1100.0, "oil": 80.0}[name]
+            out[name] = start_px * np.exp(np.cumsum(rng.normal(0.0002, 0.012, len(dates))))
+        elif name == "tbill_3m":  # percent, kept between 0 and 5.5
+            rng = _rng(name)
+            out[name] = np.clip(2.0 + np.cumsum(rng.normal(0, 0.03, len(dates))), 0.0, 5.5)
         else:
             rng = _rng(name)
             base = {"dxy": 95, "us10y": 2.5, "vix": 18, "breakeven_10y": 2.2}.get(name, 1.0)
@@ -102,6 +118,12 @@ def news(ticker: str) -> list[dict]:
     rng = _rng("news" + ticker + datetime.now().strftime("%Y%m%d"))
     picks = rng.choice(len(_HEADLINES), size=4, replace=False)
     now = datetime.now()
-    return [{"title": _HEADLINES[i].format(t=ticker), "publisher": "Synthetic Wire",
-             "link": "", "published": now - timedelta(hours=int(h))}
-            for i, h in zip(picks, rng.integers(1, 48, size=4))]
+    return [
+        {
+            "title": _HEADLINES[i].format(t=ticker),
+            "publisher": "Synthetic Wire",
+            "link": "",
+            "published": now - timedelta(hours=int(h)),
+        }
+        for i, h in zip(picks, rng.integers(1, 48, size=4))
+    ]

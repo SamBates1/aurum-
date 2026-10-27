@@ -1,3 +1,9 @@
+"""Configuration loading. All research choices live in config.yaml."""
+
+from __future__ import annotations
+
+import hashlib
+import json
 import os
 from pathlib import Path
 
@@ -24,3 +30,14 @@ def all_tickers(cfg: dict = CFG) -> list[str]:
 
 def is_equity(ticker: str, cfg: dict = CFG) -> bool:
     return ticker in cfg["universe"]["equities"]
+
+
+def cost_bps(ticker: str, cfg: dict = CFG) -> float:
+    """One-way trading cost assumption for a ticker, in basis points."""
+    c = cfg["costs"]
+    return float(c.get("per_ticker", {}).get(ticker, c["default_bps"]))
+
+
+def config_hash(cfg: dict = CFG) -> str:
+    """Short fingerprint of the configuration, recorded with every research run."""
+    return hashlib.sha256(json.dumps(cfg, sort_keys=True, default=str).encode()).hexdigest()[:12]

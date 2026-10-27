@@ -60,9 +60,12 @@ aurum/
   pipeline.py    research() (daily, slow) and decide() (every refresh, fast)
 app.py           Streamlit dashboard
 run_research.py  full study → results/<timestamp>/ and reports/latest/
+run_experiments.py  pre-registered experiments vs the baseline → research/experiments/results/
+aurum/experiments.py  experiment variants (EXP-001…007)
+research/        knowledge base: framework source-code notes, evidence reviews, decisions, experiments
 run_backtest.py  quick per-ticker backtest
 run_bot.py       headless signal loop, optional paper trading
-tests/           52 tests: look-ahead, accounting, metrics, risk controls, data handling
+tests/           72 tests: look-ahead, accounting, metrics, risk controls, data handling, research tools
 ```
 
 ## Setup
@@ -82,6 +85,7 @@ No API keys are needed: Yahoo Finance and FRED are used without credentials. `.e
 |---|---|
 | `python run_research.py` | Full study: strategy vs benchmarks, development vs holdout, model diagnostics, cost and threshold sensitivity, bootstrap intervals, regimes, charts and report (a few minutes) |
 | `python -m streamlit run app.py` | Dashboard: live signals with reasons, backtest vs benchmarks, paper portfolio, macro charts |
+| `python run_experiments.py` | Runs every pre-registered experiment (trend, regimes, models, risk overlays, mean reversion, triple-barrier) against the baseline with DSR, PBO and automatic verdicts (20–40 minutes) |
 | `python run_backtest.py [TICKERS]` | Quick strategy backtest per ticker |
 | `python run_bot.py --paper` | Headless loop: refresh, decide, paper-trade every 60 s |
 | `AURUM_OFFLINE=1 <any command>` | Same, on clearly labelled synthetic data (no internet) |
@@ -117,7 +121,8 @@ For each ticker, every day at the close:
 
 * Long-only; each asset is a sleeve of at most `min(20%, 1/N)` of the portfolio.
 * Exposure = `min(1, 15% / realised volatility)`, fixed at entry. No averaging in.
-* Stop-loss 2 ATRs below entry, never loosened. After a stop, re-entry needs a fresh signal.
+* Stop-loss 2 ATRs below entry, never loosened, filled intrabar (at the stop, or at the open after a gap), as
+  a live stop order would be. After a stop, re-entry needs a fresh signal.
 * No trading on stale data (last bar older than 4 days) or invalid scores.
 
 ## Evaluation methodology
@@ -141,7 +146,7 @@ For each ticker, every day at the close:
 
 ## Tests
 
-`pytest` runs 52 tests offline in under a minute. Highlights:
+`pytest` runs 72 tests offline in about 30 seconds. Highlights:
 
 * **Look-ahead:** features are identical with the future removed; walk-forward predictions don't change when later
   data is added; the purge gap holds; FRED dates shift to publication; partial bars are dropped; model skill only
@@ -149,6 +154,21 @@ For each ticker, every day at the close:
 * **Accounting:** fills at the next open, exact cost deduction, cash interest, volatility sizing, stop behaviour.
 * **Metrics:** Sortino, Sharpe, drawdown, Calmar against hand calculations; zero-volatility and short-sample cases.
 * **Regression tests** for every bug fixed in v0.2 (below).
+
+## Research knowledge base (v0.3)
+
+[`research/`](research/README.md) records everything investigated: source-code notes on Freqtrade, LEAN,
+Backtrader, VectorBT and Zipline-reloaded at pinned commits; evidence reviews on gold, regimes, ML vs simple
+rules, sizing and risk; a 30-row [strategy-transfer matrix](research/transfer-matrix.md); a
+[decision log](research/decisions.md); and [pre-registered experiments](research/experiments/README.md) with
+acceptance rules written before any results. Changes adopted from the review:
+
+| Finding | Change |
+|---|---|
+| All four engines that model stops fill them intrabar, with a gap rule; Aurum checked the close (and disagreed with its own paper trader) | Intrabar stop fills (D-012) |
+| Freqtrade's look-ahead and recursive analyses | Strategy-level truncation test and warm-up test |
+| Best-of-many selection inflates Sharpe | Deflated Sharpe, PSR and PBO in `aurum/stats.py`, reported for every experiment |
+| Ideas worth testing (trend, regime gates, model families, risk overlays, triple-barrier exits) | 26 variants in `aurum/experiments.py`, run by `run_experiments.py` |
 
 ## Changes in v0.2 (audit fixes)
 

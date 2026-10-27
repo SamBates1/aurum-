@@ -103,3 +103,36 @@ def build_dataset(prices: pd.DataFrame, macro: pd.DataFrame | None, horizon: int
     fwd = prices["Close"].shift(-horizon) / prices["Close"] - 1
     y = (fwd > threshold).astype(float).where(fwd.notna())
     return X, y, fwd, groups
+
+
+def triple_barrier_labels(
+    prices: pd.DataFrame, atr_series: pd.Series, pt_mult: float = 2.0, sl_mult: float = 2.0, horizon: int = 20
+) -> pd.Series:
+    """Triple-barrier labels (Lopez de Prado, *Advances in Financial Machine Learning*, ch. 3).
+
+    For a decision at the close of day t: upper barrier = Close[t] + pt_mult*ATR[t],
+    lower = Close[t] - sl_mult*ATR[t], vertical = t + horizon trading days. Label 1 if the
+    upper barrier is touched first (by a later High), 0 if the lower is touched first or
+    the vertical barrier ends with a loss. If both are touched on the same day the lower
+    one is assumed first (pessimistic). The last `horizon` labels are NaN: unknown yet.
+    Labels mirror the trade the strategy would actually hold, which is what the trade-plan
+    idea (entry, stop, target, maximum holding period) needs.
+    """
+    c, h, lo = prices["Close"].to_numpy(float), prices["High"].to_numpy(float), prices["Low"].to_numpy(float)
+    a = atr_series.reindex(prices.index).to_numpy(float)
+    n = len(c)
+    out = np.full(n, np.nan)
+    for t in range(n - horizon):
+        if not np.isfinite(a[t]) or a[t] <= 0:
+            continue
+        up, dn = c[t] + pt_mult * a[t], c[t] - sl_mult * a[t]
+        label = float(c[t + horizon] > c[t])
+        for k in range(t + 1, t + horizon + 1):
+            if lo[k] <= dn:
+                label = 0.0
+                break
+            if h[k] >= up:
+                label = 1.0
+                break
+        out[t] = label
+    return pd.Series(out, index=prices.index, name="tb_label")

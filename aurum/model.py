@@ -20,7 +20,9 @@ from dataclasses import dataclass
 
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import HistGradientBoostingClassifier
+from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.ensemble import HistGradientBoostingClassifier, RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
     accuracy_score,
     brier_score_loss,
@@ -30,6 +32,8 @@ from sklearn.metrics import (
     recall_score,
     roc_auc_score,
 )
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 
 MODEL_PARAMS = dict(max_depth=3, learning_rate=0.05, max_iter=150, l2_regularization=1.0, min_samples_leaf=50)
 
@@ -37,6 +41,82 @@ MODEL_PARAMS = dict(max_depth=3, learning_rate=0.05, max_iter=150, l2_regulariza
 def make_model(random_state: int = 0) -> HistGradientBoostingClassifier:
     # Shallow trees + strong regularisation: daily returns are mostly noise.
     return HistGradientBoostingClassifier(**MODEL_PARAMS, random_state=random_state)
+
+
+# ---------------------------------------------------------------------------
+# model zoo for EXP-004 (ML vs simpler models). All parameters fixed a priori.
+# ---------------------------------------------------------------------------
+class _Named(BaseEstimator, ClassifierMixin):
+    def _remember(self, X):
+        self.feature_names_in_ = np.asarray(X.columns)
+        self.classes_ = np.array([0, 1])
+
+
+class ChronoCalibrated(_Named):
+    """Fit the base model on the first `1 - calib_frac` of the (time-ordered) training
+    window, skip `gap` rows (label overlap), then fit Platt scaling on the rest.
+    Never uses later data to calibrate earlier predictions."""
+
+    def __init__(self, base_factory=None, calib_frac: float = 0.2, gap: int = 5, random_state: int = 0):
+        self.base_factory, self.calib_frac, self.gap, self.random_state = base_factory, calib_frac, gap, random_state
+
+    def fit(self, X, y):
+        self._remember(X)
+        n = len(X)
+        cut = int(n * (1 - self.calib_frac))
+        self.base_ = (self.base_factory or make_model)(self.random_state).fit(
+            X.iloc[: cut - self.gap], y.iloc[: cut - self.gap]
+        )
+        p = np.clip(self.base_.predict_proba(X.iloc[cut:])[:, 1], 1e-4, 1 - 1e-4)
+        self.platt_ = LogisticRegression().fit(np.log(p / (1 - p)).reshape(-1, 1), y.iloc[cut:])
+        return self
+
+    def predict_proba(self, X):
+        p = np.clip(self.base_.predict_proba(X)[:, 1], 1e-4, 1 - 1e-4)
+        return self.platt_.predict_proba(np.log(p / (1 - p)).reshape(-1, 1))
+
+
+class AverageEnsemble(_Named):
+    """Equal-weight average of member probabilities (no stacking, so nothing to overfit)."""
+
+    def __init__(self, factories=(), random_state: int = 0):
+        self.factories, self.random_state = factories, random_state
+
+    def fit(self, X, y):
+        self._remember(X)
+        self.members_ = [f(self.random_state).fit(X, y) for f in self.factories]
+        return self
+
+    def predict_proba(self, X):
+        return np.mean([m.predict_proba(X) for m in self.members_], axis=0)
+
+
+def make_logit(random_state: int = 0):
+    # scaler is fitted inside each training window only, because it lives in the pipeline
+    return make_pipeline(StandardScaler(), LogisticRegression(C=0.1, max_iter=1000))
+
+
+def make_forest(random_state: int = 0):
+    return RandomForestClassifier(
+        n_estimators=200, max_depth=4, min_samples_leaf=50, max_features="sqrt", n_jobs=-1, random_state=random_state
+    )
+
+
+def make_calibrated(random_state: int = 0):
+    return ChronoCalibrated(make_model, random_state=random_state)
+
+
+def make_ensemble(random_state: int = 0):
+    return AverageEnsemble((make_logit, make_model, make_forest), random_state=random_state)
+
+
+MODEL_FACTORIES = {
+    "hgb": make_model,
+    "logit": make_logit,
+    "forest": make_forest,
+    "hgb_calibrated": make_calibrated,
+    "ensemble": make_ensemble,
+}
 
 
 def usable(X: pd.DataFrame, y: pd.Series | None = None):
@@ -55,7 +135,13 @@ class WalkForward:
 
 
 def walk_forward(
-    X: pd.DataFrame, y: pd.Series, horizon: int, min_train: int = 756, step: int = 63, random_state: int = 0
+    X: pd.DataFrame,
+    y: pd.Series,
+    horizon: int,
+    min_train: int = 756,
+    step: int = 63,
+    random_state: int = 0,
+    factory=None,
 ) -> WalkForward:
     Xv, yv = usable(X, y)
     Xall = usable(X)  # includes the latest rows whose labels aren't known yet
@@ -69,7 +155,7 @@ def walk_forward(
         ytr = yv.iloc[:train_end]
         if ytr.nunique() < 2:
             continue
-        model = make_model(random_state).fit(Xv.iloc[:train_end], ytr)
+        model = (factory or make_model)(random_state).fit(Xv.iloc[:train_end], ytr)
         nxt = Xv.index[start + step] if start + step < len(Xv) else None
         block = Xall.loc[test_start:] if nxt is None else Xall.loc[test_start:nxt].iloc[:-1]
         probs.loc[block.index] = model.predict_proba(block)[:, 1]
@@ -89,12 +175,12 @@ def walk_forward(
     return WalkForward(probs, pd.DataFrame(folds))
 
 
-def fit_final(X: pd.DataFrame, y: pd.Series, random_state: int = 0) -> HistGradientBoostingClassifier:
+def fit_final(X: pd.DataFrame, y: pd.Series, random_state: int = 0, factory=None):
     """Fit on all labelled history (every label is realised) for live predictions."""
     Xv, yv = usable(X, y)
     if yv.nunique() < 2:
         raise ValueError("cannot fit: labels have a single class")
-    return make_model(random_state).fit(Xv, yv)
+    return (factory or make_model)(random_state).fit(Xv, yv)
 
 
 def predict_row(model, X: pd.DataFrame) -> float:

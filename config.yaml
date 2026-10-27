@@ -29,6 +29,16 @@ signals:
   weights: {ml: 0.5, technical: 0.25, sentiment: 0.15, fundamentals: 0.10}
   buy_above: 0.20
   sell_below: -0.20
+  # The ML vote is scaled by its proven out-of-sample skill:
+  # AUC <= ml_auc_floor gets zero weight, AUC >= ml_auc_full gets full weight.
+  ml_auc_floor: 0.50
+  ml_auc_full: 0.56
+  news_max_age_days: 7
+  # Extra Yahoo tickers whose headlines also count (ETFs often have little news of their own)
+  news_aliases:
+    GLD: ["GC=F"]       # gold futures
+    SLV: ["SI=F"]       # silver futures
+    GDX: ["GC=F", "NEM"]
 
 paper:
   starting_cash: 10000

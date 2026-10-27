@@ -62,3 +62,12 @@ def test_end_to_end_and_paper(tmp_path):
     assert book.state["positions"]["NEM"]["qty"] * a.last_price <= 0.2 * 10000 + 1e-6
     book.apply("NEM", "SELL", a.last_price * 1.1, a.ann_vol, a.atr, px)
     assert "NEM" not in book.state["positions"] and book.state["cash"] > 10000
+
+
+def test_ml_vote_scaled_by_skill():
+    from aurum.signals import combine, ml_skill
+    assert ml_skill(0.50) == 0 and ml_skill(0.56) == 1 and 0.4 < ml_skill(0.53) < 0.6
+    comps = {"ml": (1.0, []), "technical": (-0.5, [])}
+    w = {"ml": 0.5 * ml_skill(0.50), "technical": 0.25, "sentiment": 0.15, "fundamentals": 0.1}
+    # a coin-flip model at full confidence must not override the other signals
+    assert combine(comps, w, 0.2, -0.2)["decision"] == "SELL"

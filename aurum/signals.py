@@ -10,9 +10,19 @@ def _clip(x: float) -> float:
     return float(max(-1.0, min(1.0, x)))
 
 
-def ml_score(prob_up: float) -> tuple[float, list[str]]:
+def ml_skill(auc: float, floor: float = 0.50, full: float = 0.56) -> float:
+    """0 = no proven skill (coin flip), 1 = enough out-of-sample skill to trust fully."""
+    if full <= floor:
+        return 1.0
+    return float(max(0.0, min(1.0, (auc - floor) / (full - floor))))
+
+
+def ml_score(prob_up: float, auc: float | None = None, skill: float = 1.0) -> tuple[float, list[str]]:
     s = _clip((prob_up - 0.5) * 4)  # 0.625 -> +0.5, 0.75 -> +1
-    return s, [f"Model gives a {prob_up:.0%} chance of a rise over the forecast horizon"]
+    reasons = [f"Model gives a {prob_up:.0%} chance of a rise over the forecast horizon"]
+    if auc is not None:
+        reasons.append(f"Out-of-sample AUC {auc:.3f}, so the vote counts at {skill:.0%} strength")
+    return s, reasons
 
 
 def technical_score(row) -> tuple[float, list[str]]:

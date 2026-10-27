@@ -106,13 +106,26 @@ def fundamentals(ticker: str, cfg: dict = CFG) -> dict:
 
 
 def news(ticker: str, cfg: dict = CFG) -> list[dict]:
-    """Recent headlines as dicts: title, publisher, link, published (datetime)."""
+    """Recent headlines for the ticker plus any aliases in config, de-duplicated."""
     if _offline(cfg):
         return synthetic.news(ticker)
+    aliases = cfg["signals"].get("news_aliases", {}).get(ticker, [])
+    out, seen = [], set()
+    for t in [ticker, *aliases]:
+        for item in _yahoo_news(t):
+            if item["title"] not in seen:
+                seen.add(item["title"])
+                out.append(item)
+    return out
+
+
+def _yahoo_news(ticker: str) -> list[dict]:
+    """Headlines as dicts: title, publisher, link, published (datetime)."""
     import yfinance as yf
     try:
         items = yf.Ticker(ticker).news or []
-    except Exception:
+    except Exception as exc:
+        print(f"[aurum] news for {ticker} unavailable: {exc}")
         return []
     out = []
     for item in items:

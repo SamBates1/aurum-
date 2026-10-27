@@ -45,22 +45,31 @@ def decide(ticker: str, res: dict, cfg: dict = CFG, live_price: float | None = N
     """The fast part: refresh news and fundamentals, then combine into a decision."""
     prices, X = res["prices"], res["X"]
     row = X.iloc[-1]
+    scfg = cfg["signals"]
     news = data.news(ticker, cfg=cfg)
-    sent = sentiment.headline_sentiment(news)
+    sent = sentiment.headline_sentiment(news, scfg.get("news_max_age_days", 7))
     fund = data.fundamentals(ticker, cfg=cfg) if is_equity(ticker, cfg) else {}
 
+    # Trust the model only as far as it has proven itself out of sample.
+    oos = res["oos"]
+    auc = oos.get("auc", 0.5) if oos else 0.5
+    skill = signals.ml_skill(auc, scfg.get("ml_auc_floor", 0.50), scfg.get("ml_auc_full", 0.56))
+    weights = dict(scfg["weights"])
+    weights["ml"] = weights["ml"] * skill
+
     comps = {
-        "ml": signals.ml_score(res["prob_now"]),
+        "ml": signals.ml_score(res["prob_now"], auc, skill),
         "technical": signals.technical_score(row),
         "sentiment": signals.sentiment_score(sent),
         "fundamentals": signals.fundamental_score(fund),
     }
-    sig = signals.combine(comps, cfg["signals"]["weights"], cfg["signals"]["buy_above"], cfg["signals"]["sell_below"])
+    sig = signals.combine(comps, weights, scfg["buy_above"], scfg["sell_below"])
     notes = []
-    oos = res["oos"]
-    if oos and oos["auc"] < 0.52:
-        notes.append(f"Out-of-sample AUC is {oos['auc']:.2f}: the model is close to a coin flip for {ticker}, "
-                     "so treat its vote with caution.")
+    if skill < 0.3:
+        notes.append(f"Out-of-sample AUC is {auc:.2f}: the model is close to a coin flip for {ticker}, "
+                     f"so its vote is down-weighted to {skill:.0%} of normal.")
+    if sent["n"] == 0:
+        notes.append("No recent headlines found, so news sentiment isn't part of this decision.")
     return Analysis(
         ticker=ticker, prices=prices, features=X, prob_up=res["prob_now"], oos_probs=res["probs"],
         oos_metrics=oos, backtest=res["bt"], backtest_summary=res["summary"], sentiment=sent,

@@ -1,0 +1,18 @@
+[project]
+name = "aurum"
+version = "0.2.0"
+description = "Gold and mining-equity research system: walk-forward ML, macro data, backtesting and paper trading"
+requires-python = ">=3.10"
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+extend-exclude = ["results", "reports", "data"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["B905"]  # zip() without strict= is fine for our fixed-length pairs
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

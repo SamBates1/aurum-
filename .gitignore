@@ -2,7 +2,14 @@ __pycache__/
 *.pyc
 .venv/
 venv/
-paper_ledger.json
-results/
+.env
 .pytest_cache/
+.ruff_cache/
 .DS_Store
+
+# runtime state and generated data (never commit)
+paper_ledger.json
+paper_ledger.tmp
+data/
+results/
+reports/latest-synthetic/

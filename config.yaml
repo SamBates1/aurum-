@@ -1,0 +1,44 @@
+# Aurum configuration. Edit tickers here to switch sector.
+
+universe:
+  core: [GLD, SLV, GDX]        # gold, silver, gold-miner ETFs
+  equities: [NEM, AEM, WPM]    # individual miners (fundamentals apply)
+
+macro:
+  yahoo:                        # daily closes from Yahoo Finance
+    dxy: "DX-Y.NYB"             # US dollar index
+    us10y: "^TNX"               # 10y Treasury yield
+    vix: "^VIX"                 # equity volatility / risk appetite
+  fred:                         # free FRED series (no API key needed)
+    real_yield_10y: DFII10      # 10y TIPS real yield: gold's key driver
+    breakeven_10y: T10YIE       # 10y inflation expectations
+
+model:
+  horizon_days: 5               # predict direction of the next 5 trading days
+  threshold: 0.0                # "up" means forward return > threshold
+  min_train_days: 756           # ~3 years before first out-of-sample prediction
+  retrain_every_days: 63        # walk-forward retrain frequency (~quarterly)
+  buy_prob: 0.55
+  sell_prob: 0.45
+
+backtest:
+  start: "2010-01-01"
+  cost_bps: 5                   # cost per unit of turnover, in basis points
+
+signals:
+  weights: {ml: 0.5, technical: 0.25, sentiment: 0.15, fundamentals: 0.10}
+  buy_above: 0.20
+  sell_below: -0.20
+
+paper:
+  starting_cash: 10000
+  max_position_pct: 0.20        # never more than 20% of equity in one name
+  target_vol: 0.15              # scale position size down for volatile assets
+  stop_atr_mult: 2.0            # stop-loss distance in ATRs
+  ledger_path: paper_ledger.json
+
+live:
+  interval: 5m
+  refresh_seconds: 60
+
+offline: false                  # true = synthetic data, no internet needed

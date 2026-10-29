@@ -61,7 +61,7 @@ def main():
             for n in d.notes:
                 print(f"      note: {n}")
             if book:
-                trade = book.apply(t, d.decision, d.last_price, d.ann_vol, d.atr, prices, d.tradeable)
+                trade = book.act(d, prices)
                 if trade:
                     print(f"      paper trade: {trade}")
         if book:

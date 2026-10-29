@@ -37,6 +37,8 @@ model:
   random_state: 0
 
 strategy:                       # ONE definition, used by backtest, live signals and paper trading
+  mode: timing                  # timing = BUY/SELL signals (v0.2); vol_hold = always invested, sized by volatility (EXP-014)
+  rebalance_band: 0.05          # vol_hold: resize only when the weight is off target by more than this
   weights: {ml: 0.6, technical: 0.4, sentiment: 0.0, fundamentals: 0.0}
   # Sentiment and fundamentals have no point-in-time history, so they cannot be
   # backtested. They are shown live for context with weight 0. Giving them

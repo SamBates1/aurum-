@@ -71,3 +71,26 @@ def test_ledger_round_trip_and_v01_migration(tmp_path, cfg):
     assert book.equity({"GLD": 110.0}) == pytest.approx(9000 + 1100)
     book.save()
     assert PaperPortfolio(path, cfg=cfg).state["positions"]["GLD"]["entry_price"] == 100.0
+
+
+def test_vol_hold_rebalance_moves_to_target_with_band(book, cfg):
+    sleeve = cfg["paper"]["starting_cash"] * min(cfg["strategy"]["max_position_pct"], 1 / 6)
+    assert book.rebalance("GLD", 0.6, 100.0, PX).startswith("BUY")
+    held = book.state["positions"]["GLD"]["qty"] * 100.0
+    assert held == pytest.approx(0.6 * sleeve, rel=0.01)
+    assert book.rebalance("GLD", 0.62, 100.0, PX) is None  # inside the 5-point band
+    assert book.rebalance("GLD", 0.3, 100.0, PX).startswith("SELL")
+    assert book.state["positions"]["GLD"]["qty"] * 100.0 == pytest.approx(0.3 * sleeve, rel=0.02)
+    assert book.rebalance("GLD", 0.0, 100.0, PX).startswith("SELL") and "GLD" not in book.state["positions"]
+    assert book.state["cash"] == pytest.approx(cfg["paper"]["starting_cash"] - book.state["fees"], rel=1e-9)
+
+
+def test_vol_hold_mode_decision_and_research(cfg):
+    from aurum import pipeline
+
+    cfg["strategy"]["mode"] = "vol_hold"
+    cfg["model"]["retrain_every_days"] = 252
+    r = pipeline.research("GLD", cfg=cfg)
+    assert r.sim.daily["invested"].mean() > 0.9  # always invested
+    d = pipeline.decide("GLD", r, cfg, context=False)
+    assert 0 < d.target_weight <= 1 and d.notes[0].startswith("Always-invested mode")

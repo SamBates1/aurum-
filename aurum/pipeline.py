@@ -64,16 +64,26 @@ def research(
     eval_start = wf.probs.first_valid_index()
     rf = data.cash_rate(prices.index, cfg)
     atr = atr_fn(prices)
-    sim = S.simulate(
-        prices.loc[eval_start:],
-        S.decisions(score, scfg["buy_above"], scfg["sell_below"]),
-        X["vol_21"],
-        atr,
-        cost_bps=cost_bps(ticker, cfg),
-        cash_rate=rf,
-        target_vol=scfg["target_vol"],
-        rules=S.rules_from_config(scfg),
-    )
+    if scfg.get("mode", "timing") == "vol_hold":  # always invested, sized by volatility (EXP-014)
+        sim = S.simulate_weights(
+            prices.loc[eval_start:],
+            S.vol_target_weight(X["vol_21"], scfg["target_vol"]).loc[eval_start:],
+            cost_bps=cost_bps(ticker, cfg),
+            cash_rate=rf,
+            band=scfg.get("rebalance_band", 0.05),
+            fill=scfg.get("fill", "open"),
+        )
+    else:
+        sim = S.simulate(
+            prices.loc[eval_start:],
+            S.decisions(score, scfg["buy_above"], scfg["sell_below"]),
+            X["vol_21"],
+            atr,
+            cost_bps=cost_bps(ticker, cfg),
+            cash_rate=rf,
+            target_vol=scfg["target_vol"],
+            rules=S.rules_from_config(scfg),
+        )
     return Research(
         ticker=ticker,
         prices=prices,
@@ -112,6 +122,7 @@ class Decision:
     fundamentals: dict
     notes: list[str]
     as_of: str
+    target_weight: float | None = None  # vol_hold mode: share of the sleeve to hold in the asset
 
 
 def decide(
@@ -199,8 +210,16 @@ def decide(
         decision = S.HOLD
 
     atr_now = float(atr_fn(bars).iloc[-1])
+    target_weight = None
+    if scfg.get("mode", "timing") == "vol_hold":
+        # The score and its reasons are still shown as context, but in this mode the position is
+        # simply min(1, target_vol / volatility) of the sleeve: the rule tested in EXP-014.
+        target_weight = float(S.vol_target_weight(pd.Series([row["vol_21"]]), scfg["target_vol"]).iloc[0])
+        decision = S.BUY if tradeable and target_weight > 0 else S.HOLD
+        notes.insert(0, f"Always-invested mode: hold {target_weight:.0%} of this sleeve (15% volatility target).")
     return Decision(
         ticker=ticker,
+        target_weight=target_weight,
         decision=decision,
         score=score,
         components=components,

@@ -112,6 +112,69 @@ class PaperPortfolio:
         kind = "STOP" if reason.startswith("stop") else "SELL"
         return f"{kind} {ticker} {pos['qty']:.4f} @ {price:.2f} (P&L {pnl:+.2f})"
 
+    def act(self, d, prices: dict[str, float]) -> str | None:
+        """Execute a pipeline.Decision in whichever mode produced it."""
+        if d.target_weight is not None:
+            return self.rebalance(d.ticker, d.target_weight, d.last_price, prices, d.tradeable)
+        return self.apply(d.ticker, d.decision, d.last_price, d.ann_vol, d.atr, prices, d.tradeable)
+
+    def rebalance(
+        self, ticker: str, target_weight: float, price: float, prices: dict[str, float], tradeable: bool = True
+    ) -> str | None:
+        """vol_hold mode: move the holding to target_weight x this ticker's sleeve of total equity,
+        trading only if the current weight differs by more than the rebalance band (EXP-014 rule).
+        No stop-loss in this mode, matching what was tested."""
+        scfg = self.cfg["strategy"]
+        if not tradeable:
+            return None
+        if not _valid_price(price):
+            return f"SKIP {ticker}: invalid price {price!r}"
+        equity = self.equity(prices)
+        sleeve = equity * S.sleeve_weight(len(all_tickers(self.cfg)), scfg["max_position_pct"])
+        pos = self.state["positions"].get(ticker)
+        held = pos["qty"] * price if pos else 0.0
+        cur_w = held / sleeve if sleeve > 0 else 0.0
+        w = max(0.0, min(1.0, float(target_weight)))
+        if abs(w - cur_w) <= scfg.get("rebalance_band", 0.05) and (w == 0) == (cur_w == 0):
+            return None
+        c = cost_bps(ticker, self.cfg) / 1e4
+        delta = (w - cur_w) * sleeve
+        if delta > 0:
+            delta = min(delta, self.state["cash"]) / (1 + c)
+            qty, fee = delta / price, delta * c
+            self.state["cash"] -= delta + fee
+            self.state["fees"] += fee
+            if pos:
+                pos["entry_price"] = (pos["entry_price"] * pos["qty"] + price * qty) / (pos["qty"] + qty)
+                pos["entry_fee"] += fee
+                pos["qty"] += qty
+                pos["last_price"] = float(price)
+            else:
+                self.state["positions"][ticker] = {
+                    "qty": qty,
+                    "entry_price": float(price),
+                    "entry_fee": fee,
+                    "last_price": float(price),
+                    "stop": 0.0,
+                    "opened": datetime.now().isoformat(timespec="seconds"),
+                }
+            self._log(ticker, "BUY", qty, price, fee, f"rebalance {cur_w:.0%} -> {w:.0%}")
+            return f"BUY {ticker} {qty:.4f} @ {price:.2f} (weight {cur_w:.0%} -> {w:.0%})"
+        qty = min(-delta / price, pos["qty"])
+        proceeds = qty * price
+        fee = proceeds * c
+        pnl = proceeds - fee - qty * pos["entry_price"] - pos["entry_fee"] * qty / pos["qty"]
+        pos["entry_fee"] -= pos["entry_fee"] * qty / pos["qty"]
+        pos["qty"] -= qty
+        pos["last_price"] = float(price)
+        self.state["cash"] += proceeds - fee
+        self.state["fees"] += fee
+        self.state["realised_pnl"] += pnl
+        if pos["qty"] <= 1e-12:
+            del self.state["positions"][ticker]
+        self._log(ticker, "SELL", qty, price, fee, f"rebalance {cur_w:.0%} -> {w:.0%}", pnl)
+        return f"SELL {ticker} {qty:.4f} @ {price:.2f} (weight {cur_w:.0%} -> {w:.0%})"
+
     def apply(
         self,
         ticker: str,

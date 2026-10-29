@@ -127,8 +127,8 @@ def live_panel():
     if auto_paper:
         book = PaperPortfolio()
         px = {t: d.last_price for t, d in decs.items()}
-        for t, d in decs.items():
-            msg = book.apply(t, d.decision, d.last_price, d.ann_vol, d.atr, px, d.tradeable)
+        for d in decs.values():
+            msg = book.act(d, px)
             if msg:
                 st.toast(f"Paper trade: {msg}")
         book.mark(px)
@@ -322,7 +322,7 @@ with tab_paper:
     st.markdown("**Manual trade from current signal**")
     if st.button(f"Execute {ticker} signal now"):
         a = get_decision(ticker)
-        msg = book.apply(ticker, a.decision, a.last_price, a.ann_vol, a.atr, px, a.tradeable)
+        msg = book.act(a, px)
         book.mark(px)
         book.save()
         st.success(msg or f"No trade: signal is {a.decision} and the position already matches it")

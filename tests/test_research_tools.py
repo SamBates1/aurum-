@@ -149,3 +149,13 @@ def test_trade_level_lookahead_decisions_unchanged_by_future_data(cfg):
     d_full = S.decisions(full.score, 0.2, -0.2).loc[full.eval_start : end].iloc[:-1]
     d_part = S.decisions(part.score, 0.2, -0.2).reindex(d_full.index)
     assert len(d_full) > 200 and (d_full == d_part).all()
+
+
+def test_volatility_forecasts_are_point_in_time(gld):
+    from aurum import volatility as V
+
+    full = V.har_parkinson(gld)
+    cut = V.har_parkinson(gld.iloc[:2000])
+    pd.testing.assert_series_equal(full.iloc[:2000], cut, check_names=False)
+    pd.testing.assert_series_equal(V.ewma(gld.Close).iloc[:1500], V.ewma(gld.Close.iloc[:1500]))
+    assert full.dropna().between(0.01, 3).all()

@@ -188,3 +188,29 @@ def test_reentry_cooldown_after_stop():
     assert r.trades.iloc[1]["entry_date"] == p.index[6]  # stop day 2, cooldown 3 -> decide day 5, fill day 6
     r = sim(p, ["BUY"] * 8, atr=2.0, rules=S.RiskRules(stop_atr_mult=2.0))
     assert len(r.trades) == 1  # default: never re-enter until the signal leaves BUY
+
+
+# ---- target-weight simulator ------------------------------------------------
+def test_weights_rebalance_to_target_with_band_and_costs():
+    p = make_prices([100] * 6)
+    tgt = pd.Series([0.5, 0.5, 0.52, 0.8, 0.0, 0.0], index=p.index)
+    r = S.simulate_weights(p, tgt, cost_bps=10, band=0.05)
+    reb = r.rebalances
+    assert len(reb) == 3  # 0 -> 0.5, (0.52 inside band: no trade), 0.5 -> 0.8, 0.8 -> 0
+    assert reb.iloc[0]["date"] == p.index[1] and reb.iloc[2]["to_weight"] == 0.0
+    assert r.daily["exposure"].iloc[2] == pytest.approx(0.5 / (1 + 0.001) / (1 - 0.0005), rel=1e-2)
+    assert r.daily["shares"].iloc[-1] == pytest.approx(0.0, abs=1e-12)
+    assert r.daily["value"].iloc[-1] == pytest.approx(1 - r.daily["cost"].sum(), rel=1e-9)
+
+
+def test_weights_close_fill_and_no_lookahead():
+    p = make_prices(closes=[100, 110, 121], opens=[100, 105, 115])
+    tgt = pd.Series([1.0, 1.0, 1.0], index=p.index)
+    r = S.simulate_weights(p, tgt, cost_bps=0, band=0.0, fill="close")
+    assert r.rebalances.iloc[0]["price"] == 110 and r.daily["value"].iloc[1] == pytest.approx(1.0)
+    assert r.daily["value"].iloc[2] == pytest.approx(1.1)
+
+
+def test_vol_target_weight():
+    v = pd.Series([0.30, 0.10, float("nan"), 0.0])
+    assert list(S.vol_target_weight(v, 0.15)) == [0.5, 1.0, 0.0, 0.0]

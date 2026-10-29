@@ -408,3 +408,83 @@ def simulate(
         "days",
     ]
     return SimResult(daily, pd.DataFrame(trades, columns=cols))
+
+
+# ---------------------------------------------------------------------------
+# target-weight simulation (always-invested strategies that resize positions)
+# ---------------------------------------------------------------------------
+def simulate_weights(
+    prices: pd.DataFrame,
+    target: pd.Series,
+    *,
+    cost_bps: float,
+    cash_rate: pd.Series | float = 0.0,
+    band: float = 0.05,
+    fill: str = "open",
+    initial: float = 1.0,
+) -> SimResult:
+    """Simulate one sleeve that holds a *fraction* of its value in the asset.
+
+    target[t] is the desired weight in [0, 1], decided at the close of t using data up to t.
+    The order fills at the next open (or next close if fill == "close"). A trade happens only
+    if the current weight differs from the target by more than `band` (a no-trade band that
+    limits turnover), or when moving between zero and non-zero exposure. Costs are charged on
+    the traded notional. Each rebalance is recorded in `trades` (entry_value = traded notional).
+    """
+    idx = prices.index
+    opens, closes = prices["Open"].to_numpy(float), prices["Close"].to_numpy(float)
+    tgt = target.reindex(idx).to_numpy(float)
+    rate = (
+        cash_rate.reindex(idx).ffill().fillna(0.0).to_numpy(float)
+        if isinstance(cash_rate, pd.Series)
+        else np.full(len(idx), float(cash_rate))
+    )
+    c = cost_bps / 1e4
+    cash, shares, pending = float(initial), 0.0, np.nan
+    rows, trades = [], []
+    for i in range(len(idx)):
+        cost_today = traded_today = 0.0
+        if i > 0:
+            cash *= 1 + rate[i - 1] / 252
+        px = opens[i] if fill == "open" else closes[i]
+        if np.isfinite(pending) and np.isfinite(px) and px > 0:
+            value = cash + shares * px
+            cur = shares * px / value if value > 0 else 0.0
+            w = float(np.clip(pending, 0.0, 1.0))
+            if abs(w - cur) > band or (w == 0) != (cur == 0):
+                delta_value = (w - cur) * value
+                if delta_value > 0:  # buy: cost reduces what can be bought
+                    delta_value = min(delta_value, cash) / (1 + c)
+                cost_today = abs(delta_value) * c
+                traded_today = abs(delta_value)
+                shares += delta_value / px
+                cash -= delta_value + cost_today
+                trades.append(
+                    {
+                        "date": idx[i],
+                        "price": px,
+                        "from_weight": cur,
+                        "to_weight": w,
+                        "notional": traded_today,
+                        "cost": cost_today,
+                    }
+                )
+        pending = tgt[i] if np.isfinite(tgt[i]) else np.nan
+        value = cash + shares * closes[i]
+        exposure = shares * closes[i] / value if value > 0 else 0.0
+        rows.append((value, cash, shares, float(shares > 1e-12), exposure, cost_today, traded_today))
+    daily = pd.DataFrame(rows, index=idx, columns=["value", "cash", "shares", "invested", "exposure", "cost", "traded"])
+    daily["ret"] = daily["value"].pct_change().fillna(daily["value"].iloc[0] / initial - 1)
+    # performance() reads round-trip trade statistics; rebalances aren't round trips, so they're
+    # reported separately and the trade table carries no closed trades
+    reb = pd.DataFrame(trades)
+    empty = pd.DataFrame(columns=["entry_date", "exit_reason", "pnl", "ret", "days", "entry_value"])
+    res = SimResult(daily, empty)
+    res.rebalances = reb  # type: ignore[attr-defined]
+    return res
+
+
+def vol_target_weight(ann_vol: pd.Series, target_vol: float, cap: float = 1.0) -> pd.Series:
+    """min(cap, target_vol / forecast volatility); 0 where volatility is unknown."""
+    w = (target_vol / ann_vol.where(ann_vol > 0)).clip(upper=cap)
+    return w.fillna(0.0)

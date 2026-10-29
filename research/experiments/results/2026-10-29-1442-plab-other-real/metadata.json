@@ -1,0 +1,41 @@
+{
+  "run_at": "2026-10-29T14:42:37+00:00",
+  "data": "real",
+  "set": "other",
+  "tickers": [
+    "GDXJ",
+    "SIL",
+    "RGLD",
+    "FNV",
+    "KGC",
+    "AU",
+    "PPLT",
+    "PALL"
+  ],
+  "portfolio_start": "2010-05-19",
+  "periods": {
+    "pre": [
+      "2010-05-19",
+      "2013-10-17"
+    ],
+    "dev": [
+      "2013-10-18",
+      "2023-12-31"
+    ],
+    "holdout": [
+      "2024-01-01",
+      null
+    ]
+  },
+  "fill": "open",
+  "rebalance": "daily",
+  "config_hash": "97e478d6d12a",
+  "n_trials": 19,
+  "pbo_development": {
+    "pbo": 0.3839160839160839,
+    "n_splits": 12870,
+    "median_logit": 1.7346010553881064
+  },
+  "failed_variants": {},
+  "data_events": []
+}

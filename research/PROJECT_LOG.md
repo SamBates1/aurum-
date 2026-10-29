@@ -51,6 +51,22 @@ A trade plan per signal: when to buy/sell, at what price, stop-loss, how long to
 - **Next:** run `python run_experiments.py` on real data in Codespaces, commit the results, then record
   verdicts in each EXP file and decisions here.
 
+## 2026-10-27 — First real-data research report (`reports/latest/`, commit 646da67)
+Portfolio of six equal sleeves, after costs, out of sample from 2013-10-18:
+
+| Period | Strategy Sharpe | Buy & hold Sharpe | Strategy max DD | Buy & hold max DD |
+|---|---|---|---|---|
+| Development 2013–2023 | 0.00 | 0.30 | −21.5% | −43.0% |
+| Holdout 2024–2026 | 0.94 | 1.07 | −17.2% | −38.0% |
+
+- The strategy roughly halves drawdowns but earned about nothing after costs in development; buy & hold had
+  the better risk-adjusted return in both periods (bootstrap: strategy beat buy & hold in only 6% of
+  development resamples).
+- ML probabilities are not informative yet: holdout AUC 0.45–0.56 by ticker, and Brier score / log loss are
+  worse than a constant forecast for every ticker. The point-in-time skill weighting mostly switches ML off.
+- `ml_only` had a holdout Sharpe of 1.61 but −0.24 in development: treated as luck, not evidence.
+- `run_experiments.py` produced no results folder: the run did not complete or was not saved. To redo.
+
 ## Open questions
 - Does any variant beat the baseline after DSR on real data?
 - Does the gold/real-yield regime break show up as poor holdout performance?

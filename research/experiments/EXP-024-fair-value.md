@@ -2,7 +2,7 @@
 
 | Field | |
 |---|---|
-| Status | Pre-registered 2026-10-29, before any lab result on real data |
+| Status | Run 2026-10-29: inconclusive; not adopted |
 | Origin | Stage 5; Erb & Harvey (2013) [S6]; the real-yield link broke after 2021 |
 
 ## Hypothesis
@@ -25,5 +25,12 @@ If only the rolling version works, record why.
 
 Lab rules (README, 'Research lab'); run with `python run_lab.py --set core` (and `--fill close`, `--set other`).
 
-## Results
-_Not yet run on real data._
+## Results (real data, 2026-10-29; `results/2026-10-29-1337-lab-core-real/`, `…-1337-lab-core-real-closefill/`, `…-1332-lab-other-real/`)
+| Variant | Core, open: pre / dev / holdout ΔSharpe | Core, close | Other assets | Verdict |
+|---|---|---|---|---|
+| fv_rolling | −0.04 / +0.03 / −0.06 | −0.04 / +0.01 / −0.07 | 0.00 / 0.00 / −0.06 | INCONCLUSIVE |
+| fv_expanding | −0.04 / +0.02 / −0.02 | −0.04 / +0.02 / −0.01 | 0.00 / +0.01 / −0.01 | INCONCLUSIVE |
+
+A gold "fair value" from real yields and the dollar did not help: slightly positive in development, negative before
+2013 and in 2024–2026. Fair-value tilts did reduce the holdout drawdown (−13.4% → −10.6%), by holding less during
+gold's 2025 rally, which also cost return (23.5% → 19.0% a year).

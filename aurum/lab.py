@@ -252,6 +252,14 @@ def build_lab_variants(combine: list[str] | None = None) -> list[LabVariant]:
     add("REF", "buy_hold", "Fully invested, never resized", lambda c: pd.Series(1.0, index=c.prices.index), trial=False)
     add(
         "REF",
+        "daily",
+        "As traded but orders may be placed every day (pre-D-022)",
+        lambda c: c.weight(),
+        schedule="daily",
+        trial=False,
+    )
+    add(
+        "REF",
         "vol_hold_21d",
         "As traded but sized with plain 21-day vol (pre-D-021)",
         lambda c: c.weight(c.vol21),

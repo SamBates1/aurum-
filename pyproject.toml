@@ -1,6 +1,6 @@
 [project]
 name = "aurum"
-version = "0.4.0"
+version = "0.5.0"
 description = "Gold and mining-equity research system: walk-forward ML, macro data, backtesting and paper trading"
 requires-python = ">=3.10"
 

@@ -2,7 +2,7 @@
 
 | Field | |
 |---|---|
-| Status | Pre-registered 2026-10-29, before any lab result on real data |
+| Status | Run 2026-10-29: contrarian inconclusive, flow rejected; not adopted |
 | Origin | Stage 6; replaces EXP-008; CFTC [S15, S30]; hedging-pressure literature (Basu & Miffre 2013) [S26] |
 
 ## Data
@@ -22,5 +22,10 @@ without explanation.
 
 Lab rules (README, 'Research lab'); run with `python run_lab.py --set core` (and `--fill close`, `--set other`).
 
-## Results
-_Not yet run on real data._
+## Results (real data, 2026-10-29; `results/2026-10-29-1337-lab-core-real/`, `…-1337-lab-core-real-closefill/`, `…-1332-lab-other-real/`; CFTC data loaded from 2006-06-19, 1,063 weekly reports)
+| Variant | Core, open: pre / dev / holdout ΔSharpe | Core, close | Other assets | Verdict |
+|---|---|---|---|---|
+| cot_contrarian | −0.03 / +0.02 / −0.08 | −0.03 / +0.01 / −0.09 | −0.01 / 0.00 / −0.04 | INCONCLUSIVE |
+| cot_flow | +0.02 / −0.01 / +0.01 | +0.02 / −0.02 / 0.00 | −0.03 / −0.02 / +0.03 | REJECT |
+
+Speculative positioning adds nothing measurable to the always-invested strategy in either direction.

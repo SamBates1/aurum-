@@ -107,3 +107,35 @@ and reduced development drawdown from −27.8% to −20.8%. `strategy.vol_estima
 GLD 21-day volatility), clipped 0.5–2. If GVZ cannot be loaded or is stale, sizing falls back to plain 21-day
 volatility with a visible warning. Revisit if: GVZ data becomes unreliable, or paper trading shows realised risk
 far from target.
+
+**D-022 — Place orders once a week, after Friday's close** (2026-10-29)
+EXP-022: deciding orders every 5th trading day instead of daily kept the Sharpe ratio (pre-2013 +0.02, development
++0.02; other assets +0.04 / +0.01) with half the orders (20 instead of 39 per asset per year), meeting the rule fixed in
+advance. Implemented as the last trading day of each week (`strategy.rebalance: weekly`); confirmed with that exact
+rule as the baseline (Sharpe vs daily −0.03 / +0.01 / −0.02 open fills, +0.02 / +0.02 / +0.02 close fills). The dashboard
+still shows the target every day; the bot and paper trader only act on rebalance days. Revisit if: paper trading shows
+weekly drift from target causing materially larger losses than the backtest.
+
+**D-023 — The Alpaca connection may trade whole shares at the opening auction** (2026-10-29)
+EXP-022: whole-share positions changed Sharpe by at most ±0.03 for $10k and $100k accounts. Alpaca accepts fractional
+quantities only as day orders [S25]; whole shares allow opening-auction (OPG) orders, the closest match to the
+backtest's next-open fills.
+
+**D-024 — Review of D-021 (GVZ sizing): kept, with a recorded weakness** (2026-10-29)
+EXP-020's pre-registered check failed: in 2008-06 → 2013-10 (data no earlier test used) GVZ sizing did worse than plain
+21-day sizing (ΔSharpe −0.09 open fills, −0.11 close fills). Against that: development +0.11, holdout +0.08, whole
+2006–2026 period 0.38 vs 0.35, and on eight new assets 0.26 vs 0.19 over 2010–2026 (EXP-021). Kept because it was better
+in 2 of 3 periods and on both asset sets over the full history; recorded as not robust across every period.
+Revisit if: paper trading or a future period shows GVZ sizing behind plain sizing for a year or more.
+
+**D-025 — Stages 5–7 add nothing; the traded strategy stays as is** (2026-10-29)
+Gold fair value (EXP-024), CFTC positioning (EXP-025), and news-based risk indices (EXP-026) were all INCONCLUSIVE or
+REJECTED; the chandelier stop was rejected and the miner tilt again fell short (EXP-023). Stage 8 (EXP-027) was therefore
+not run, per its pre-registered rule. Candidates to watch in paper trading, not traded: miner-vs-GDX tilt (dev +0.08,
+better in 100% of resamples, but not before 2013 or on other miners) and the EPU tilt (+0.02 to +0.06 in every period).
+GDELT-based news scoring was rejected as infeasible to backtest point-in-time without paid data.
+
+**D-026 — The risk level is the owner's choice; it does not change return per unit of risk** (2026-10-29)
+EXP-028: over 2006–2026, volatility targets from 10% to 30% all have Sharpe 0.36–0.38 (buy & hold 0.39). Higher targets
+earn more and fall further (15%: 5.7% a year, worst fall −39.7%; 25%: 7.2%, −54.2%). `target_vol` stays 0.15 until
+the owner chooses.

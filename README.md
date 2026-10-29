@@ -61,11 +61,13 @@ aurum/
 app.py           Streamlit dashboard
 run_research.py  full study → results/<timestamp>/ and reports/latest/
 run_experiments.py  pre-registered experiments vs the baseline → research/experiments/results/
-aurum/experiments.py  experiment variants (EXP-001…007)
+aurum/experiments.py  experiment variants (EXP-001…019)
+aurum/lab.py     research lab: weight-based variants, long history, other assets (EXP-020…028)
+run_lab.py       runs the research lab → research/experiments/results/<time>-lab-<set>-…/
 research/        knowledge base: framework source-code notes, evidence reviews, decisions, experiments
 run_backtest.py  quick per-ticker backtest
 run_bot.py       headless signal loop, optional paper trading
-tests/           72 tests: look-ahead, accounting, metrics, risk controls, data handling, research tools
+tests/           92 tests: look-ahead, accounting, metrics, risk controls, data handling, research tools
 ```
 
 ## Setup
@@ -86,6 +88,7 @@ No API keys are needed: Yahoo Finance and FRED are used without credentials. `.e
 | `python run_research.py` | Full study: strategy vs benchmarks, development vs holdout, model diagnostics, cost and threshold sensitivity, bootstrap intervals, regimes, charts and report (a few minutes) |
 | `python -m streamlit run app.py` | Dashboard: live signals with reasons, backtest vs benchmarks, paper portfolio, macro charts |
 | `python run_experiments.py` | Runs every pre-registered experiment (trend, regimes, models, risk overlays, mean reversion, triple-barrier) against the baseline with DSR, PBO and automatic verdicts (20–40 minutes) |
+| `python run_lab.py --set core\|other` | Research lab: the traded strategy and new ideas from 2006 and on eight other precious-metal assets |
 | `python run_backtest.py [TICKERS]` | Quick strategy backtest per ticker |
 | `python run_bot.py --paper` | Headless loop: refresh, decide, paper-trade every 60 s |
 | `AURUM_OFFLINE=1 <any command>` | Same, on clearly labelled synthetic data (no internet) |
@@ -105,20 +108,20 @@ thresholds, risk limits, cost assumptions and the holdout date.
 Every download is validated (sorted unique dates, positive prices) and cached under `data/cache/` with its source and
 retrieval time. A failed download falls back to the cache **with a visible warning**; nothing is fabricated.
 
-## Strategy (v0.4: always invested, sized by risk)
+## Strategy (v0.5: always invested, sized by risk, rebalanced weekly)
 
-Adopted on 2026-10-29 after experiments EXP-014 and EXP-017 passed their pre-registered rules on real data
-with both open- and close-price fills ([decisions D-020, D-021](research/decisions.md)).
+Adopted on 2026-10-29 after experiments EXP-014, EXP-017 and EXP-022 passed their pre-registered rules on real data
+with both open- and close-price fills ([decisions D-020, D-021, D-022](research/decisions.md)).
 
-For each of the six assets, every day at the close:
+For each of the six assets, at the close (orders only after Friday's close):
 
 1. **Forecast its risk.** 21-day realised volatility, scaled by gold's implied/realised volatility ratio: the CBOE
    gold volatility index (GVZ) divided by GLD's own 21-day volatility, clipped to 0.5–2. When options price more
    risk than has recently occurred, every position is cut; when they price less, positions grow.
 2. **Set the target weight** = min(1, 15% / forecast volatility) of the asset's sleeve (each sleeve is
    `min(20%, 1/N)` of the portfolio). Always invested, never leveraged.
-3. **Rebalance** at the next open only if the current weight is more than 5 points off target, which limits
-   turnover. Per-ticker one-way costs of 3–10 bps.
+3. **Rebalance** once a week: after Friday's close, an order is placed for the next open only if the current
+   weight is more than 5 points off target (about 21 orders per asset per year). Per-ticker one-way costs of 3–10 bps.
 4. **Safety:** no trading on stale or missing data; if GVZ is unavailable, sizing falls back to plain 21-day
    volatility with a visible warning.
 
@@ -127,18 +130,20 @@ drive trades: tilting positions by the model's predictions (5-, 21- and 63-day h
 risk-based sizing (EXP-015). The v0.2 BUY/SELL timing strategy (`strategy.mode: timing`) is kept for comparison as
 `timing_v02` in every report.
 
-**Headline results** (real data, six-asset portfolio, after costs; full tables in
+**Headline results** (real data, six-asset portfolio, after costs, 2006–2026 via the research lab;
 [research/experiments/](research/experiments/README.md)):
 
-| | Development 2013–2023: CAGR / Sharpe / max DD | Holdout 2024–2026: CAGR / max DD |
-|---|---|---|
-| v0.2 timing strategy | 0.8% / −0.02 / −21.4% | 20.8% / −17.2% |
-| Always invested, volatility-sized | 2.0% / 0.12 / −27.8% | 24.6% / −13.7% |
-| … with GVZ-adjusted sizing (traded) | 3.4% / 0.24 / −20.8% | 23.5% / −13.5% |
-| Buy & hold | 6.0% / 0.30 / −43.0% | 44.2% / −38.0% |
+| | 2006–2013 (new data) CAGR / Sharpe / max DD | 2013–2023 | 2024–2026 | Whole 2006–2026 |
+|---|---|---|---|---|
+| Traded strategy (weekly, GVZ-sized) | 2.5% / 0.17 / −32.6% | 3.6% / 0.25 / −22.7% | 23.5% / 1.31 / −12.9% | 5.7% / 0.38 / −40.2% |
+| Buy & hold | 4.7% / 0.28 / −63.9% | 6.0% / 0.30 / −41.1% | 39.1% / 1.00 / −36.7% | 9.5% / 0.39 / −65.2% |
 
-The strategy gives up much of buy & hold's return in exchange for roughly half the drawdown; it has not beaten
-buy & hold's risk-adjusted return over the development period. Paper trading is the next test.
+Over twenty years the strategy earned the **same return per unit of risk as buy & hold** (Sharpe 0.38 vs 0.39) with
+a much smaller worst fall (−40% vs −65%; in the 2011–15 gold bear market −39% vs −63%), but less money in total.
+It is a smoother way to own gold and miners, not a way to beat owning them: about 50 pre-registered prediction
+ideas (ML, trend, regimes, fair value, positioning, news indices) failed to add reliable value. The risk level is a
+choice, not an edge: higher targets earn more and fall further at the same Sharpe ([EXP-028](research/experiments/EXP-028-risk-map.md)).
+Paper trading is the next test.
 
 ## Evaluation methodology
 

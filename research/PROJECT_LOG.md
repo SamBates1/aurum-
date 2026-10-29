@@ -108,9 +108,28 @@ ranges for the trade-plan idea. Seasonality: low priority. GDX overnight drift: 
 - **Lesson:** in this market, value came from *how much* to hold and from forward-looking risk (options), not
   from predicting direction.
 
+## 2026-10-29 — Research lab: 20 years, new assets, Alpaca realism, stages 5–7
+- Built `aurum/lab.py` and `run_lab.py`: the always-invested strategy needs no ML model, so it was tested from 2006
+  (adding the 2008 crash and the 2011–15 gold bear market) and on eight precious-metal assets never used before.
+  All rules written in EXP-020…028 before the runs.
+- **2006–2026 headline (core set, net of costs):** strategy 5.7% a year, Sharpe 0.38, worst fall −39.7%; buy & hold
+  9.5%, 0.39, −65.2%. Same return per unit of risk as holding, with a much smaller worst fall; less money in total.
+  In 2011–15 it lost 39% where holding lost 63%. The new assets show the same pattern (EXP-020, EXP-021).
+- **Adopted:** weekly orders after Friday's close (D-022); whole-share auction orders allowed for Alpaca (D-023).
+- **Reviewed:** GVZ sizing did worse in 2008–2013 but better overall and on new assets: kept, weakness recorded (D-024).
+- **Nothing else passed:** fair value, CFTC positioning, news-based risk indices, chandelier stop; miner tilt and
+  EPU tilt small and consistent but below the bar (D-025). Stage 8 not run (nothing to combine).
+- **Risk map:** Sharpe is the same at every risk level; the choice is how much of gold's ride to take (D-026).
+- GDELT news history needs paid BigQuery access; replaced by free news-count indices (EPU, GPR).
+- Intraday review written ([topics/intraday.md](topics/intraday.md)); the US pattern-day-trader rule was removed
+  in 2026. Intraday tests (EXP-029…031) need Alpaca minute data.
+- **Lesson:** after about 50 pre-registered variants, the edge in this market comes from risk sizing, not prediction. The
+  bot is a smoother way to own gold and miners, not a way to beat owning them.
+
 ## Open questions
-- Does the chandelier stop hold up on new data (EXP-009)?
-- Does the miner-vs-GDX tilt add value on top of GVZ-sized holding?
+- Do the miner-vs-GDX and EPU tilts keep their small edge in paper trading (watched, not traded)?
+- Which risk level does the owner choose (EXP-028)?
+- Do intraday ideas (EXP-029…031) survive costs on minute data?
 - Will paper trading confirm the GVZ-sized strategy's risk and return?
 - Does the gold/real-yield regime break show up as poor holdout performance?
 - Should ML be kept at all if trend rules match it (EXP-002 vs baseline)?

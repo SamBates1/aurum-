@@ -86,16 +86,16 @@ AURUM_OFFLINE=1 python run_experiments.py --quick   # synthetic: checks the code
 | [EXP-017](EXP-017-volatility-forecasts.md) | Better volatility forecasts for sizing | stage 4 | Run: GVZ sizing **adopted** (D-021) |
 | [EXP-018](EXP-018-gvz-gate.md) | Gold implied volatility as a risk gate | stage 4 | Run: rejected |
 | [EXP-019](EXP-019-miner-gdx-tilt.md) | Miner vs GDX relative value, rechecked | stage 3 | Run: consistent +0.09, just below bar; re-test next |
-| [EXP-020](EXP-020-long-history.md) | Longer history (2006–2013 stress test) | stage A | Pre-registered |
-| [EXP-021](EXP-021-other-assets.md) | Eight precious-metal assets never tested | stage A | Pre-registered |
-| [EXP-022](EXP-022-alpaca-realism.md) | Weekly orders, whole shares (Alpaca realism) | stage B | Pre-registered |
-| [EXP-023](EXP-023-near-misses.md) | Miner-vs-GDX tilt and chandelier stop on the traded strategy | stage B | Pre-registered |
-| [EXP-024](EXP-024-fair-value.md) | Gold fair value (real yields, dollar) | stage 5 | Pre-registered |
-| [EXP-025](EXP-025-cot-positioning.md) | Speculative positioning (CFTC) | stage 6 | Pre-registered |
-| [EXP-026](EXP-026-news-risk-indices.md) | News-based risk indices (EPU, GPR) | stage 7 | Pre-registered |
-| [EXP-027](EXP-027-combination.md) | Combine what passed | stage 8 | Pre-registered |
-| [EXP-028](EXP-028-risk-map.md) | Risk map: 10–30% volatility targets | owner's choice | Pre-registered |
-| EXP-009 (proposed) | Chandelier trailing stop, confirmatory | EXP-005 result | Not run: needs data not used in EXP-005 (new months via paper trading, or other assets) to be a fair test |
+| [EXP-020](EXP-020-long-history.md) | Longer history (2006–2013 stress test) | stage A | Run: protection confirmed 2006–2013; GVZ flagged (D-024) |
+| [EXP-021](EXP-021-other-assets.md) | Eight precious-metal assets never tested | stage A | Run: protection and GVZ confirmed on new assets |
+| [EXP-022](EXP-022-alpaca-realism.md) | Weekly orders, whole shares (Alpaca realism) | stage B | Run: weekly orders **adopted** (D-022) |
+| [EXP-023](EXP-023-near-misses.md) | Miner-vs-GDX tilt and chandelier stop on the traded strategy | stage B | Run: miner tilt inconclusive; chandelier rejected |
+| [EXP-024](EXP-024-fair-value.md) | Gold fair value (real yields, dollar) | stage 5 | Run: inconclusive, not adopted |
+| [EXP-025](EXP-025-cot-positioning.md) | Speculative positioning (CFTC) | stage 6 | Run: not adopted |
+| [EXP-026](EXP-026-news-risk-indices.md) | News-based risk indices (EPU, GPR) | stage 7 | Run: EPU small but below bar; GPR rejected |
+| [EXP-027](EXP-027-combination.md) | Combine what passed | stage 8 | Not run: nothing to combine |
+| [EXP-028](EXP-028-risk-map.md) | Risk map: 10–30% volatility targets | owner's choice | Run: risk map produced (owner chooses) |
+| EXP-009 | Chandelier trailing stop, confirmatory | EXP-005 result | Answered by EXP-023 (more history, new assets): rejected |
 
 Results of each run go in `results/<date>-<time>-real[-…]/summary.md`; conclusions are copied into each EXP file's
 "Results" section and into `../decisions.md`.

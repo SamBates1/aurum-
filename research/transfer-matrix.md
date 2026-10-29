@@ -2,7 +2,7 @@
 
 One row per idea discovered. Classification: **Adopt** (strong rationale, regression-tested),
 **Adapt** (useful but changed for Aurum), **Experiment** (benefit uncertain, pre-registered test),
-**Reject** (unsuitable, redundant, unreliable, too complex or unsupported). Last updated 2026-10-29: experiment outcomes in [experiments/README.md](experiments/README.md#registry); rows 31–37 from [topics/new-ideas-2026-10-29.md](topics/new-ideas-2026-10-29.md).
+**Reject** (unsuitable, redundant, unreliable, too complex or unsupported). Last updated 2026-10-29: experiment outcomes in [experiments/README.md](experiments/README.md#registry); rows 31–37 from [topics/new-ideas-2026-10-29.md](topics/new-ideas-2026-10-29.md); rows 38–43 from the research lab (EXP-020…028) and [topics/intraday.md](topics/intraday.md).
 Source IDs refer to [sources.md](sources.md).
 
 | # | Technique | Source | Mechanism | Evidence | Relevance to gold/miners | Current Aurum equivalent | Required changes | Main risks | Experiment | Acceptance criteria | Priority | Class |
@@ -45,3 +45,9 @@ Source IDs refer to [sources.md](sources.md).
 | 36 | Gold seasonality (Sep/Nov) | Baur [S24] | Seasonal demand / haven flows | Significant in one study | Gold | None | Calendar feature | Data mining | Optional | Registry rules | Low | **Experiment (low)** |
 | 37 | GDX overnight-drift strategy | [S20] | Close-to-open drift | Mostly a data artefact | GDX | None | – | Unrealistic fills | – | – | – | **Reject** |
 
+| 38 | Weekly rebalancing | Turnover reduction (EXP-014 band follow-up) | Fewer orders, same exposure | EXP-022: same Sharpe, half the orders | All | Daily checks | `strategy.rebalance: weekly` (done) | Larger drift between rebalances | EXP-022 | Dev & pre ΔSharpe ≥ −0.05 | High | **Adopt** (D-022) |
+| 39 | Gold fair value (real yields, dollar) | Erb & Harvey [S6] | Mean reversion of valuation gap | EXP-024: inconclusive | Gold-linked | None | Tilt in `lab.py` | Relationship broke after 2021 | EXP-024 | Lab rules | – | **Reject (for now)** |
+| 40 | CFTC speculative positioning | CFTC [S15, S30]; Basu & Miffre [S26] | Crowding / hedging pressure | EXP-025: no effect either way | Gold, silver | None | Parser in `data.py` | Release-date alignment | EXP-025 | Lab rules | – | **Reject** |
+| 41 | News-based risk indices (EPU, GPR) | [S27, S28, S29] | Safe-haven demand | EXP-026: EPU small (+0.02–0.06), GPR negative | GLD, SLV | None | Loaders in `data.py` | Index revisions | EXP-026 | Lab rules | Low | **Watch** (EPU) / **Reject** (GPR) |
+| 42 | GDELT news tone with AI scoring | GDELT | News sentiment | Not testable point-in-time without paid data | All | Live VADER headlines (weight 0) | – | Cost, look-ahead | – | – | – | **Reject** for backtests |
+| 43 | Intraday momentum, overnight holding, intraday risk checks | [S31, S32] | See topics/intraday.md | Pre-cost evidence only | GLD, SLV, GDX | None | Minute data via Alpaca | Costs, data quality | EXP-029…031 | Registry rules on minute data | Medium | **Experiment** (after Alpaca) |

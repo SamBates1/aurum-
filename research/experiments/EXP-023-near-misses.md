@@ -2,7 +2,7 @@
 
 | Field | |
 |---|---|
-| Status | Pre-registered 2026-10-29, before any lab result on real data |
+| Status | Run 2026-10-29: miner tilt inconclusive again; chandelier stop **rejected** (closes EXP-009) |
 | Origin | EXP-019 (+0.09, just below the bar) and EXP-005 chandelier (failed DSR) |
 
 ## Hypotheses and variants (fixed before running)
@@ -18,5 +18,14 @@ EXP-021 criterion 2. EXP-009 (chandelier confirmation on new data) is answered b
 
 Lab rules (README, 'Research lab'); run with `python run_lab.py --set core` (and `--fill close`, `--set other`).
 
-## Results
-_Not yet run on real data._
+## Results (real data, 2026-10-29; `results/2026-10-29-1337-lab-core-real/`, `…-1337-lab-core-real-closefill/`, `…-1332-lab-other-real/`)
+ΔSharpe vs the traded strategy, pre / dev / holdout (share of resamples better in dev), DSR:
+
+| Variant | Core, open fills | Core, close fills | Other assets | Verdict |
+|---|---|---|---|---|
+| miner_gdx_tilt | −0.01 / +0.08 (100%) / +0.06, DSR 0.80 | −0.01 / +0.07 / +0.06 | +0.01 / −0.03 / +0.05 | INCONCLUSIVE |
+| chandelier_3atr | −0.02 / −0.03 / −0.26 | +0.02 / −0.07 / −0.16 | +0.16 / −0.09 / +0.06 | REJECT |
+
+The miner tilt is the most consistent small effect found so far in development (better in 100% of resamples) but is
+below the +0.10 bar, does not help before 2013, and is negative on the other miners: not adopted. The chandelier
+stop cuts drawdowns but costs too much return; with EXP-005's result this closes EXP-009.

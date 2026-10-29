@@ -2,7 +2,7 @@
 
 | Field | |
 |---|---|
-| Status | Pre-registered 2026-10-29, before any lab result on real data |
+| Status | Run 2026-10-29: EPU small and consistent but below the bar; GPR rejected; not adopted |
 | Origin | Stage 7; Baker, Bloom & Davis EPU [S27]; Caldara & Iacoviello GPR [S28]; Baur & Smales (2020) [S29] |
 
 ## Why not GDELT and AI headline scoring
@@ -26,5 +26,12 @@ Lab rules. EXP-021 criterion 2 cannot be applied (no GLD/SLV in the other set), 
 
 Lab rules (README, 'Research lab'); run with `python run_lab.py --set core` (and `--fill close`, `--set other`).
 
-## Results
-_Not yet run on real data._
+## Results (real data, 2026-10-29; `results/2026-10-29-1337-lab-core-real/` and `…-closefill/`; first run's EPU and GPR failed on data handling, fixed and re-run)
+| Variant | Core, open: pre / dev / holdout ΔSharpe (dev better) | Core, close | Verdict |
+|---|---|---|---|
+| epu_tilt | +0.05 (98%) / +0.02 (90%) / +0.00 | +0.06 / +0.02 / +0.01 | INCONCLUSIVE |
+| gpr_tilt | −0.04 / −0.00 / −0.07 | −0.04 / −0.00 / −0.07 | REJECT |
+
+Holding a little more gold and silver when news-based policy uncertainty is high helped slightly in every period and
+both fill conventions, but the effect (+0.02 to +0.06) is far below the +0.10 bar. Recorded as a candidate to watch in
+paper trading, not adopted. Geopolitical risk did not help.

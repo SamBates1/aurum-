@@ -2,7 +2,7 @@
 
 | Field | |
 |---|---|
-| Status | Pre-registered 2026-10-29, before any lab result on real data |
+| Status | Not run: no tilt was adopted (pre-registered rule) |
 | Origin | Stage 8 |
 
 ## Rule (fixed before any stage 5–7 result)
@@ -15,4 +15,5 @@ best single tilt in development and pre-2013. If no tilt passes, this experiment
 Lab rules (README, 'Research lab'); run with `python run_lab.py --set core` (and `--fill close`, `--set other`).
 
 ## Results
-_Not yet run on real data._
+No stage 5–7 tilt met the lab rules, so under the rule fixed in advance there is nothing to combine. Combining the
+near-misses (miner tilt, EPU) anyway would be selection on results and is deliberately not done.

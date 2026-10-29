@@ -1,14 +1,10 @@
 full
-xlab: --exp sp500
-xlab: --exp delay
-xlab: --exp trend
-xlab: --exp meanrev
-xlab: --exp vol
-xlab: --exp candles
-xlab: --exp macro
-xlab: --exp ml
+xlab: --exp mix
+xlab: --exp mix --fill close
+xlab: --exp sp500 --fill close
+report: sample
 Edit this file and push to main to start an automated run on GitHub's machines (see
 .github/workflows/experiments.yml). Each "run:" line is one run_experiments.py run with those arguments;
 each "lab:" line is one run_lab.py run (EXP-020 onwards); each "plab:" line one run_plab.py run (EXP-032 onwards);
-"audit:" runs run_data_audit.py; each "xlab:" line one run_xlab.py run (EXP-037 onwards).
-Requested: 2026-10-29 master brief Stages 3-5: cross-asset lab EXP-037 ... EXP-044 (pre-registered).
+"audit:" runs run_data_audit.py; "report:" saves a daily report to research/monitoring; each "xlab:" line one run_xlab.py run (EXP-037 onwards).
+Requested: 2026-10-29 EXP-045 (S&P 500 + gold robustness, downturn protection) with open and close fills; EXP-037 with close fills (D-018); one real daily report saved for inspection.

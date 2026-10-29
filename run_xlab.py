@@ -1418,6 +1418,169 @@ def exp_delay(cfg):
     return out
 
 
+# ---------------------------------------------------------------------------
+# EXP-045 robustness of SPY + gold, and downturn protection
+# ---------------------------------------------------------------------------
+DOWNTURNS = {
+    "2008-09 recession": ("2007-12-01", "2009-06-30"),
+    "2020 Covid recession": ("2020-02-01", "2020-04-30"),
+    "2022 rate rises": ("2022-01-01", "2022-10-31"),
+}
+
+
+def exp_mix(cfg):
+    out, tag = out_dir("mix", cfg)
+    prices = load_universe(cfg, ["SPY", "GLD", "IEF"])
+    aur, _, _, _ = aurum_core_returns(cfg)
+    fund = {**prices, "AURUM": returns_as_prices(aur.daily["ret"])}
+    idx = X.common_index(fund)
+    fund = {t: p.reindex(idx) for t, p in fund.items()}
+    rf = data.cash_rate(idx, cfg)
+    fill = cfg["strategy"].get("fill", "open")
+    costs = {**X.COSTS, "AURUM": 0.0}
+    per = X.periods(idx[0])
+
+    def frame(w: dict) -> pd.DataFrame:
+        return pd.DataFrame(w, index=idx)
+
+    def every(df, months):
+        first = df.index.to_series().groupby([df.index.year, df.index.month]).transform("min") == df.index.to_series()
+        keep = first & ((df.index.month - 1) % months == 0)
+        return df.where(keep, np.nan)
+
+    variants = {"SPY buy & hold": frame({"SPY": 1.0}).where(pd.Series(np.arange(len(idx)) == 0, index=idx))}
+    for a in (0.1, 0.2, 0.3, 0.4, 0.5):
+        variants[f"SPY/GLD {round((1 - a) * 100)}/{round(a * 100)} monthly"] = every(frame({"SPY": 1 - a, "GLD": a}), 1)
+    base = frame({"SPY": 0.7, "GLD": 0.3})
+    variants["SPY/GLD 70/30 quarterly"] = every(base, 3)
+    variants["SPY/GLD 70/30 yearly"] = every(base, 12)
+    variants["SPY/GLD 70/30 5-pt band"] = base
+    variants["SPY/GLD/IEF 60/25/15 monthly"] = every(frame({"SPY": 0.6, "GLD": 0.25, "IEF": 0.15}), 1)
+    cap = pd.DataFrame({t: S.vol_target_weight(X.realised_21d(fund[t]["Close"]), 0.20) for t in ("SPY", "GLD")})
+    variants["70/30 + risk cap (20% vol)"] = base * cap
+    trend = X.above_sma(fund["SPY"]["Close"], 200).fillna(1.0)
+    variants["70/30 + SPY 200-day trend filter"] = base.assign(SPY=0.7 * trend)
+    variants["SPY 70% + Aurum 30% monthly"] = every(frame({"SPY": 0.7, "AURUM": 0.3}), 1)
+    sims = {}
+    for name, tgt in variants.items():
+        band = 0.05 if "band" in name or "risk cap" in name or "trend" in name else 0.0
+        sims[name] = as_sim(X.run(fund, tgt, rf, costs=costs, band=band, fill=fill).daily)
+    spy_r = sims["SPY buy & hold"].daily["ret"]
+    table = score_table(sims, rf, spy_r, per)
+    table.to_csv(out / "scorecard.csv", index=False)
+    sc = table.set_index(["strategy", "period"])
+    vs = []
+    for n_, s_ in sims.items():
+        row = {"strategy": n_}
+        for p, (lo, hi) in {**per, "full": (None, None)}.items():
+            c = compare_to(s_, sims["SPY buy & hold"], rf, lo, hi, cfg)
+            row.update({f"{p}_{k}": v for k, v in c.items()})
+        vs.append(row)
+    vs = pd.DataFrame(vs).set_index("strategy")
+    vs.to_csv(out / "vs_spy.csv")
+    dn = []
+    for n_, s_ in sims.items():
+        for w, (a, b) in DOWNTURNS.items():
+            from run_lab import window_stats
+
+            ret, mdd = window_stats(s_, a, b)
+            dn.append({"strategy": n_, "window": w, "return": ret, "max_drawdown": mdd})
+    dn = pd.DataFrame(dn)
+    dn.to_csv(out / "downturns.csv", index=False)
+
+    # pre-registered tests
+    def sharpe_up(n_, p):
+        return sc.loc[(n_, p), "sharpe"] > sc.loc[("SPY buy & hold", p), "sharpe"]
+
+    mixes = ["SPY/GLD 80/20 monthly", "SPY/GLD 70/30 monthly", "SPY/GLD 60/40 monthly"]
+    t1a = all(sharpe_up(m, "full") and sum(sharpe_up(m, p) for p in per) >= 2 for m in mixes)
+    t1b = all(sharpe_up(m, "full") for m in ("SPY/GLD 70/30 quarterly", "SPY/GLD 70/30 yearly"))
+    t2 = sc.loc[("SPY/GLD 70/30 monthly", "full"), "cagr"] >= sc.loc[("SPY buy & hold", "full"), "cagr"] - 0.01
+    d_ = dn.set_index(["strategy", "window"])
+    prot = {}
+    for n_ in ("70/30 + risk cap (20% vol)", "70/30 + SPY 200-day trend filter"):
+        less = all(d_.loc[(n_, w), "return"] > d_.loc[("SPY/GLD 70/30 monthly", w), "return"] for w in DOWNTURNS)
+        cost = sc.loc[("SPY/GLD 70/30 monthly", "full"), "cagr"] - sc.loc[(n_, "full"), "cagr"]
+        prot[n_] = (less, cost)
+    fp = FigurePack(
+        out, "EXP-045", "SPY, GLD, IEF (+ Aurum core)", "SPY 2, GLD 3, IEF 3 bps", SPLIT_NOTE, f"fills: next {fill}"
+    )
+    show = [
+        "SPY buy & hold",
+        "SPY/GLD 70/30 monthly",
+        "SPY/GLD 60/40 monthly",
+        "70/30 + risk cap (20% vol)",
+        "70/30 + SPY 200-day trend filter",
+        "SPY 70% + Aurum 30% monthly",
+    ]
+    R = {k: sims[k].daily["ret"] for k in show}
+    fp.equity_drawdown(R)
+    fp.annual({k: R[k] for k in show[:3]})
+    fp.rolling(R, spy_r)
+    roll3 = pd.DataFrame({k: (1 + r).rolling(756).apply(np.prod, raw=True) ** (1 / 3) - 1 for k, r in R.items()})
+    fp.lines(roll3, "Rolling 3-year annualised return", "rolling_3y", "date", "annualised return")
+    mixgrid = pd.DataFrame(
+        {
+            p: [sc.loc[(m, p), "sharpe"] for m in [k for k in sims if "monthly" in k and "GLD" in k]]
+            for p in [*per, "full"]
+        },
+        index=[k for k in sims if "monthly" in k and "GLD" in k],
+    )
+    fp.heatmap(mixgrid, "Sharpe ratio of each mix by period (SPY alone: see table)", "mix_sharpe_grid")
+    dd_tbl = dn.pivot(index="strategy", columns="window", values="return").loc[show]
+    fp.by_period(dd_tbl, "Return during each downturn window", "downturns")
+    fp.tails(R)
+    meta = write_meta(out, cfg, {"exp": "EXP-045", "fill": fill}, prices)
+    L = [
+        f"# EXP-045: S&P 500 + gold robustness and downturn protection ({tag}, next-{fill} fills)",
+        "",
+        f"Historical simulation, net of costs, {idx[0].date()} → {idx[-1].date()}.",
+        "",
+        "## Scorecard",
+        "",
+    ]
+    L += period_md(table, list(per))
+    L += [
+        "",
+        "## Versus SPY (whole period)",
+        "",
+        "| Strategy | ΔCAGR | ΔSharpe | resamples with higher Sharpe |",
+        "|---|---|---|---|",
+    ]
+    for n_, r in vs.iterrows():
+        L.append(
+            f"| {n_} | {f_(r['full_d_cagr'], True)} | {f_(r['full_d_sharpe'])} | "
+            + (f"{r['full_share_better']:.0%} |" if np.isfinite(r["full_share_better"]) else "– |")
+        )
+    L += [
+        "",
+        "## Downturns (return over the window)",
+        "",
+        "| Strategy | " + " | ".join(DOWNTURNS) + " |",
+        "|---|" + "---|" * len(DOWNTURNS),
+    ]
+    for n_ in show:
+        L.append(f"| {n_} | " + " | ".join(f_(d_.loc[(n_, w), "return"], True) for w in DOWNTURNS) + " |")
+    L += [
+        "",
+        "## Pre-registered tests",
+        "",
+        "1a. Every mix 80/20–60/40 beats SPY's Sharpe overall and in ≥ 2 of 3 periods: "
+        f"**{'PASS' if t1a else 'FAIL'}**",
+        f"1b. 70/30 beats SPY's Sharpe with quarterly and yearly rebalancing: **{'PASS' if t1b else 'FAIL'}**",
+        f"2. 70/30 CAGR within 1 point of SPY's: **{'PASS' if t2 else 'FAIL'}**",
+    ]
+    for n_, (less, cost) in prot.items():
+        L.append(
+            f"3. {n_}: loses less than 70/30 in every downturn: {'yes' if less else 'no'}; costs "
+            f"{cost:+.1%} a year vs 70/30: **{'PASS' if less and cost <= 0.01 else 'FAIL'}**"
+        )
+    L += ["", *fp.markdown_index()]
+    (out / "summary.md").write_text("\n".join(L) + "\n")
+    print(meta["run_at"])
+    return out
+
+
 EXPS = {
     "sp500": exp_sp500,
     "trend": exp_trend,
@@ -1427,6 +1590,7 @@ EXPS = {
     "ml": exp_ml,
     "macro": exp_macro,
     "delay": exp_delay,
+    "mix": exp_mix,
 }
 
 

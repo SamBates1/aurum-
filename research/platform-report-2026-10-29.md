@@ -27,7 +27,7 @@ were wrong) · **implemented** (built and unit-tested, not yet exercised on real
 | Live view: prices refresh every minute, clearly labelled as delayed about 15 minutes (Yahoo); data labelled EOD / STALE / SYNTHETIC everywhere | **Implemented** | paper and designer pages |
 | Strategy registry page (versions, status history, runs, Fair Test reports, approvals) | **Implemented** | `pages/4_Strategy_Registry.py` |
 | Quant Desk integration: the desk now reads the saved strategies, their Fair Test verdicts, approvals and paper ledgers (numbers copied from saved files, never computed by the model) | **Implemented** | `aurum/desk.py` |
-| Real-data runs on GitHub (`designer:` line in `research/experiments/RUN`) | **Implemented and verified** (workflow run on commit 124ae7f, success) | `run_designer.py`, `.github/workflows/experiments.yml` |
+| Real-data runs on GitHub (`designer:` line in `research/experiments/RUN`) | **Implemented and verified**: two runs (commits 124ae7f and f6555f3) gave identical results and verdicts | `run_designer.py`, `.github/workflows/experiments.yml` |
 | Alpaca paper connection | **Blocked**: needs your Alpaca paper account, the keys stored only as GitHub Secrets, and your confirmation that paper keys are acceptable under "no storage of real brokerage credentials" | — |
 
 ## 2. Results on real data (2006-06-01 to 2026-10-29)

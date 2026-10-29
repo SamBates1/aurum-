@@ -10,8 +10,8 @@ venv/
 # runtime state and generated data (never commit)
 paper_ledger.json
 paper_ledger.tmp
-data/
-results/
+/data/
+/results/
 reports/latest-synthetic/
 
 # synthetic experiment runs only check the code; real runs are committed

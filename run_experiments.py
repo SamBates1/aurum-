@@ -93,14 +93,20 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--quick", action="store_true", help="retrain yearly and use fewer bootstrap draws")
     ap.add_argument("--tickers", nargs="*", help="subset of tickers")
+    ap.add_argument(
+        "--fill", choices=["open", "close"], help="override order fills (EXP-010: 'close' = next-day close)"
+    )
     args = ap.parse_args()
     cfg = copy.deepcopy(CFG)
     if args.quick:
         cfg["model"]["retrain_every_days"] = 252
         cfg["research"]["bootstrap_reps"] = 200
+    if args.fill:
+        cfg["strategy"]["fill"] = args.fill
     run_at = datetime.now(timezone.utc)
     tag = "synthetic" if cfg.get("offline") else "real"
-    out = RESULTS / f"{run_at:%Y-%m-%d}-{tag}{'-quick' if args.quick else ''}"
+    suffix = ("-quick" if args.quick else "") + (f"-{args.fill}fill" if args.fill else "")
+    out = RESULTS / f"{run_at:%Y-%m-%d}-{tag}{suffix}"
     out.mkdir(parents=True, exist_ok=True)
 
     variants = build_variants()
@@ -161,8 +167,10 @@ def main():
     lo, hi = periods["development"]
     dev_rets = pd.DataFrame({n: slice_sim(p["net"], lo, hi).daily["ret"] for n, p in port.items()})
     dev_ex = dev_rets.sub(risk_free_daily(rf, dev_rets.index), axis=0)
-    trial_sr = [dev_ex[c].mean() / dev_ex[c].std(ddof=1) for c in dev_ex]
-    pbo = stats.probability_of_backtest_overfitting(dev_ex)
+    # reference rows (exp "REF", e.g. buy & hold) are shown for comparison but are not trials
+    trial_cols = [v.name for v in variants if v.exp != "REF"]
+    trial_sr = [dev_ex[c].mean() / dev_ex[c].std(ddof=1) for c in trial_cols]
+    pbo = stats.probability_of_backtest_overfitting(dev_ex[trial_cols])
 
     rows = []
     for v in variants:
@@ -174,10 +182,19 @@ def main():
         for (period, mode), d in res_p.items():
             for k, val in d.items():
                 r[f"{period}_{mode}_{k}"] = val
+        if "buy_hold" in port:  # profit check: how does each variant compare with simply holding?
+            for period, (a, b) in periods.items():
+                vb = compare(port[v.name]["net"], port["buy_hold"]["net"], rf, a, b, cfg)
+                r[f"{period}_net_vs_bh_d_sharpe"] = vb["d_sharpe"]
+                r[f"{period}_net_vs_bh_d_cagr"] = (vb["cagr"] or np.nan) - (
+                    performance(slice_sim(port["buy_hold"]["net"], a, b), rf).get("cagr") or np.nan
+                )
         r["dsr_dev"] = stats.deflated_sharpe(dev_ex[v.name], trial_sr)
         r["verdict"] = (
             "baseline"
             if v.name == "baseline"
+            else "reference"
+            if v.exp == "REF"
             else verdict(
                 res_p[("development", "net")], res_p[("development", "x2")], res_p[("holdout", "net")], r["dsr_dev"]
             )
@@ -206,7 +223,8 @@ def main():
         "quick": args.quick,
         "tickers": tickers,
         "config_hash": config_hash(cfg),
-        "n_trials": len(variants),
+        "n_trials": len([v for v in variants if v.exp != "REF"]),
+        "fill": cfg["strategy"].get("fill", "open"),
         "pbo_development": pbo,
         "development": [str(periods["development"][0].date()), str(periods["development"][1].date())],
         "holdout_start": str(hold_start.date()),
@@ -230,7 +248,8 @@ def write_summary(out: Path, t: pd.DataFrame, meta: dict):
     pbo = meta["pbo_development"]
     lines += [
         f"Tickers: {', '.join(meta['tickers'])}. Development {meta['development'][0]} → {meta['development'][1]}; "
-        f"holdout from {meta['holdout_start']}. Config `{meta['config_hash']}`. {meta['n_trials']} variants tried.",
+        f"holdout from {meta['holdout_start']}. Config `{meta['config_hash']}`, orders filled at the next "
+        f"{meta.get('fill', 'open')}. {meta['n_trials']} variants tried (reference rows excluded).",
         "",
         "**Probability of backtest overfitting across all variants (development):** "
         f"{pbo.get('pbo', float('nan')):.0%} "
@@ -255,9 +274,23 @@ def write_summary(out: Path, t: pd.DataFrame, meta: dict):
             else f"| {r['exp']} | {r['variant']} | {f(r['development_net_sharpe'])} | – | – | – | "
             f"{f(r['development_net_max_drawdown'], True)} | – | {r['dsr_dev']:.2f} | {r['verdict']} |"
         )
-    if meta.get("failed_variants"):
-        lines += ["", "**Variants dropped because they raised errors (fix and re-run):**", ""]
-        lines += [f"- `{k}`: {v}" for k, v in meta["failed_variants"].items()]
+    if "development_net_vs_bh_d_sharpe" in t:
+        lines += [
+            "",
+            "## Profit check: every variant vs simply holding (buy & hold), net of costs",
+            "",
+            "| Exp | Variant | Dev CAGR | Dev Sharpe | Dev max DD | Dev ΔSharpe vs B&H | Dev ΔCAGR vs B&H | "
+            "Holdout CAGR | Holdout max DD | Holdout ΔSharpe vs B&H |",
+            "|---|---|---|---|---|---|---|---|---|---|",
+        ]
+        for _, r in t.iterrows():
+            lines.append(
+                f"| {r['exp']} | {r['variant']} | {f(r['development_net_cagr'], True)} | "
+                f"{f(r['development_net_sharpe'])} | {f(r['development_net_max_drawdown'], True)} | "
+                f"{f(r['development_net_vs_bh_d_sharpe'])} | {f(r['development_net_vs_bh_d_cagr'], True)} | "
+                f"{f(r['holdout_net_cagr'], True)} | {f(r['holdout_net_max_drawdown'], True)} | "
+                f"{f(r['holdout_net_vs_bh_d_sharpe'])} |"
+            )
     if meta.get("failed_variants"):
         lines += ["", "**Variants dropped because they raised errors (fix and re-run):**", ""]
         lines += [f"- `{k}`: {v}" for k, v in meta["failed_variants"].items()]

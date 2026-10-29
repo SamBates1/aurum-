@@ -97,6 +97,9 @@ def test_variant_names_unique_and_cheap_variants_run(quick_ctx):
         "dd_breaker",
         "miner_vs_gdx_reversion",
         "base_model_tb_exits",
+        "default_long",
+        "default_long_full_chandelier",
+        "buy_hold",
     }
     for v in variants:
         if v.name in cheap:

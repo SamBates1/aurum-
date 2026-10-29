@@ -11,7 +11,7 @@ switched on in config.yaml without writing a second implementation.
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 import numpy as np
 import pandas as pd
@@ -118,7 +118,8 @@ class Context:
             cost_bps=cost_bps,
             cash_rate=self.res.rf,
             target_vol=target_vol or self.scfg["target_vol"],
-            rules=rules or S.rules_from_config(self.scfg),
+            # every variant uses the configured fill convention (EXP-010 switches it for the whole run)
+            rules=replace(rules, fill=self.scfg.get("fill", "open")) if rules else S.rules_from_config(self.scfg),
             block_entries=block,
             fixed_exposure=fixed_exposure,
         )
@@ -320,5 +321,68 @@ def build_variants() -> list[Variant]:
         "base_model_tb_exits",
         "Baseline model, triple-barrier exits (ablation)",
         lambda c, k: c.sim(cost_bps=k, rules=tb_rules(c)),
+    )
+
+    # EXP-013 invested by default: hold unless the score says SELL; protect with stops/exits
+    def default_long(c):
+        sc = c.res.score
+        d = pd.Series(S.HOLD, index=sc.index, dtype=object)
+        d[sc > c.scfg["sell_below"]] = S.BUY
+        d[sc <= c.scfg["sell_below"]] = S.SELL
+        return d
+
+    cool = 10  # trading days before re-entering after a stop, fixed a priori
+    add(
+        "EXP-013",
+        "default_long",
+        "Invested unless score <= -0.20; vol-targeted; 2-ATR stop; re-enter 10 days after a stop",
+        lambda c, k: c.sim(
+            decisions=default_long(c), cost_bps=k, rules=S.RiskRules(sc(c)["stop_atr_mult"], reentry_cooldown_days=cool)
+        ),
+    )
+    add(
+        "EXP-013",
+        "default_long_full",
+        "As default_long but fully invested when in (no vol targeting)",
+        lambda c, k: c.sim(
+            decisions=default_long(c),
+            cost_bps=k,
+            fixed_exposure=1.0,
+            rules=S.RiskRules(sc(c)["stop_atr_mult"], reentry_cooldown_days=cool),
+        ),
+    )
+    add(
+        "EXP-013",
+        "default_long_full_nostop",
+        "Fully invested unless score <= -0.20; no stop-loss",
+        lambda c, k: c.sim(
+            decisions=default_long(c), cost_bps=k, fixed_exposure=1.0, rules=S.RiskRules(stop_atr_mult=None)
+        ),
+    )
+    add(
+        "EXP-013",
+        "default_long_full_chandelier",
+        "Fully invested unless score <= -0.20; 3-ATR trailing stop; re-enter 10 days after a stop",
+        lambda c, k: c.sim(
+            decisions=default_long(c),
+            cost_bps=k,
+            fixed_exposure=1.0,
+            rules=S.RiskRules(sc(c)["stop_atr_mult"], trail_atr_mult=3.0, reentry_cooldown_days=cool),
+        ),
+    )
+
+    # reference rows: shown for comparison, not counted as trials
+    always = lambda c: pd.Series(S.BUY, index=c.prices.index, dtype=object)  # noqa: E731
+    add(
+        "REF",
+        "buy_hold",
+        "Buy and hold, fully invested, no stops",
+        lambda c, k: c.sim(decisions=always(c), cost_bps=k, fixed_exposure=1.0, rules=S.RiskRules(stop_atr_mult=None)),
+    )
+    add(
+        "REF",
+        "vol_sized_hold",
+        "Always invested, volatility-targeted, no stops",
+        lambda c, k: c.sim(decisions=always(c), cost_bps=k, rules=S.RiskRules(stop_atr_mult=None)),
     )
     return V

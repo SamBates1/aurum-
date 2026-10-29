@@ -62,6 +62,8 @@ AURUM_OFFLINE=1 python run_experiments.py --quick   # synthetic: checks the code
 | [EXP-006](EXP-006-mean-reversion.md) | Bollinger dips, miner vs GDX reversion | Mean-reversion literature; Tufano | Run: inconclusive, not adopted |
 | [EXP-007](EXP-007-triple-barrier.md) | Triple-barrier labels and exits (trade plan) | López de Prado (AFML ch. 3) | Run: inconclusive, not adopted |
 | [EXP-008](EXP-008-cot-positioning.md) | CFTC positioning signal | CFTC COT data | Designed, not coded |
+| [EXP-010](EXP-010-close-fills.md) | Fill at the next close instead of the next open (robustness check) | Quantpedia [S20] | Pre-registered, running |
+| [EXP-013](EXP-013-invested-by-default.md) | Invested by default, protect when needed | First real results; profit goal | Pre-registered, running |
 | EXP-009 (proposed) | Chandelier trailing stop, confirmatory | EXP-005 result | Not run: needs data not used in EXP-005 (new months via paper trading, or other assets) to be a fair test |
 
 Results of each run go in `results/<date>-real/summary.md`; conclusions are copied into each EXP file's

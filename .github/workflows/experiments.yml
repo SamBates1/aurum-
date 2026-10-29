@@ -2,7 +2,8 @@ name: Experiments
 
 # Runs the research report and the pre-registered experiments on real market data on
 # GitHub's machines, then commits the results back to the repository.
-# Start a run by: pushing a change to research/experiments/RUN (what Claude does),
+# Start a run by: pushing a change to research/experiments/RUN (what Claude does; its "run:" lines
+# choose which experiment runs to do),
 # the "Run workflow" button in the Actions tab, or the optional weekly schedule below.
 on:
   push:
@@ -40,12 +41,22 @@ jobs:
         run: python run_research.py 2>&1 | tee research-run.log
         shell: bash -o pipefail {0}
       - name: Experiments
+        # Each line of research/experiments/RUN starting with "run:" is one experiment run, e.g.
+        #   run: --fill close
+        # With no "run:" lines: one run, quick if the first word of RUN is "quick" or the button asked for it.
         run: |
+          : > experiments-run.log
           if [ "${{ inputs.quick }}" = "true" ] || grep -qi '^quick' research/experiments/RUN 2>/dev/null; then
-            python run_experiments.py --quick 2>&1 | tee experiments-run.log
+            default_args="--quick"
           else
-            python run_experiments.py 2>&1 | tee experiments-run.log
+            default_args=""
           fi
+          lines=$(grep '^run:' research/experiments/RUN 2>/dev/null | sed 's/^run://' || true)
+          if [ -z "$lines" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then lines="$default_args"; fi
+          while IFS= read -r args; do
+            echo "=== python run_experiments.py $args ===" | tee -a experiments-run.log
+            python run_experiments.py $args 2>&1 | tee -a experiments-run.log
+          done <<< "$lines"
         shell: bash -o pipefail {0}
       - name: Commit results (also on failure, with the logs)
         if: always()

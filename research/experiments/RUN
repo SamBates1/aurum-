@@ -1,4 +1,7 @@
 full
-Edit this file (first word: "full" or "quick") and push to main to start an automated run
-of run_research.py and run_experiments.py on GitHub's machines. See .github/workflows/experiments.yml.
-Requested: 2026-10-29 re-run (first run's experiment results were dropped by a .gitignore rule, now fixed).
+run:
+run: --fill close
+Edit this file and push to main to start an automated run on GitHub's machines (see
+.github/workflows/experiments.yml). Each "run:" line is one run_experiments.py run with those arguments.
+Requested: 2026-10-29 stages 1-2: EXP-013 (invested by default) with normal fills, and EXP-010 (whole
+registry with next-close fills).

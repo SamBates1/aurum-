@@ -41,3 +41,33 @@ def cost_bps(ticker: str, cfg: dict = CFG) -> float:
 def config_hash(cfg: dict = CFG) -> str:
     """Short fingerprint of the configuration, recorded with every research run."""
     return hashlib.sha256(json.dumps(cfg, sort_keys=True, default=str).encode()).hexdigest()[:12]
+
+
+def code_fingerprint() -> str:
+    """Hash of the research code (aurum/*.py and the run_*.py scripts). Recorded with every result and used in
+    checkpoint names, so a code change can never silently reuse results computed by older code."""
+    h = hashlib.sha256()
+    for p in sorted([*(ROOT / "aurum").glob("*.py"), *ROOT.glob("run_*.py")]):
+        h.update(p.name.encode())
+        h.update(p.read_bytes())
+    return h.hexdigest()[:12]
+
+
+def git_commit() -> str:
+    """Current git commit (short), or 'unknown' outside a git checkout."""
+    import subprocess
+
+    try:
+        out = subprocess.run(
+            ["git", "rev-parse", "--short", "HEAD"], cwd=ROOT, capture_output=True, text=True, timeout=10
+        )
+        dirty = subprocess.run(
+            ["git", "status", "--porcelain", "--", "aurum", "run_*.py", "config.yaml"],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        ).stdout.strip()
+        return (out.stdout.strip() or "unknown") + ("-dirty" if dirty else "")
+    except Exception:
+        return "unknown"

@@ -31,7 +31,7 @@ import pandas as pd
 from aurum import data, stats
 from aurum import strategy as S
 from aurum.backtest import combine_sleeves, performance, risk_free_daily, slice_sim
-from aurum.config import CFG, ROOT, all_tickers, config_hash, cost_bps, is_equity
+from aurum.config import CFG, ROOT, all_tickers, code_fingerprint, config_hash, cost_bps, git_commit, is_equity
 from aurum.experiments import Context, build_variants
 from aurum.pipeline import research
 
@@ -139,7 +139,12 @@ def main():
     import hashlib
 
     vkey = hashlib.sha256(",".join(v.name for v in variants).encode()).hexdigest()[:8]
-    ckpt = RESULTS / ".checkpoints" / f"{tag}{'-quick' if args.quick else ''}-{config_hash(cfg)}-{vkey}"
+    # audit 2026-10-29: the key now includes the code fingerprint, so changed code never reuses old checkpoints
+    ckpt = (
+        RESULTS
+        / ".checkpoints"
+        / f"{tag}{'-quick' if args.quick else ''}-{config_hash(cfg)}-{code_fingerprint()}-{vkey}"
+    )
     ckpt.mkdir(parents=True, exist_ok=True)
     started = time.time()
     for n_done, t in enumerate(tickers):
@@ -244,6 +249,9 @@ def main():
         "quick": args.quick,
         "tickers": tickers,
         "config_hash": config_hash(cfg),
+        "code_fingerprint": code_fingerprint(),
+        "git_commit": git_commit(),
+        "data_fingerprint": data.data_fingerprint({t: xs_closes[t].dropna() for t in xs_closes}),
         "n_trials": len([v for v in variants if v.exp != "REF"]),
         "fill": cfg["strategy"].get("fill", "open"),
         "pbo_development": pbo,

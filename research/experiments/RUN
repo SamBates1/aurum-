@@ -1,8 +1,9 @@
 full
+audit: data
 plab: --set core
-plab: --set core --fill close
-plab: --set other
 Edit this file and push to main to start an automated run on GitHub's machines (see
 .github/workflows/experiments.yml). Each "run:" line is one run_experiments.py run with those arguments;
-each "lab:" line is one run_lab.py run (EXP-020 onwards); each "plab:" line one run_plab.py run (EXP-032 onwards).
-Requested: 2026-10-29 portfolio lab (EXP-032 ... EXP-036, owner's brief): one-account tests of entries, scaling, stops, sizing and risk rules.
+each "lab:" line is one run_lab.py run (EXP-020 onwards); each "plab:" line one run_plab.py run (EXP-032 onwards);
+"audit:" runs run_data_audit.py; each "xlab:" line one run_xlab.py run (EXP-037 onwards).
+Requested: 2026-10-29 master brief, Stage 2: real-data quality audit, and reproduction of the headline result
+(plab core, previously results/2026-10-29-1440-plab-core-real) with code and data fingerprints recorded.

@@ -162,3 +162,27 @@ def test_decision_record_is_written_with_checks(tmp_path, cfg, monkeypatch):
         "price_sane",
     }
     assert rec["expected_risk"]["position_volatility_contribution"] == pytest.approx(0.15)
+
+
+def test_ledger_reconciles_after_random_rebalances(tmp_path, cfg):
+    """Audit 2026-10-29: after any sequence of buys and partial sells, equity - starting cash must equal
+    realised P&L + unrealised P&L (both net of fees), and cash can never go negative."""
+    import numpy as np
+
+    rng = np.random.default_rng(7)
+    book = PaperPortfolio(tmp_path / "ledger.json", cfg)
+    start = cfg["paper"]["starting_cash"]
+    px = {"GLD": 100.0, "GDX": 30.0}
+    for _ in range(60):
+        book.state["orders_by_day"] = {}  # each step is a new trading day
+        for t in px:
+            px[t] *= float(np.exp(rng.normal(0, 0.02)))
+        t = str(rng.choice(list(px)))
+        book.rebalance(t, float(rng.uniform(0, 1)), px[t], px)
+        book.mark_prices(px)
+        eq = book.equity(px)
+        assert book.state["cash"] >= -1e-9
+        assert eq - start == pytest.approx(book.state["realised_pnl"] + book.unrealised_pnl(), abs=1e-6)
+    book.save()
+    again = PaperPortfolio(tmp_path / "ledger.json", cfg)  # restart: state survives exactly
+    assert again.equity(px) == pytest.approx(book.equity(px))

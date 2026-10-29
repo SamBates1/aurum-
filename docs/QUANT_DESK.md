@@ -10,7 +10,17 @@ The Quant Desk is an optional AI conversation layer for the existing Aurum resea
 - **ML Quant** — evaluates model choice, calibration, leakage and incremental predictive value.
 - **Risk Manager** — challenges drawdown, concentration, turnover, costs and position sizing.
 - **Independent Reviewer** — tries to falsify conclusions and checks for overfitting.
-- **Team debate** — four specialists independently assess a question, then the reviewer synthesises their answers.
+- **Team debate** — four specialist prompts assess a question separately, then the reviewer prompt synthesises them.
+
+**How the roles work:** every specialist is the *same* language model given different instructions. They are not
+separate models or independent services, so their views can share the same blind spots. The sidebar shows the active
+provider, model, whether a key is set (never the key) and whether the model runs on your computer.
+
+**What the desk can read:** the README, strategy report, audit, decision log, the experiment registry, the latest
+real-data result folders, and the full record of any experiment you name in your question (e.g. "Why was EXP-014
+adopted?"). It can only open `research/experiments/EXP-nnn-*.md` files by ID, so a question cannot make it read
+other paths. Answers are asked to label statements as historical fact, estimate or hypothesis, and are logged locally
+to `logs/quant_desk.jsonl` (not committed) with the provider and model that produced them.
 
 The desk injects bounded, read-only excerpts from the repository's saved research. It does not execute arbitrary code, edit strategy files, or place trades.
 
@@ -42,9 +52,9 @@ Use a subset:
 
     python scripts/daily_market_report.py --tickers GLD SLV GDX SPY
 
-The script uses Aurum's validated/cache-aware price data layer and writes a Markdown report under reports/daily/. It summarises the most recent available bar, 1/21/63/252-session returns, 21-session annualised volatility, RSI-14, gaps to 50/200-day moving averages, and historical drawdown. The default universe includes Aurum assets plus SPY, QQQ, DBC and TLT as cross-asset comparison candidates. This is descriptive monitoring, not a signal or a fair performance comparison; a proper comparison must use the same dates, fills, costs and risk accounting.
+The script uses Aurum's validated/cache-aware price data layer (completed daily bars only) and writes a Markdown report plus a one-year price chart under reports/daily/. It flags tickers whose last bar is more than 4 days old, labels synthetic data clearly, and summarises the most recent available bar, 1/21/63/252-session returns, 21-session annualised volatility, RSI-14, gaps to 50/200-day moving averages, and historical drawdown, plus a relative-strength ranking, drawdown from the 1-year high, 63-session correlations with SPY and GLD, and the adopted strategy's current target holdings (no orders are placed). The default universe includes Aurum assets plus SPY, QQQ, DBC and TLT as cross-asset comparison candidates. This is descriptive monitoring, not a signal or a fair performance comparison; a proper comparison must use the same dates, fills, costs and risk accounting.
 
-A GitHub Actions workflow runs on weekdays at 21:30 UTC and on manual dispatch. It uploads the report as an artifact for 14 days; it does not commit generated files, call an LLM, place orders or modify the strategy. Data availability and market holidays can cause missing or stale observations, which are shown in the report.
+A GitHub Actions workflow runs on weekdays at 21:30 UTC and on manual dispatch. It uploads the report and chart as an artifact for 14 days. Scheduled workflows only run from the default branch, so the schedule starts once this is on main; it does not commit generated files, call an LLM, place orders or modify the strategy. Data availability and market holidays can cause missing or stale observations, which are shown in the report.
 
 ## Asset comparison and experiment protocol
 

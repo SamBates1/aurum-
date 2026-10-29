@@ -57,6 +57,74 @@ CONTEXT_FILES = (
 )
 
 
+EXP_DIR = "research/experiments"
+
+
+def list_experiments() -> list[dict[str, str]]:
+    """Registry rows (ID, idea, status) parsed from research/experiments/README.md. Read-only."""
+    import re
+
+    path = ROOT / EXP_DIR / "README.md"
+    if not path.is_file():
+        return []
+    rows = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        m = re.match(r"\|\s*\[?(EXP-\d{3})\]?(?:\([^)]*\))?\s*\|\s*([^|]*)\|\s*([^|]*)\|\s*([^|]*)\|", line)
+        if m:
+            rows.append(
+                {
+                    "id": m.group(1),
+                    "idea": m.group(2).strip(),
+                    "origin": m.group(3).strip(),
+                    "status": m.group(4).strip(),
+                }
+            )
+    return rows
+
+
+def experiment_file(exp_id: str) -> str | None:
+    """Full text of one experiment record (hypothesis, rules, results), or None. Only files inside
+    research/experiments named EXP-nnn-*.md can be read, so a question cannot make the desk open other paths."""
+    import re
+
+    if not re.fullmatch(r"EXP-\d{3}", exp_id):
+        return None
+    hits = sorted((ROOT / EXP_DIR).glob(f"{exp_id}-*.md"))
+    return hits[0].read_text(encoding="utf-8") if hits else None
+
+
+def latest_results(limit: int = 8) -> list[str]:
+    """Names of the most recent real-data result folders (newest first)."""
+    base = ROOT / EXP_DIR / "results"
+    if not base.is_dir():
+        return []
+    names = sorted((p.name for p in base.iterdir() if p.is_dir() and "real" in p.name), reverse=True)
+    return names[:limit]
+
+
+def context_for(question: str, max_chars: int = 16000) -> str:
+    """Research context for one question: the standard files plus any experiment the question names (e.g.
+    'EXP-037'), the experiment registry and the latest result folders. Read-only and size-bounded."""
+    import re
+
+    parts = []
+    ids = list(dict.fromkeys(re.findall(r"EXP-\d{3}", question.upper())))[:3]
+    for i in ids:
+        text = experiment_file(i)
+        parts.append(f"\n--- EXPERIMENT RECORD {i} ---\n" + (text[:5000] if text else "No such experiment record."))
+    reg = list_experiments()
+    if reg:
+        parts.append(
+            "\n--- EXPERIMENT REGISTRY (id | idea | status) ---\n"
+            + "\n".join(f"{r['id']} | {r['idea'][:80]} | {r['status'][:80]}" for r in reg)
+        )
+    res = latest_results()
+    if res:
+        parts.append("\n--- LATEST REAL-DATA RESULT FOLDERS ---\n" + "\n".join(res))
+    head = "".join(parts)
+    return (head + research_context(max(1000, max_chars - len(head))))[:max_chars]
+
+
 def research_context(max_chars: int = 14000) -> str:
     """Return bounded, read-only excerpts from known research files."""
     sections: list[str] = []
@@ -149,7 +217,9 @@ def agent_reply(
         "say so. Never imply you executed code or checked live markets unless supplied evidence proves it. "
         "Never claim a strategy is profitable without robust out-of-sample evidence. "
         "Do not request or expose secrets. Do not make or execute real-money trades.\n\n"
-        f"READ-ONLY AURUM RESEARCH CONTEXT:\n{context if context is not None else research_context()}"
+        "Label each statement as one of: HISTORICAL FACT (from the files below), ESTIMATE, or HYPOTHESIS. The "
+        "files are saved research, not live market data; say so if asked about current prices.\n\n"
+        f"READ-ONLY AURUM RESEARCH CONTEXT:\n{context if context is not None else context_for(user_message)}"
     )
     messages = [{"role": "system", "content": system}]
     if history:
@@ -164,7 +234,7 @@ def agent_reply(
 
 def team_debate(question: str, context: str | None = None) -> list[tuple[str, str]]:
     """Ask specialists independently, then ask the reviewer to synthesise their answers."""
-    shared_context = context if context is not None else research_context()
+    shared_context = context if context is not None else context_for(question)
     selected = ("Quant Researcher", "Macro Analyst", "ML Quant", "Risk Manager")
     results: list[tuple[str, str]] = []
     for name in selected:

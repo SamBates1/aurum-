@@ -141,3 +141,21 @@ def test_provider_info_and_audit_record_never_contain_the_key(monkeypatch, tmp_p
 def test_missing_research_files_are_reported_not_invented(monkeypatch, tmp_path):
     monkeypatch.setattr(desk, "ROOT", tmp_path)
     assert desk.research_context() == "No repository research files were available to load."
+
+
+def test_desk_reads_named_experiments_and_registry_only():
+    reg = desk.list_experiments()
+    assert any(r["id"] == "EXP-014" for r in reg)
+    assert "vol_hold" in (desk.experiment_file("EXP-014") or "")
+    assert desk.experiment_file("../../config") is None and desk.experiment_file("EXP-014/../../x") is None
+    ctx = desk.context_for("Why was EXP-014 adopted?", max_chars=8000)
+    assert "EXPERIMENT RECORD EXP-014" in ctx and len(ctx) <= 8000
+    assert "No such experiment record" in desk.context_for("What about EXP-999?")
+
+
+def test_system_prompt_requires_fact_estimate_hypothesis_labels(monkeypatch):
+    seen = {}
+    monkeypatch.setattr(desk, "chat_completion", lambda messages, **k: seen.setdefault("m", messages) and "ok")
+    desk.agent_reply("Quant Researcher", "Is EXP-014 robust?")
+    system = seen["m"][0]["content"]
+    assert "HISTORICAL FACT" in system and "HYPOTHESIS" in system and "EXPERIMENT RECORD EXP-014" in system

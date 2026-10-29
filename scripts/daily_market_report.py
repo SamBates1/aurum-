@@ -62,11 +62,89 @@ def fmt(value: float, digits: int = 2) -> str:
     return "n/a" if not np.isfinite(value) else f"{value:.{digits}f}"
 
 
+def extra_sections(closes: dict[str, pd.Series], cfg: dict) -> list[str]:
+    """Relative strength, drawdowns, correlations and the adopted strategy's current target weights."""
+    if not closes:
+        return []
+    L = [
+        "",
+        "## Relative strength and drawdown",
+        "",
+        "| Rank | Ticker | 126-session return % | Drawdown from 1-year high % |",
+        "|---:|---|---:|---:|",
+    ]
+    rs = {t: float((c.iloc[-1] / c.iloc[-min(127, len(c))] - 1) * 100) for t, c in closes.items()}
+    for i, (t, v) in enumerate(sorted(rs.items(), key=lambda kv: -kv[1]), 1):
+        dd = (closes[t].iloc[-1] / closes[t].tail(252).max() - 1) * 100
+        L.append(f"| {i} | {t} | {fmt(v)} | {fmt(float(dd))} |")
+    rets = pd.DataFrame({t: c.pct_change() for t, c in closes.items()}).tail(63)
+    refs = [r for r in ("SPY", "GLD") if r in rets]
+    if refs and len(rets) > 20:
+        corr = rets.corr()
+        L += [
+            "",
+            "## 63-session correlation of daily returns",
+            "",
+            "| Ticker | " + " | ".join(f"vs {r}" for r in refs) + " |",
+            "|---|" + "---:|" * len(refs),
+        ]
+        L += [f"| {t} | " + " | ".join(fmt(float(corr.loc[t, r])) for r in refs) + " |" for t in corr.index]
+    try:  # the adopted strategy's targets (volatility sizing only; never an order)
+        from aurum import strategy as S
+        from aurum.pipeline import sizing_volatility
+        from aurum.volatility import realised_21d
+
+        core = [
+            t
+            for t in cfg.get("universe", {}).get("core", []) + cfg.get("universe", {}).get("equities", [])
+            if t in closes
+        ]
+        if core:
+            sleeve = S.sleeve_weight(len(core), cfg["strategy"]["max_position_pct"])
+            L += [
+                "",
+                "## Adopted strategy: target holdings implied by today's data (no orders placed)",
+                "",
+                "| Ticker | Sizing volatility % | Target share of sleeve | Target share of account |",
+                "|---|---:|---:|---:|",
+            ]
+            for t in core:
+                v21 = realised_21d(closes[t])
+                vol, _ = sizing_volatility(v21, closes[t].index, cfg)
+                w = float(S.vol_target_weight(vol, cfg["strategy"]["target_vol"]).iloc[-1])
+                L.append(f"| {t} | {fmt(float(vol.iloc[-1]) * 100)} | {w:.0%} | {w * sleeve:.1%} |")
+    except Exception as exc:  # optional section: report the reason rather than fail the whole report
+        L += ["", f"_Strategy targets unavailable: {type(exc).__name__}: {exc}_"]
+    return L
+
+
+def price_chart(closes: dict[str, pd.Series], path: Path) -> Path | None:
+    """One-year normalised price chart saved next to the report (descriptive only)."""
+    if not closes:
+        return None
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    fig, ax = plt.subplots(figsize=(10, 4.5))
+    for t, c in closes.items():
+        c1 = c.tail(252)
+        ax.plot(c1.index, c1 / c1.iloc[0], lw=0.9, label=t)
+    ax.set_title("Last 252 sessions, growth of 1 (adjusted closes; not a performance comparison)")
+    ax.legend(fontsize=7, ncol=6)
+    fig.tight_layout()
+    fig.savefig(path, dpi=100)
+    plt.close(fig)
+    return path
+
+
 def build_report(tickers: list[str], cfg: dict = CFG) -> str:
     """Fetch data via Aurum's validated/cache-aware data layer and create a snapshot."""
     now = datetime.now(timezone.utc)
     rows: list[tuple[str, dict]] = []
     failures: list[tuple[str, str]] = []
+    closes: dict[str, pd.Series] = {}
     max_stale = int(cfg.get("data", {}).get("max_stale_days", 4))
     for ticker in dict.fromkeys(tickers):
         try:
@@ -75,6 +153,9 @@ def build_report(tickers: list[str], cfg: dict = CFG) -> str:
             age = data.staleness_days(prices, now=now)
             s["age_days"] = age
             s["stale"] = age > max_stale
+            close = pd.to_numeric(prices["Close"], errors="coerce").dropna()
+            s["drawdown_from_1y_high_pct"] = float((close.iloc[-1] / close.tail(252).max() - 1) * 100)
+            closes[ticker] = close
             rows.append((ticker, s))
         except Exception as exc:
             failures.append((ticker, f"{type(exc).__name__}: {exc}"))
@@ -107,6 +188,7 @@ def build_report(tickers: list[str], cfg: dict = CFG) -> str:
             f"{fmt(s['vol_21d_ann_pct'])} | {fmt(s['rsi_14'])} | {fmt(s['sma50_gap_pct'])} | "
             f"{fmt(s['sma200_gap_pct'])} | {fmt(s['max_drawdown_history_pct'])} |"
         )
+    lines += extra_sections(closes, cfg)
     lines += [
         "",
         "## Interpretation guardrails",
@@ -151,6 +233,11 @@ def main() -> None:
         output = ROOT / output
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(report, encoding="utf-8")
+    try:
+        closes = {t: data.daily_prices(t, cfg=cfg)["Close"] for t in dict.fromkeys(tickers)}
+        price_chart(closes, output.with_suffix(".png"))
+    except Exception as exc:
+        print(f"Chart skipped: {exc}")
     print(f"Saved market snapshot to {output}")
     print(report[:3500])
 

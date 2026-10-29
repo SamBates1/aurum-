@@ -1,8 +1,8 @@
 full
-lab: --set core
-lab: --set core --fill close
-lab: --set other
+plab: --set core
+plab: --set core --fill close
+plab: --set other
 Edit this file and push to main to start an automated run on GitHub's machines (see
 .github/workflows/experiments.yml). Each "run:" line is one run_experiments.py run with those arguments;
-each "lab:" line is one run_lab.py run (research lab, EXP-020 onwards).
-Requested: 2026-10-29 confirmation runs after adopting weekly rebalancing (D-022): the traded baseline now places orders after Friday's close.
+each "lab:" line is one run_lab.py run (EXP-020 onwards); each "plab:" line one run_plab.py run (EXP-032 onwards).
+Requested: 2026-10-29 portfolio lab (EXP-032 ... EXP-036, owner's brief): one-account tests of entries, scaling, stops, sizing and risk rules.

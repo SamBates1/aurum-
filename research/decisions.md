@@ -139,3 +139,9 @@ GDELT-based news scoring was rejected as infeasible to backtest point-in-time wi
 EXP-028: over 2006–2026, volatility targets from 10% to 30% all have Sharpe 0.36–0.38 (buy & hold 0.39). Higher targets
 earn more and fall further (15%: 5.7% a year, worst fall −39.7%; 25%: 7.2%, −54.2%). `target_vol` stays 0.15 until
 the owner chooses.
+
+**D-027 — Back to daily decisions, at the owner's request** (2026-10-29)
+The owner prefers the bot to be able to act on any day. EXP-022 found daily and Friday-only decisions equivalent
+(Sharpe differences within ±0.03 either way); daily reacts sooner after a sudden fall, at about twice the orders
+(39 vs 21 per asset per year, roughly 0.1% a year more in costs). `strategy.rebalance: daily`. An order is still only
+placed when an asset is more than 5 points (of its sleeve) away from target. Weekly stays available as a setting.

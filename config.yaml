@@ -40,7 +40,7 @@ strategy:                       # ONE definition, used by backtest, live signals
   mode: vol_hold                # vol_hold = always invested, sized by volatility (adopted D-020); timing = v0.2 BUY/SELL signals
   vol_estimator: gvz            # gvz = 21-day vol x gold implied/realised ratio (adopted D-021); realised_21d = plain
   rebalance_band: 0.05          # vol_hold: resize only when the weight is off target by more than this
-  rebalance: weekly             # vol_hold: decide orders on the last trading day of each week (D-022); or daily
+  rebalance: daily              # vol_hold: orders may be decided every day (owner's choice, D-027); weekly = Fridays only (D-022)
   weights: {ml: 0.6, technical: 0.4, sentiment: 0.0, fundamentals: 0.0}
   # Sentiment and fundamentals have no point-in-time history, so they cannot be
   # backtested. They are shown live for context with weight 0. Giving them

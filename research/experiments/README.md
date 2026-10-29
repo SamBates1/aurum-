@@ -53,6 +53,12 @@ history and on new assets (EXP-020 onwards):
 - Descriptive rows (risk map, Alpaca checks) and references are not trials and get no verdict.
 - Run: `lab:` lines in `RUN` (e.g. `lab: --set core`), or `python run_lab.py --set core|other [--fill close]`.
 
+## Portfolio lab (rules written 2026-10-29, before any portfolio-lab result existed)
+`run_plab.py` holds every asset and cash in **one account**, as the paper trader and a broker do (the sleeve engine
+kept each asset in its own pot). Baseline `traded` = the traded rule with daily decisions (D-027). Same periods,
+verdict rules and out-of-asset check as the research lab; the trial set is every non-descriptive variant in the run.
+Experiments EXP-032 … EXP-036 (owner's brief of 2026-10-29). Run with `plab:` lines in `RUN`.
+
 ## Running
 
 **Automated (no terminal needed):** `.github/workflows/experiments.yml` runs `run_research.py` and
@@ -95,6 +101,11 @@ AURUM_OFFLINE=1 python run_experiments.py --quick   # synthetic: checks the code
 | [EXP-026](EXP-026-news-risk-indices.md) | News-based risk indices (EPU, GPR) | stage 7 | Run: EPU small but below bar; GPR rejected |
 | [EXP-027](EXP-027-combination.md) | Combine what passed | stage 8 | Not run: nothing to combine |
 | [EXP-028](EXP-028-risk-map.md) | Risk map: 10–30% volatility targets | owner's choice | Run: risk map produced (owner chooses) |
+| [EXP-032](EXP-032-entries-and-scaling.md) | Lump sum vs spreading in, adding to winners, averaging down, buying dips | brief | Pre-registered |
+| [EXP-033](EXP-033-stops-exits-breakers.md) | Stop-losses, trend exits, profit-taking, circuit breakers | brief | Pre-registered |
+| [EXP-034](EXP-034-sizing.md) | Sizing: fixed, inverse-vol, portfolio vol target, miners cap, cash reserve, fixed-fractional | brief | Pre-registered |
+| [EXP-035](EXP-035-risk-levels-and-robustness.md) | Risk levels, robustness grid, costs, one-account engine | brief | Pre-registered |
+| [EXP-036](EXP-036-regimes-and-diagnostics.md) | Regimes, consistency, tails, what normal looks like | brief | Pre-registered |
 | EXP-009 | Chandelier trailing stop, confirmatory | EXP-005 result | Answered by EXP-023 (more history, new assets): rejected |
 
 Results of each run go in `results/<date>-<time>-real[-…]/summary.md`; conclusions are copied into each EXP file's

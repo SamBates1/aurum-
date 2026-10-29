@@ -53,8 +53,9 @@ jobs:
           fi
           lines=$(grep '^run:' research/experiments/RUN 2>/dev/null | sed 's/^run://' || true)
           labs=$(grep '^lab:' research/experiments/RUN 2>/dev/null | sed 's/^lab://' || true)
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then lines="$default_args"; labs=""; fi
-          if [ -z "$lines" ] && [ -z "$labs" ]; then lines="$default_args"; fi
+          plabs=$(grep '^plab:' research/experiments/RUN 2>/dev/null | sed 's/^plab://' || true)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then lines="$default_args"; labs=""; plabs=""; fi
+          if [ -z "$lines" ] && [ -z "$labs" ] && [ -z "$plabs" ]; then lines="$default_args"; fi
           status=0
           if [ -n "$lines" ]; then
             while IFS= read -r args; do
@@ -68,6 +69,13 @@ jobs:
               echo "=== python run_lab.py $args ===" | tee -a experiments-run.log
               python run_lab.py $args 2>&1 | tee -a experiments-run.log || status=1
             done <<< "$labs"
+          fi
+          # "plab:" lines run the portfolio lab (run_plab.py): one-account tests of entries, stops, sizing, risk rules
+          if [ -n "$plabs" ]; then
+            while IFS= read -r args; do
+              echo "=== python run_plab.py $args ===" | tee -a experiments-run.log
+              python run_plab.py $args 2>&1 | tee -a experiments-run.log || status=1
+            done <<< "$plabs"
           fi
           exit $status
         shell: bash -o pipefail {0}

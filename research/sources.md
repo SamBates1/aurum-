@@ -36,6 +36,7 @@ Cited by ID across the knowledge base. "Read" notes how deeply each was checked:
 | S31 | Gao, Han, Li & Zhou (2018), *Market Intraday Momentum*, Journal of Financial Economics (summary) | summary | [Alpha Architect](https://alphaarchitect.com/2014/08/attention-prop-traders-the-first-half-hour-of-trading-predicts-the-last-half-hour/) |
 | S32 | Donati & Jung (2019), *Gold Price Dynamics Around the Clock*, CBS master's thesis | abstract | [CBS](https://research.cbs.dk/en/studentProjects/gold-price-dynamics-around-the-clock/) |
 | S33 | Pattern-day-trader rule removal: SEC approval 14 Apr 2026, effective 4 Jun 2026 | article | [QuantInsti](https://www.quantinsti.com/articles/finra-pdt-rule-removal-2026/), [Schwab](https://international.schwab.com/story/sec-approves-scrapping-25000-day-trader-minimum) |
+| S34 | Vanguard (2012), *Dollar-cost averaging just means taking risk later* | known reference | – |
 | S16 | Politis & Romano (1994), *The Stationary Bootstrap*, Journal of the American Statistical Association | known reference | – |
 | S17 | López de Prado (2018), *Advances in Financial Machine Learning*, Wiley (triple-barrier labels, purging, meta-labelling) | known reference | – |
 | S18 | Bailey & López de Prado (2012), *The Sharpe Ratio Efficient Frontier*, Journal of Risk (Probabilistic Sharpe Ratio) | known reference | – |

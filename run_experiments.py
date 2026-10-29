@@ -106,7 +106,7 @@ def main():
     run_at = datetime.now(timezone.utc)
     tag = "synthetic" if cfg.get("offline") else "real"
     suffix = ("-quick" if args.quick else "") + (f"-{args.fill}fill" if args.fill else "")
-    out = RESULTS / f"{run_at:%Y-%m-%d}-{tag}{suffix}"
+    out = RESULTS / f"{run_at:%Y-%m-%d-%H%M}-{tag}{suffix}"  # time in the name: runs never overwrite each other
     out.mkdir(parents=True, exist_ok=True)
 
     variants = build_variants()

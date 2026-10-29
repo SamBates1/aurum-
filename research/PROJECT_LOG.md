@@ -89,7 +89,18 @@ EXP-010 (next-close fills) proposed as a validity check. Also proposed: HAR vola
 (EXP-011), a smoother continuous trend signal to cut costs (EXP-012), gold implied volatility (GVZ), and price
 ranges for the trade-plan idea. Seasonality: low priority. GDX overnight drift: rejected.
 
+## 2026-10-29 — Stages 1–2: fill check and invested-by-default
+- **EXP-010** (whole registry with next-close fills): conclusions unchanged; open fills only mildly flattering
+  (D-018). Miner-vs-GDX reversion looked much stronger with close fills: flagged for follow-up.
+- **EXP-013** (invested by default): more return than the baseline, but fully invested variants had buy-and-hold
+  sized drawdowns; no variant beat buy & hold risk-adjusted. Buy & hold had the best Sharpe of all (0.30).
+- **Key lesson:** Aurum's protection comes from position sizing, not timing. Proposed new baseline:
+  always invested with volatility-targeted size (D-019), pending the owner's decision.
+- Engine: optional close fills and re-entry cooldown; result folders now time-stamped so runs never overwrite.
+
 ## Open questions
 - Does the chandelier stop hold up on new data (EXP-009)?
+- Is the miner-vs-GDX effect real, or an artefact of fill timing?
+- Can any prediction signal beat volatility-sized holding (D-019)?
 - Does the gold/real-yield regime break show up as poor holdout performance?
 - Should ML be kept at all if trend rules match it (EXP-002 vs baseline)?

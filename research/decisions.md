@@ -73,3 +73,16 @@ history is usually below median in the other half. Reasons: adopting the best-lo
 exactly the selection bias the rules exist to prevent. Kept: intrabar stops (D-012, confirmed by EXP-001).
 Candidate: chandelier trailing stop (EXP-005) passed every rule except the deflated Sharpe (0.39 < 0.50).
 Revisit if: the chandelier stop is confirmed on data not used here (EXP-009).
+
+**D-018 — Keep next-open fills as default; check headline results with close fills** (2026-10-29)
+EXP-010: rerunning the whole registry with next-close fills changed the baseline's development Sharpe by only
+0.06 and changed no conclusion. Open fills were mildly flattering. Every future headline result is also run
+with `--fill close` before being trusted.
+
+**D-019 — Invested-by-default timing not adopted; volatility-sized holding becomes the candidate baseline** (2026-10-29)
+EXP-013: being invested more raised returns but, when fully invested, drawdowns matched buy & hold, so the
+signal's exits do not protect capital. Buy & hold had the best Sharpe of everything tested (0.30 development).
+The protection comes from volatility-targeted sizing. Proposal: make "always invested, volatility-targeted"
+(`vol_sized_hold`: development Sharpe 0.22, max DD −25.8%; holdout CAGR 28.3%) the baseline that every new
+prediction idea must beat, so ideas are judged on whether they add anything to simply holding with sensible
+sizing. To be confirmed by the owner before changing the traded strategy.

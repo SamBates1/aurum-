@@ -18,9 +18,10 @@ Risk-control path is the relevant one: volatility-adjusted drawdown -20% with Δ
 ## Main risks and limitations
 The 2022 regime break means a gate that worked in 2010–2021 may fail in the holdout; that is exactly what the holdout tests. HMMs deliberately excluded (see topics/regimes.md).
 
-## Results (real data, run 2026-10-29, `results/2026-10-29-real/`)
+## Results (real data, first run 2026-10-29 11:34 UTC; files at commit `c3d1f65`, `results/2026-10-29-real/`)
 Portfolio of 6 sleeves, net of costs, vs the baseline over identical dates. Development 2013-10-18 → 2023-12-31;
-holdout from 2024-01-01. 26 variants tried in total; PBO across them 77%.
+holdout from 2024-01-01. 26 variants tried in total; PBO across them 77%. (The same folder name was
+reused by the 12:12 run, which added EXP-013 and overwrote these files; they remain in git history.)
 
 | Variant | Dev Sharpe | Dev ΔSharpe | better | ΔSharpe 2× cost | Dev max DD | Holdout ΔSharpe | DSR | Verdict |
 |---|---|---|---|---|---|---|---|---|

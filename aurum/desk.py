@@ -66,9 +66,12 @@ def research_context(max_chars: int = 14000) -> str:
             content = path.read_text(encoding="utf-8")
         except OSError:
             continue
-        excerpt = content[: min(remaining, 4500)]
-        sections.append(f"\n--- REPOSITORY FILE: {rel} ---\n{excerpt}")
-        remaining -= len(excerpt)
+        header = f"\n--- REPOSITORY FILE: {rel} ---\n"
+        if remaining <= len(header):
+            break
+        excerpt = content[: min(remaining - len(header), 4500)]
+        sections.append(header + excerpt)
+        remaining -= len(header) + len(excerpt)
         if remaining <= 0:
             break
     return "\n".join(sections) or "No repository research files were available to load."

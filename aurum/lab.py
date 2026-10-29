@@ -66,7 +66,10 @@ class LabCtx:
         return self.prices["Close"]
 
     def on_index(self, s: pd.Series | None) -> pd.Series | None:
-        return None if s is None else align(s.to_frame("v"), self.prices.index)["v"]
+        if s is None:
+            return None
+        s = s[~s.index.duplicated(keep="last")].sort_index()  # e.g. weekend values lagged onto the same Monday
+        return align(s.to_frame("v"), self.prices.index)["v"]
 
     @property
     def vol21(self) -> pd.Series:
@@ -215,6 +218,7 @@ def risk_mult(c: LabCtx, key: str) -> pd.Series:
         return pd.Series(1.0, index=c.prices.index)
     zkey = f"{key}_z"
     if zkey not in c.shared:
+        s = s[~s.index.duplicated(keep="last")].sort_index()
         c.shared[zkey] = risk_index_z(s)
     return capped_tilt(c.on_index(c.shared[zkey]), 1.0).fillna(1.0)  # more risk in the news -> hold more metal
 

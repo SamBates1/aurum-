@@ -395,9 +395,18 @@ def gpr_daily(cfg: dict = CFG) -> pd.Series:
         if date_c is None or val_c is None:
             raise DataError(f"GPR columns not recognised: {list(raw.columns)[:10]}")
         d = raw[date_c]
-        idx = pd.to_datetime(d.astype(str), format="%Y%m%d", errors="coerce") if d.dtype != "<M8[ns]" else d
-        s = pd.Series(pd.to_numeric(raw[val_c], errors="coerce").to_numpy(), index=idx).dropna()
-        return s[~s.index.isna()].sort_index().to_frame("gprd")
+        if pd.api.types.is_datetime64_any_dtype(d):
+            idx = pd.DatetimeIndex(d)
+        else:  # yyyymmdd numbers, or date strings
+            txt = d.astype(str).str.replace(r"\.0$", "", regex=True)
+            idx = pd.DatetimeIndex(pd.to_datetime(txt, format="%Y%m%d", errors="coerce"))
+            if idx.isna().all():
+                idx = pd.DatetimeIndex(pd.to_datetime(txt, errors="coerce"))
+        s = pd.Series(pd.to_numeric(raw[val_c], errors="coerce").to_numpy(), index=idx)
+        s = s[~s.index.isna()].dropna().sort_index()
+        if s.empty:
+            raise DataError(f"GPR file parsed to no rows (date column {date_c!r}, sample {list(d.head(3))})")
+        return s[~s.index.duplicated(keep="last")].to_frame("gprd")
 
     df = _cached("GPR_daily", "iacoviello:gpr_daily", fetch, 24 * 3)
     return publication_lag(df.iloc[:, 0].astype(float), 1)

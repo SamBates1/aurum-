@@ -4,6 +4,7 @@ Uses the OpenAI-compatible Chat Completions API via the standard library, so no
 additional Python dependency is required. By default it targets a local Ollama
 server; a hosted endpoint may incur usage charges.
 """
+
 from __future__ import annotations
 
 import json
@@ -49,6 +50,8 @@ AGENTS: dict[str, str] = {
 CONTEXT_FILES = (
     "README.md",
     "research/strategy-report-2026-10-29.md",
+    "research/audit-2026-10-29.md",
+    "research/experiments/README.md",
     "research/decisions.md",
     "research/experiments/results/2026-10-29-1440-plab-core-real/summary.md",
 )
@@ -77,10 +80,30 @@ def research_context(max_chars: int = 14000) -> str:
     return "\n".join(sections) or "No repository research files were available to load."
 
 
+HOW_ROLES_WORK = (
+    "All specialists are the same language model given different instructions (system prompts). They are not "
+    "separate models or independent services, so their 'independent' views can share the same blind spots."
+)
+
+
+def provider_info() -> dict[str, str | bool]:
+    """Active provider settings for display and audit records. Never includes the API key itself."""
+    from urllib.parse import urlparse
+
+    base_url = os.getenv("AURUM_LLM_BASE_URL", "http://localhost:11434/v1").rstrip("/")
+    host = urlparse(base_url).hostname or ""
+    return {
+        "base_url": base_url,
+        "model": os.getenv("AURUM_LLM_MODEL", "qwen2.5:7b"),
+        "api_key_set": bool(os.getenv("AURUM_LLM_API_KEY")),
+        "local": host in {"localhost", "127.0.0.1", "::1"},
+    }
+
+
 def chat_completion(messages: list[dict[str, str]], *, timeout: int = 90) -> str:
     """Call a configured OpenAI-compatible endpoint; never logs credentials."""
-    base_url = os.getenv("AURUM_LLM_BASE_URL", "http://localhost:11434/v1").rstrip("/")
-    model = os.getenv("AURUM_LLM_MODEL", "qwen2.5:7b")
+    info = provider_info()
+    base_url, model = str(info["base_url"]), str(info["model"])
     api_key = os.getenv("AURUM_LLM_API_KEY", "")
     payload = json.dumps({"model": model, "messages": messages, "temperature": 0.2}).encode("utf-8")
     headers = {"Content-Type": "application/json"}
@@ -98,13 +121,16 @@ def chat_completion(messages: list[dict[str, str]], *, timeout: int = 90) -> str
             f"Could not reach AI endpoint at {base_url}. Start your local model server or configure "
             "AURUM_LLM_BASE_URL. For hosted APIs, set AURUM_LLM_API_KEY locally."
         ) from exc
-    except (TimeoutError, json.JSONDecodeError) as exc:
+    except (TimeoutError, json.JSONDecodeError, UnicodeDecodeError) as exc:
         raise RuntimeError(f"AI endpoint timed out or returned invalid JSON: {exc}") from exc
 
     try:
-        return str(result["choices"][0]["message"]["content"]).strip()
+        content = result["choices"][0]["message"]["content"]
     except (KeyError, IndexError, TypeError) as exc:
         raise RuntimeError("AI endpoint response did not contain choices[0].message.content.") from exc
+    if not isinstance(content, str) or not content.strip():
+        raise RuntimeError("AI endpoint returned an empty answer.")
+    return content.strip()
 
 
 def agent_reply(
@@ -158,3 +184,28 @@ def team_debate(question: str, context: str | None = None) -> list[tuple[str, st
     )
     results.append(("Independent Reviewer — synthesis", review))
     return results
+
+
+def audit_record(mode: str, agent: str, question: str, answer: str) -> dict:
+    """What generated a desk answer, for the optional local log (no secrets, no full context)."""
+    from datetime import datetime, timezone
+
+    return {
+        "time": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "mode": mode,
+        "agent": agent,
+        "provider": provider_info(),
+        "roles_note": HOW_ROLES_WORK,
+        "context_files": [f for f in CONTEXT_FILES if (ROOT / f).is_file()],
+        "question": question[:2000],
+        "answer": answer[:6000],
+        "status": "model-generated hypothesis, not a verified result",
+    }
+
+
+def log_answer(record: dict, path: Path | None = None) -> Path:
+    path = path or ROOT / "logs" / "quant_desk.jsonl"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "a", encoding="utf-8") as fh:
+        fh.write(json.dumps(record) + "\n")
+    return path

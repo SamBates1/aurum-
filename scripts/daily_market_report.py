@@ -7,18 +7,26 @@ Examples:
 
 This is descriptive monitoring, not a trading signal or backtest. No orders are placed.
 """
+
 from __future__ import annotations
 
 import argparse
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-from aurum import data
-from aurum.config import CFG, ROOT, all_tickers
-from aurum.features import technical_features
+# `python scripts/daily_market_report.py` puts scripts/ (not the project root) on the import path, so the
+# documented command and the scheduled workflow could not import aurum. Add the project root explicitly.
+_ROOT = Path(__file__).resolve().parents[1]
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
+
+from aurum import data  # noqa: E402
+from aurum.config import CFG, ROOT, all_tickers  # noqa: E402
+from aurum.features import technical_features  # noqa: E402
 
 DEFAULT_COMPARATORS = ["SPY", "QQQ", "DBC", "TLT"]
 
@@ -59,10 +67,15 @@ def build_report(tickers: list[str], cfg: dict = CFG) -> str:
     now = datetime.now(timezone.utc)
     rows: list[tuple[str, dict]] = []
     failures: list[tuple[str, str]] = []
+    max_stale = int(cfg.get("data", {}).get("max_stale_days", 4))
     for ticker in dict.fromkeys(tickers):
         try:
-            prices = data.daily_prices(ticker, cfg=cfg)
-            rows.append((ticker, summarise_prices(prices)))
+            prices = data.completed_bars(data.daily_prices(ticker, cfg=cfg), now=now)
+            s = summarise_prices(prices)
+            age = data.staleness_days(prices, now=now)
+            s["age_days"] = age
+            s["stale"] = age > max_stale
+            rows.append((ticker, s))
         except Exception as exc:
             failures.append((ticker, f"{type(exc).__name__}: {exc}"))
 
@@ -70,7 +83,13 @@ def build_report(tickers: list[str], cfg: dict = CFG) -> str:
         "# Aurum Daily Market Snapshot",
         "",
         f"- Generated (UTC): {now.isoformat(timespec='seconds')}",
-        f"- Mode: {'synthetic/offline' if cfg.get('offline') else 'market data via Aurum data layer'}",
+        "- Mode: "
+        + (
+            "**SYNTHETIC/OFFLINE DATA: not market prices**"
+            if cfg.get("offline")
+            else "end-of-day market data via Aurum's data layer (Yahoo Finance): delayed completed daily bars, not live"
+        ),
+        f"- A ticker is flagged STALE when its last completed bar is more than {max_stale} calendar days old.",
         "- Purpose: descriptive monitoring only; not a recommendation or evidence of predictive alpha.",
         "- Execution: no orders are created or sent.",
         "",
@@ -81,8 +100,9 @@ def build_report(tickers: list[str], cfg: dict = CFG) -> str:
         "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for ticker, s in rows:
+        flag = " (STALE)" if s.get("stale") else ""
         lines.append(
-            f"| {ticker} | {s['last_date']} | {fmt(s['close'], 3)} | {fmt(s['return_1d_pct'])} | "
+            f"| {ticker} | {s['last_date']}{flag} | {fmt(s['close'], 3)} | {fmt(s['return_1d_pct'])} | "
             f"{fmt(s['return_21d_pct'])} | {fmt(s['return_63d_pct'])} | {fmt(s['return_252d_pct'])} | "
             f"{fmt(s['vol_21d_ann_pct'])} | {fmt(s['rsi_14'])} | {fmt(s['sma50_gap_pct'])} | "
             f"{fmt(s['sma200_gap_pct'])} | {fmt(s['max_drawdown_history_pct'])} |"

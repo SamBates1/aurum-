@@ -1,9 +1,19 @@
 """Streamlit page for live conversations with Aurum specialist research agents."""
+
 from __future__ import annotations
 
 import streamlit as st
 
-from aurum.desk import AGENTS, agent_reply, research_context, team_debate
+from aurum.desk import (
+    AGENTS,
+    HOW_ROLES_WORK,
+    agent_reply,
+    audit_record,
+    log_answer,
+    provider_info,
+    research_context,
+    team_debate,
+)
 
 st.set_page_config(page_title="Aurum Quant Desk", page_icon="🧠", layout="wide")
 st.title("🧠 Aurum Quant Desk")
@@ -20,6 +30,13 @@ with st.sidebar:
         "in your shell before starting Streamlit."
     )
     st.caption("Local models can avoid API charges; hosted models may cost money.")
+    info = provider_info()
+    st.markdown(
+        f"**Active provider:** `{info['base_url']}`  \n**Model:** `{info['model']}`  \n"
+        f"**API key set:** {'yes' if info['api_key_set'] else 'no'}  \n"
+        f"**Runs on this computer:** {'yes' if info['local'] else 'no (hosted: may cost money)'}"
+    )
+    st.caption(HOW_ROLES_WORK)
     if st.button("Show loaded research context"):
         st.session_state["show_desk_context"] = not st.session_state.get("show_desk_context", False)
     if st.session_state.get("show_desk_context"):
@@ -31,8 +48,8 @@ if mode == "Chat with one specialist":
     st.caption(AGENTS[agent])
 else:
     st.info(
-        "Four specialists assess the question independently; an independent reviewer then "
-        "challenges and synthesises them."
+        "Four specialist prompts assess the question separately, then a reviewer prompt challenges and "
+        "synthesises them. " + HOW_ROLES_WORK
     )
 
 if "quant_desk_messages" not in st.session_state:
@@ -72,6 +89,7 @@ if question:
                     st.session_state["quant_desk_messages"].append(
                         {"role": "assistant", "agent": agent, "content": answer}
                     )
+                    log_answer(audit_record("specialist", agent, question, answer))
                 except RuntimeError as exc:
                     st.error(str(exc))
     else:
@@ -85,11 +103,13 @@ if question:
                     st.session_state["quant_desk_messages"].append(
                         {"role": "assistant", "agent": name, "content": answer}
                     )
+                    log_answer(audit_record("team debate", name, question, answer))
             except RuntimeError as exc:
                 st.error(str(exc))
 
 st.divider()
 st.caption(
     "Evidence rule: agent suggestions are hypotheses until a reproducible backtest supports them. "
-    "The desk does not automatically train itself, deploy code, or place trades."
+    "The desk does not automatically train itself, deploy code, or place trades. Answers are logged locally "
+    "(logs/quant_desk.jsonl, not committed) with the provider and model that produced them."
 )

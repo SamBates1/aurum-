@@ -50,3 +50,44 @@ def test_report_records_data_failures_and_never_claims_trading(monkeypatch):
     assert "BAD" in report
     assert "no orders" in report.lower()
     assert "unavailable" in report
+
+
+def test_documented_command_runs_offline(tmp_path):
+    """The README command `python scripts/daily_market_report.py` must work from the project root
+    (it previously failed with ModuleNotFoundError: aurum)."""
+    import os
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    out = tmp_path / "r.md"
+    env = {**os.environ, "AURUM_OFFLINE": "1"}
+    r = subprocess.run(
+        [
+            sys.executable,
+            "scripts/daily_market_report.py",
+            "--offline",
+            "--tickers",
+            "GLD",
+            "SPY",
+            "--output",
+            str(out),
+        ],
+        cwd=root,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    assert r.returncode == 0, r.stderr
+    text = out.read_text()
+    assert "SYNTHETIC/OFFLINE DATA" in text and "| GLD |" in text and "| SPY |" in text
+
+
+def test_stale_data_is_flagged(monkeypatch):
+    from aurum import data
+
+    monkeypatch.setattr(data, "daily_prices", lambda ticker, cfg=None: prices())  # ends in 2025: very old
+    report = build_report(["OLD"], cfg={"offline": True, "data": {"max_stale_days": 4}})
+    assert "(STALE)" in report

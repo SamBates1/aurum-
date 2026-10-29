@@ -1,0 +1,92 @@
+{
+  "run_at": "2026-10-29T21:05:26+00:00",
+  "data": "real",
+  "set": "core",
+  "tickers": [
+    "GLD",
+    "SLV",
+    "GDX",
+    "NEM",
+    "AEM",
+    "WPM"
+  ],
+  "portfolio_start": "2006-06-30",
+  "periods": {
+    "pre": [
+      "2006-06-30",
+      "2013-10-17"
+    ],
+    "dev": [
+      "2013-10-18",
+      "2023-12-31"
+    ],
+    "holdout": [
+      "2024-01-01",
+      null
+    ]
+  },
+  "fill": "open",
+  "rebalance": "daily",
+  "config_hash": "06a5da0f55b7",
+  "code_fingerprint": "b818bc92640f",
+  "git_commit": "ee74907",
+  "data_fingerprint": {
+    "GLD": {
+      "rows": 5115,
+      "first": "2006-06-30",
+      "last": "2026-10-29",
+      "sha256_close": "c81d9d2abb232292"
+    },
+    "SLV": {
+      "rows": 5115,
+      "first": "2006-06-30",
+      "last": "2026-10-29",
+      "sha256_close": "9079aa4d331684dd"
+    },
+    "GDX": {
+      "rows": 5115,
+      "first": "2006-06-30",
+      "last": "2026-10-29",
+      "sha256_close": "c9cd3016526b9783"
+    },
+    "NEM": {
+      "rows": 5115,
+      "first": "2006-06-30",
+      "last": "2026-10-29",
+      "sha256_close": "b632e4c68c92b9b6"
+    },
+    "AEM": {
+      "rows": 5115,
+      "first": "2006-06-30",
+      "last": "2026-10-29",
+      "sha256_close": "9ed524d3a31ea8fb"
+    },
+    "WPM": {
+      "rows": 5115,
+      "first": "2006-06-30",
+      "last": "2026-10-29",
+      "sha256_close": "30b5d3dc83ee73ac"
+    }
+  },
+  "n_trials": 19,
+  "pbo_development": {
+    "pbo": 0.4017871017871018,
+    "n_splits": 12870,
+    "median_logit": 1.0986122886681098
+  },
+  "failed_variants": {},
+  "data_events": [
+    {
+      "time": "2026-10-29T21:05:26+00:00",
+      "level": "warning",
+      "source": "GC=F",
+      "message": "1 rows with high < low"
+    },
+    {
+      "time": "2026-10-29T21:05:26+00:00",
+      "level": "warning",
+      "source": "GC=F",
+      "message": "1 rows with high < low"
+    }
+  ]
+}

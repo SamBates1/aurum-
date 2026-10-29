@@ -1,0 +1,60 @@
+{
+  "run_at": "2026-10-29T13:32:42+00:00",
+  "data": "real",
+  "set": "other",
+  "tickers": [
+    "GDXJ",
+    "SIL",
+    "RGLD",
+    "FNV",
+    "KGC",
+    "AU",
+    "PPLT",
+    "PALL"
+  ],
+  "ticker_starts": {
+    "GDXJ": "2010-02-03",
+    "SIL": "2010-05-19",
+    "RGLD": "2010-02-03",
+    "FNV": "2010-02-03",
+    "KGC": "2010-02-03",
+    "AU": "2010-02-03",
+    "PPLT": "2010-02-09",
+    "PALL": "2010-02-09"
+  },
+  "portfolio_start": "2010-05-19",
+  "periods": {
+    "pre": [
+      "2010-05-19",
+      "2013-10-17"
+    ],
+    "dev": [
+      "2013-10-18",
+      "2023-12-31"
+    ],
+    "holdout": [
+      "2024-01-01",
+      null
+    ]
+  },
+  "fill": "open",
+  "config_hash": "0941fb0217c0",
+  "n_trials": 8,
+  "pbo_development": {
+    "pbo": 0.8794871794871795,
+    "n_splits": 12870,
+    "median_logit": -1.252762968495368
+  },
+  "failed_variants": {
+    "gpr_tilt": "PALL: RuntimeError: gpr unavailable"
+  },
+  "combine": null,
+  "data_events": [
+    {
+      "time": "2026-10-29T13:32:44+00:00",
+      "level": "error",
+      "source": "lab:gpr",
+      "message": "unavailable (IndexError: index 0 is out of bounds for axis 0 with size 0)"
+    }
+  ]
+}

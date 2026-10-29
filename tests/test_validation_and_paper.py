@@ -305,3 +305,22 @@ def test_pages_render_without_errors(page, tmp_path, monkeypatch):
     at = AppTest.from_file(str(ROOT / page), default_timeout=300)
     at.run()
     assert not at.exception, [e.value for e in at.exception]
+
+
+def test_main_dashboard_survives_strategy_records_in_the_decision_log(tmp_path, monkeypatch):
+    """Regression: the legacy paper tab crashed (KeyError 'ticker') once the strategy paper trader wrote records."""
+    from streamlit.testing.v1 import AppTest
+
+    from aurum.config import CFG, ROOT
+
+    log = tmp_path / "decisions.jsonl"
+    log.write_text(
+        json.dumps({"time": "t", "kind": "decision", "strategy": "spy-gld-70-30-monthly", "role": "main"})
+        + "\n"
+        + json.dumps({"time": "t", "ticker": "GLD", "planned_order": None, "checks": [], "allowed": True})
+        + "\n"
+    )
+    monkeypatch.setitem(CFG["live"], "decision_log", str(log))
+    at = AppTest.from_file(str(ROOT / "app.py"), default_timeout=500)
+    at.run()
+    assert not at.exception, [e.value for e in at.exception]

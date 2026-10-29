@@ -71,6 +71,10 @@ auto_paper = st.sidebar.toggle(
 )
 if CFG.get("offline"):
     st.sidebar.warning("Offline mode: SYNTHETIC data, not real markets")
+st.sidebar.info(
+    "The paper account now trades the owner's choice, 70/30 SPY/GLD (with a risk-capped shadow): see the "
+    "**Paper Strategies** page. Build and test your own rules in **Strategy Designer**."
+)
 st.sidebar.markdown("---")
 st.sidebar.caption("Educational research project. Signals are not investment advice.")
 
@@ -298,6 +302,12 @@ with tab_bt:
 with tab_paper:
     from aurum.config import code_fingerprint, config_hash
 
+    if CFG["paper"].get("engine", "legacy") == "spec":
+        st.info(
+            "This tab shows the legacy gold paper ledger. Since D-034 the bot paper-trades the approved strategy "
+            "definitions instead: open the Paper Strategies page."
+        )
+
     st.warning(
         "SIMULATED PAPER TRADING: no real money and no broker orders. Fills use the latest price seen; real fills "
         "would differ."
@@ -378,7 +388,10 @@ with tab_paper:
     if log_path.exists():
         import json as _json
 
-        recs = [_json.loads(x) for x in log_path.read_text().splitlines()[-50:]]
+        # only the legacy gold bot's records: records from the strategy paper trader (D-034) have their own page
+        recs = [
+            r for r in (_json.loads(x) for x in log_path.read_text().splitlines()[-500:] if x.strip()) if "ticker" in r
+        ][-50:]
         st.markdown("**Decision records** (latest 50: every planned or blocked order with its checks)")
         st.dataframe(
             pd.DataFrame(

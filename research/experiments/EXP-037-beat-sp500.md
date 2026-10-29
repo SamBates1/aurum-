@@ -51,4 +51,4 @@ Whole period 2006-06-30 → 2026-10-29, net of costs and financing:
 4. Beating the S&P 500's return over 2006–2026 was not achieved by any tested approach that respects the drawdown
    limit. That does not prove it is impossible, but it means there is no evidence-based way to promise it.
 
-**Close-fill check (D-018):** the first attempt (`results/2026-10-29-2227-xlab-sp500-real-closefill/`) is **invalid**: a bug meant the ETF legs still filled at the open (only the Aurum leg used closes). Fixed with a regression test and re-run; see below.
+**Close-fill check (D-018):** the first attempt (`results/2026-10-29-2227-xlab-sp500-real-closefill/`) is **invalid**: a bug meant the ETF legs still filled at the open (only the Aurum leg used closes). Fixed with a regression test and re-run (`results/2026-10-29-2231-xlab-sp500-real-closefill/`): every verdict unchanged; largest differences from the open-fill run 0.15 points of CAGR and 0.014 of Sharpe.

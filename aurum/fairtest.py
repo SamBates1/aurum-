@@ -326,7 +326,12 @@ def run_fair_test(
             f"{len(sens)} nudged versions: development Sharpe from {worst:.2f} to "
             f"{max(x['dev_sharpe'] for x in sens):.2f} (as defined {sh_dev:.2f})",
         )
-        pbo = stats.probability_of_backtest_overfitting(pd.DataFrame(dev_rets))
+        # PBO needs several genuinely different versions; with fewer than 5 it is not computed
+        pbo = (
+            stats.probability_of_backtest_overfitting(pd.DataFrame(dev_rets))
+            if len(dev_rets) >= 5
+            else {"pbo": float("nan"), "n_splits": 0}
+        )
     else:
         fragile = False
         add(
@@ -470,7 +475,10 @@ def report_markdown(res: dict) -> str:
             "",
             f"Development period at 2x costs: dSharpe {_f(d2['d_sharpe'], signed=True)}. DSR "
             f"{_f(n['dsr'])} for {n['n_trials']} versions tried. "
-            f"PBO across the nudged versions: {_f(n['pbo'].get('pbo'), pct=True)}.",
+            f"PBO across the nudged versions: {_f(n['pbo'].get('pbo'), pct=True)} (information only, not part of the "
+            "verdict: it measures whether picking the best nudged version would have helped, which says little "
+            "when the "
+            "versions are nearly identical).",
         ]
     if n.get("sensitivity"):
         lines += ["", "## Sensitivity (development Sharpe)", "| Change | Sharpe |", "|---|---|"]

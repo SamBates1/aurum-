@@ -1,6 +1,6 @@
 {
-  "run_at": "2026-10-29T13:30:01+00:00",
-  "git_commit": "1463ba4",
+  "run_at": "2026-10-29T13:35:44+00:00",
+  "git_commit": "c254cd8",
   "config_hash": "0941fb0217c0",
   "offline": false,
   "tickers": [
@@ -12,7 +12,7 @@
     "WPM"
   ],
   "eval_start": "2013-10-18",
-  "data_end": "2026-10-28",
+  "data_end": "2026-10-29",
   "model_params": {
     "max_depth": 3,
     "learning_rate": 0.05,
@@ -28,15 +28,15 @@
     "GLD": {
       "name": "GLD",
       "source": "yahoo:GLD",
-      "retrieved_at": "2026-10-29T13:30:04+00:00",
-      "rows": 4231,
+      "retrieved_at": "2026-10-29T13:35:46+00:00",
+      "rows": 4232,
       "first": "2010-01-04",
-      "last": "2026-10-28"
+      "last": "2026-10-29"
     },
     "SLV": {
       "name": "SLV",
       "source": "yahoo:SLV",
-      "retrieved_at": "2026-10-29T13:30:18+00:00",
+      "retrieved_at": "2026-10-29T13:36:00+00:00",
       "rows": 4232,
       "first": "2010-01-04",
       "last": "2026-10-29"
@@ -44,15 +44,15 @@
     "GDX": {
       "name": "GDX",
       "source": "yahoo:GDX",
-      "retrieved_at": "2026-10-29T13:30:04+00:00",
-      "rows": 4231,
+      "retrieved_at": "2026-10-29T13:35:46+00:00",
+      "rows": 4232,
       "first": "2010-01-04",
-      "last": "2026-10-28"
+      "last": "2026-10-29"
     },
     "NEM": {
       "name": "NEM",
       "source": "yahoo:NEM",
-      "retrieved_at": "2026-10-29T13:30:44+00:00",
+      "retrieved_at": "2026-10-29T13:36:26+00:00",
       "rows": 4232,
       "first": "2010-01-04",
       "last": "2026-10-29"
@@ -60,7 +60,7 @@
     "AEM": {
       "name": "AEM",
       "source": "yahoo:AEM",
-      "retrieved_at": "2026-10-29T13:30:58+00:00",
+      "retrieved_at": "2026-10-29T13:36:39+00:00",
       "rows": 4232,
       "first": "2010-01-04",
       "last": "2026-10-29"
@@ -68,7 +68,7 @@
     "WPM": {
       "name": "WPM",
       "source": "yahoo:WPM",
-      "retrieved_at": "2026-10-29T13:31:11+00:00",
+      "retrieved_at": "2026-10-29T13:36:52+00:00",
       "rows": 4232,
       "first": "2010-01-04",
       "last": "2026-10-29"
@@ -76,7 +76,7 @@
   },
   "data_events": [
     {
-      "time": "2026-10-29T13:30:03+00:00",
+      "time": "2026-10-29T13:35:46+00:00",
       "level": "warning",
       "source": "CL=F",
       "message": "dropped 1 rows with missing/non-positive close"

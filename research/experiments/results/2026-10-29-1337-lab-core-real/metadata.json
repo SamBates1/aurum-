@@ -1,0 +1,60 @@
+{
+  "run_at": "2026-10-29T13:37:10+00:00",
+  "data": "real",
+  "set": "core",
+  "tickers": [
+    "GLD",
+    "SLV",
+    "GDX",
+    "NEM",
+    "AEM",
+    "WPM"
+  ],
+  "ticker_starts": {
+    "GLD": "2006-06-30",
+    "SLV": "2006-06-30",
+    "GDX": "2006-06-30",
+    "NEM": "2006-06-30",
+    "AEM": "2006-06-30",
+    "WPM": "2006-06-30"
+  },
+  "portfolio_start": "2006-06-30",
+  "periods": {
+    "pre": [
+      "2006-06-30",
+      "2013-10-17"
+    ],
+    "dev": [
+      "2013-10-18",
+      "2023-12-31"
+    ],
+    "holdout": [
+      "2024-01-01",
+      null
+    ]
+  },
+  "fill": "open",
+  "config_hash": "0941fb0217c0",
+  "n_trials": 9,
+  "pbo_development": {
+    "pbo": 0.3974358974358974,
+    "n_splits": 12870,
+    "median_logit": 1.3862943611198908
+  },
+  "failed_variants": {},
+  "combine": null,
+  "data_events": [
+    {
+      "time": "2026-10-29T13:37:11+00:00",
+      "level": "warning",
+      "source": "GC=F",
+      "message": "1 rows with high < low"
+    },
+    {
+      "time": "2026-10-29T13:37:11+00:00",
+      "level": "warning",
+      "source": "GC=F",
+      "message": "1 rows with high < low"
+    }
+  ]
+}

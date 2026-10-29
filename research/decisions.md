@@ -188,4 +188,23 @@ The owner chose both goals. EXP-045 confirmed that a 70/30 SPY/GLD mix (monthly)
 year, 2006–2026) with a Sharpe of 0.69 vs 0.56 and a worst fall of −38% vs −55%, robust to the mix (80/20–60/40),
 rebalancing frequency and fill convention. Downturn overlays failed the strict pre-registered test; the 20%-volatility
 risk cap was a near miss (Sharpe 0.81, worst fall −26%, but a larger loss in the fast 2020 crash). Not yet implemented
-as the traded strategy: the owner is asked which allocation to paper-trade.
+as the traded strategy: the owner is asked which allocation to paper-trade. (Resolved by D-034.)
+
+**D-034 — Owner chose Option 3: paper-trade 70/30 SPY/GLD (main) with the risk-capped version as a shadow** (2026-10-29)
+The owner's instruction ("Do option 3 for now") is implemented as two strategy definitions shared by the backtest, the
+Strategy Designer and the paper trader: `strategies/spy-gld-70-30-monthly.yaml` (main: 70% SPY / 30% GLD, rebalanced on
+the first trading day of each month) and `strategies/spy-gld-70-30-risk-cap.yaml` (shadow: each asset × min(1, 20% /
+21-day volatility), checked daily, 5-point band). Both reproduce EXP-045's account values exactly (difference 0). They
+run in separate paper ledgers (`paper.engine: spec`); the gold vol_hold bot remains available as `paper.engine:
+legacy`. The owner's approvals are recorded per exact definition (spec hash) in `research/approvals.yaml`: main on the
+evidence of EXP-045, shadow for evidence only (it narrowly failed EXP-045's downturn test). Editing either strategy
+changes its hash and needs a new approval. Paper trading only; no real-money connection exists.
+
+**D-035 — Strategy Designer, Fair Test, registry, risk engine and gates (master build prompt)** (2026-10-29)
+New strategies are built from parts (assets, indicators, AND/OR/k-of-n rules, sizing, exits) and judged by the Fair
+Test, which applies the same pre-registered rules as the labs (signal or risk path, 2× costs, DSR, holdout AND
+pre-2013) plus look-ahead, accounting, execution-delay and ±20% sensitivity checks. The DSR counts every version tried
+in the registry plus 100 earlier portfolio variants, so a new "winner" needs a large effect. The designer shows the
+development period by default; each look at the 2024+ holdout is counted. An independent risk engine (config `risk:`)
+can only cut risk. A Fair Test pass is evidence, not permission: paper trading needs every gate and the owner's
+approval.

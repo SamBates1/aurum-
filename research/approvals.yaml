@@ -1,0 +1,24 @@
+# Owner approvals for paper trading (aurum/gates.py). One entry per exact strategy version (spec hash).
+# Only the owner adds entries (dashboard approval box with explicit confirmation, or by editing this file).
+# Editing a strategy changes its hash, so its old approval stops applying. Paper trading only: no real money.
+approvals:
+- strategy_id: spy-gld-70-30-monthly
+  version: 1
+  spec_hash: 518a2c8d1e1e
+  role: main
+  approved_by: owner (chat, 2026-10-29)
+  date: '2026-10-29'
+  evidence: 'Owner chose Option 3 on 2026-10-29 (''Do option 3 for now''): paper-trade
+    the plain 70/30 SPY/GLD mix as the main strategy.'
+  based_on: EXP-045 (mix passed every pre-registered robustness test)
+  note: Recorded by Claude from the owner's chat instruction; see D-034.
+- strategy_id: spy-gld-70-30-risk-cap
+  version: 1
+  spec_hash: 6cd979072a5f
+  role: shadow
+  approved_by: owner (chat, 2026-10-29)
+  date: '2026-10-29'
+  evidence: 'Owner chose Option 3 on 2026-10-29: run the 70/30 + 20% risk cap alongside
+    as a shadow strategy for evidence only.'
+  note: Narrowly failed EXP-045's downturn test (2020); shadow only, not eligible
+    as main. See D-034.

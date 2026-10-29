@@ -76,7 +76,26 @@ signals:                        # live-only context
 
 paper:
   starting_cash: 10000
-  ledger_path: paper_ledger.json
+  ledger_path: paper_ledger.json          # legacy gold vol_hold ledger (engine: legacy)
+  engine: spec                  # spec = paper-trade the approved strategy definitions below (owner's Option 3, D-034)
+                                # legacy = the gold vol_hold bot (strategy: section above)
+  strategies:                   # each runs in its own ledger; every eligibility gate must pass (aurum/gates.py)
+    - {file: strategies/spy-gld-70-30-monthly.yaml, role: main, ledger: paper_ledger_main.json}
+    - {file: strategies/spy-gld-70-30-risk-cap.yaml, role: shadow, ledger: paper_ledger_shadow.json}
+
+risk:                           # independent risk engine (aurum/risk.py); it can only cut risk. Changes need owner approval
+  allowed_assets: [SPY, QQQ, IWM, EFA, TLT, IEF, GLD, SLV, GDX, DBC]
+  max_gross: 1.0                # no borrowing
+  max_weight_per_asset: 0.85
+  max_turnover_per_day: 1.0     # share of the account traded in one day
+  account_drawdown_halt: 0.35   # paper account this far below its peak: block purchases until the owner reviews
+  vol_spike_ratio: 4.0          # block purchases of an asset whose 21-day volatility is over 4x its 1-year median
+  max_data_age_days: 4
+  min_order_value: 25
+
+registry:                       # experiment registry (aurum/registry.py), local and git-ignored
+  path: logs/registry.sqlite
+  prior_trials: 100             # portfolio variants already tested in EXP-020..045, counted when deflating Sharpe
 
 live:
   interval: 5m

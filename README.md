@@ -93,12 +93,32 @@ No API keys are needed: Yahoo Finance and FRED are used without credentials. `.e
 | `python run_experiments.py` | Runs every pre-registered experiment (trend, regimes, models, risk overlays, mean reversion, triple-barrier) against the baseline with DSR, PBO and automatic verdicts (20–40 minutes) |
 | `python run_lab.py --set core\|other` | Research lab: the traded strategy and new ideas from 2006 and on eight other precious-metal assets |
 | `python run_backtest.py [TICKERS]` | Quick strategy backtest per ticker |
-| `python run_bot.py --paper` | Headless loop: refresh, decide, paper-trade every 60 s |
+| `python run_bot.py --paper` | Headless loop: paper-trades the approved strategy definitions (70/30 main + risk-capped shadow, D-034); `--engine legacy` runs the gold bot |
+| `python run_designer.py` | Every saved strategy on real data: backtest, Fair Test report, decision charts, reproduction check against EXP-045 |
 | `AURUM_OFFLINE=1 <any command>` | Same, on clearly labelled synthetic data (no internet) |
 | `pytest` / `ruff check .` | Tests and lint (also run by GitHub Actions on every push) |
 
 Configuration is in [`config.yaml`](config.yaml): universe, macro series, model settings, strategy weights and
 thresholds, risk limits, cost assumptions and the holdout date.
+
+## Strategy Designer (v0.7)
+
+Open the dashboard (`python -m streamlit run app.py`) and choose **Strategy Designer** in the page list.
+
+| Tab | What you can do |
+|---|---|
+| 1 · Design | Pick assets and starting weights, when to trade, risk sizing, rules built from 14 indicators (price vs moving averages, RSI, momentum, volatility, Bollinger, Donchian, MACD, drawdown...) combined with AND / OR / at-least-k, trailing stops and an account brake. A plain-English summary updates as you go; save versions to `strategies/` or download them |
+| 2 · Charts & results | One linked chart: candles with the rule's lines, buy/sell triangles with amounts ($ or £) and % of the account, an indicator panel per rule shaded where the condition was met, rule strips, holdings vs targets, growth and drawdown against SPY and 70/30. Hover any date to see what the strategy knew at that close and what it did; zoom any panel and all follow. Results box, period table, "explain a day", order list, CSV/HTML export |
+| 3 · Compare | Several strategies on the same dates and money, including the 2008, 2020 and 2022 downturns |
+| 4 · Fair Test & approval | One button runs the pre-registered validation (look-ahead, accounting, costs ×2, execution delay, ±20% sensitivity, PBO, deflated Sharpe, holdout and pre-2013 confirmation); then the eligibility gates and the owner's approval box |
+| 5 · Research lab | Vary one number over a grid, scored on the development period only, with every try counted |
+| 6 · Scanner | Today's readings for ten ETFs and whether each rule would be met |
+
+Every strategy is one definition file used by the backtest, the charts, the Fair Test and the paper trader
+(`aurum/spec.py`, `aurum/engine.py`), so what is charted is exactly what is tested and traded. Other pages:
+**Paper Strategies** (both paper ledgers, live prices every minute, labelled as delayed; pending decisions, orders and
+the decision log) and **Strategy Registry** (every version tried, status history, Fair Test reports, approvals).
+Approvals live in `research/approvals.yaml`; Fair Test reports on real data in `research/fairtests/`.
 
 ## AI Quant Desk
 

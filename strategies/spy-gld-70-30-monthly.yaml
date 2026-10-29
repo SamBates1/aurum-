@@ -1,0 +1,18 @@
+id: spy-gld-70-30-monthly
+name: "A: 70/30 SPY/GLD, monthly rebalance"
+version: 1
+description: >-
+  70% S&P 500 (SPY) and 30% gold (GLD), traded back to those weights on the first trading day of each month.
+  Tested in EXP-045 (passed every pre-registered robustness test). Owner chose it as the main paper strategy
+  (Option 3, D-034).
+universe: [SPY, GLD]
+base_weights: {SPY: 0.70, GLD: 0.30}
+benchmark: SPY
+schedule: {rebalance: monthly, band: 0.0}
+sizing: {method: fixed}
+signals: []
+exits: {}
+execution:
+  fill: open
+  costs_bps: {SPY: 2, GLD: 3}
+start: "2006-06-01"

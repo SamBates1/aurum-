@@ -162,3 +162,29 @@ def test_no_trades_when_flat():
     p = make_prices([100, 99, 101, 98])
     r = sim(p, ["HOLD"] * 4)
     assert r.trades.empty and (r.daily["value"] == 1.0).all()
+
+
+def test_close_fill_mode_fills_at_next_close():
+    p = make_prices(closes=[100, 102, 104, 106], opens=[100, 101, 103, 105])
+    r = sim(p, ["BUY", "HOLD", "SELL", "HOLD"], rules=S.RiskRules(stop_atr_mult=None, fill="close"))
+    t = r.trades.iloc[0]
+    assert t["entry_date"] == p.index[1] and t["entry_price"] == 102  # decided day 0, filled at day 1 close
+    assert t["exit_date"] == p.index[3] and t["exit_price"] == 106
+    assert r.daily["exposure"].iloc[1] > 0 and r.daily["shares"].iloc[0] == 0
+
+
+def test_close_fill_entry_is_not_exposed_to_that_days_intrabar_stop():
+    p = make_prices(closes=[100, 100, 100], opens=[100, 100, 100])
+    p.loc[p.index[1], "Low"] = 90.0  # deep intraday dip on the fill day, before the close fill
+    r = sim(p, ["BUY", "HOLD", "HOLD"], atr=2.0, rules=S.RiskRules(stop_atr_mult=2.0, fill="close"))
+    assert r.trades.iloc[0]["exit_reason"] == "open"  # still held: the dip happened before entry
+
+
+def test_reentry_cooldown_after_stop():
+    closes = [100, 100, 90, 95, 96, 97, 98, 99]
+    p = make_prices(closes)
+    r = sim(p, ["BUY"] * 8, atr=2.0, rules=S.RiskRules(stop_atr_mult=2.0, reentry_cooldown_days=3))
+    assert r.trades.iloc[0]["exit_reason"] == "stop" and r.trades.iloc[0]["exit_date"] == p.index[2]
+    assert r.trades.iloc[1]["entry_date"] == p.index[6]  # stop day 2, cooldown 3 -> decide day 5, fill day 6
+    r = sim(p, ["BUY"] * 8, atr=2.0, rules=S.RiskRules(stop_atr_mult=2.0))
+    assert len(r.trades) == 1  # default: never re-enter until the signal leaves BUY

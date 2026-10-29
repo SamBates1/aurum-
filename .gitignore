@@ -16,3 +16,4 @@ reports/latest-synthetic/
 
 # synthetic experiment runs only check the code; real runs are committed
 research/experiments/results/*synthetic*/
+research/experiments/results/.checkpoints/

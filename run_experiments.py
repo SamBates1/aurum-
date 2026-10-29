@@ -10,6 +10,9 @@ research/experiments/README.md, which were written before any results existed.
 
 Output: research/experiments/results/<date>-<real|synthetic>/  (summary.md, CSVs, metadata)
 Synthetic runs are git-ignored; real runs are meant to be committed.
+
+Progress is checkpointed after each ticker (research/experiments/results/.checkpoints/, git-ignored):
+if the run is interrupted, run the same command again and it continues where it stopped.
 """
 
 from __future__ import annotations
@@ -17,6 +20,8 @@ from __future__ import annotations
 import argparse
 import copy
 import json
+import pickle
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -104,16 +109,47 @@ def main():
     gdx = data.daily_prices(cfg["universe"]["miner_benchmark"], cfg=cfg)["Close"]
     sims = {v.name: {m: {} for m in ("net", "gross", "x2")} for v in variants}
     rf = None
-    for t in tickers:
-        print(f"[{t}] research ...", flush=True)
-        res = research(t, macro, cfg)
-        rf = res.rf if rf is None else rf
-        ctx = Context(t, res, cfg, gdx_close=gdx, is_equity=is_equity(t, cfg))
-        base_cost = cost_bps(t, cfg)
-        for v in variants:
-            print(f"[{t}]   {v.exp} {v.name}", flush=True)
-            for mode, k in (("net", base_cost), ("gross", 0.0), ("x2", 2 * base_cost)):
-                sims[v.name][mode][t] = v.run(ctx, k)
+    failed: dict[str, str] = {}  # variant -> error; a failing variant is dropped, never silently replaced
+    # Progress is saved after each ticker, so an interrupted run (e.g. a Codespaces timeout)
+    # resumes where it stopped. Checkpoints are keyed by config, so changed settings start afresh.
+    ckpt = RESULTS / ".checkpoints" / f"{tag}{'-quick' if args.quick else ''}-{config_hash(cfg)}"
+    ckpt.mkdir(parents=True, exist_ok=True)
+    started = time.time()
+    for n_done, t in enumerate(tickers):
+        path = ckpt / f"{t}.pkl"
+        if path.exists():
+            saved = pickle.loads(path.read_bytes())
+            print(f"[{t}] loaded from checkpoint (already done)", flush=True)
+        else:
+            print(f"[{t}] research ...", flush=True)
+            res = research(t, macro, cfg)
+            ctx = Context(t, res, cfg, gdx_close=gdx, is_equity=is_equity(t, cfg))
+            base_cost = cost_bps(t, cfg)
+            saved = {"rf": res.rf, "sims": {}, "failed": {}}
+            for v in variants:
+                print(f"[{t}]   {v.exp} {v.name}", flush=True)
+                try:
+                    saved["sims"][v.name] = {
+                        mode: v.run(ctx, k) for mode, k in (("net", base_cost), ("gross", 0.0), ("x2", 2 * base_cost))
+                    }
+                except Exception as exc:  # record and carry on: one broken variant must not lose the whole run
+                    saved["failed"][v.name] = f"{t}: {type(exc).__name__}: {exc}"
+                    print(f"[{t}]   !! {v.name} failed: {exc}", flush=True)
+            path.write_bytes(pickle.dumps(saved))
+            mins = (time.time() - started) / 60
+            left = len(tickers) - n_done - 1
+            print(f"[{t}] saved. {mins:.0f} min elapsed, {left} ticker(s) left", flush=True)
+        rf = saved["rf"] if rf is None else rf
+        failed.update(saved["failed"])
+        for name, by_mode in saved["sims"].items():
+            for mode, sim in by_mode.items():
+                sims[name][mode][t] = sim
+    for name, err in failed.items():
+        print(f"Dropping variant {name} (failed on {err})")
+    if "baseline" in failed:
+        raise SystemExit("The baseline itself failed; see the error above.")
+    variants = [v for v in variants if v.name not in failed]
+    sims = {k: v for k, v in sims.items() if k not in failed}
 
     weight = S.sleeve_weight(len(tickers), cfg["strategy"]["max_position_pct"])
     port = {name: {m: combine_sleeves(d[m], {t: weight for t in d[m]}, rf) for m in d} for name, d in sims.items()}
@@ -175,6 +211,7 @@ def main():
         "development": [str(periods["development"][0].date()), str(periods["development"][1].date())],
         "holdout_start": str(hold_start.date()),
         "data_events": data.DATA_EVENTS,
+        "failed_variants": failed,
     }
     (out / "metadata.json").write_text(json.dumps(meta, indent=2, default=str))
     write_summary(out, table, meta)
@@ -218,6 +255,12 @@ def write_summary(out: Path, t: pd.DataFrame, meta: dict):
             else f"| {r['exp']} | {r['variant']} | {f(r['development_net_sharpe'])} | – | – | – | "
             f"{f(r['development_net_max_drawdown'], True)} | – | {r['dsr_dev']:.2f} | {r['verdict']} |"
         )
+    if meta.get("failed_variants"):
+        lines += ["", "**Variants dropped because they raised errors (fix and re-run):**", ""]
+        lines += [f"- `{k}`: {v}" for k, v in meta["failed_variants"].items()]
+    if meta.get("failed_variants"):
+        lines += ["", "**Variants dropped because they raised errors (fix and re-run):**", ""]
+        lines += [f"- `{k}`: {v}" for k, v in meta["failed_variants"].items()]
     lines += ["", "Verdicts are proposals. A change is only adopted when recorded in research/decisions.md."]
     (out / "summary.md").write_text("\n".join(lines) + "\n")
 

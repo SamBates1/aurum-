@@ -12,8 +12,8 @@ already known instead of starting again.
 | [transfer-matrix.md](transfer-matrix.md) | All ideas found so far (37), classified Adopt / Adapt / Experiment / Reject |
 | [sources.md](sources.md) | Papers, articles, repositories (pinned commits) and tools, with links |
 | [frameworks/](frameworks/README.md) | Source-code notes: Freqtrade, LEAN, Backtrader, VectorBT, Zipline-reloaded |
-| [topics/](topics/) | Evidence reviews: [gold](topics/gold-evidence.md), [regimes](topics/regimes.md), [ML vs simple](topics/ml-vs-simple.md), [sizing & risk](topics/sizing-and-risk.md), [mean reversion](topics/mean-reversion.md), [alternative signals](topics/alternative-signals.md), [new ideas 2026-10-29](topics/new-ideas-2026-10-29.md), [overfitting statistics](topics/overfitting-statistics.md) |
-| [experiments/](experiments/README.md) | Protocol, acceptance rules, pre-registered experiments EXP-001…008, results |
+| [topics/](topics/) | Evidence reviews: [gold](topics/gold-evidence.md), [regimes](topics/regimes.md), [ML vs simple](topics/ml-vs-simple.md), [sizing & risk](topics/sizing-and-risk.md), [mean reversion](topics/mean-reversion.md), [alternative signals](topics/alternative-signals.md), [new ideas 2026-10-29](topics/new-ideas-2026-10-29.md), [overfitting statistics](topics/overfitting-statistics.md), [intraday trading](topics/intraday.md) |
+| [experiments/](experiments/README.md) | Protocol, acceptance rules, pre-registered experiments EXP-001…028, research lab, results |
 | [templates/](templates/) | Templates for new source notes and experiments |
 
 ## Workflow for a new idea

@@ -33,6 +33,9 @@ Cited by ID across the knowledge base. "Read" notes how deeply each was checked:
 | S28 | Caldara & Iacoviello (2022), *Measuring Geopolitical Risk*, AER; daily GPR data | paper page | [GPR site](https://matteoiacoviello.com/gpr.htm) |
 | S29 | Baur & Smales (2020), *Hedging geopolitical risk with precious metals*, Journal of Banking & Finance | known reference | – |
 | S30 | CFTC historical Commitments of Traders files (disaggregated, futures only) | data page | [CFTC](https://cftc.gov/MarketReports/CommitmentsofTraders/HistoricalCompressed/index.htm) |
+| S31 | Gao, Han, Li & Zhou (2018), *Market Intraday Momentum*, Journal of Financial Economics (summary) | summary | [Alpha Architect](https://alphaarchitect.com/2014/08/attention-prop-traders-the-first-half-hour-of-trading-predicts-the-last-half-hour/) |
+| S32 | Donati & Jung (2019), *Gold Price Dynamics Around the Clock*, CBS master's thesis | abstract | [CBS](https://research.cbs.dk/en/studentProjects/gold-price-dynamics-around-the-clock/) |
+| S33 | Pattern-day-trader rule removal: SEC approval 14 Apr 2026, effective 4 Jun 2026 | article | [QuantInsti](https://www.quantinsti.com/articles/finra-pdt-rule-removal-2026/), [Schwab](https://international.schwab.com/story/sec-approves-scrapping-25000-day-trader-minimum) |
 | S16 | Politis & Romano (1994), *The Stationary Bootstrap*, Journal of the American Statistical Association | known reference | – |
 | S17 | López de Prado (2018), *Advances in Financial Machine Learning*, Wiley (triple-barrier labels, purging, meta-labelling) | known reference | – |
 | S18 | Bailey & López de Prado (2012), *The Sharpe Ratio Efficient Frontier*, Journal of Risk (Probabilistic Sharpe Ratio) | known reference | – |

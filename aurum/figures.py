@@ -29,8 +29,9 @@ class FigurePack:
         self.index: list[tuple[str, str]] = []
 
     def _save(self, fig, name: str, title: str, period: str, convention: str = "net of costs"):
-        footer = (f"{self.exp} | {period} | {self.universe} | {convention} | costs: {self.costs} | {self.split}"
-                  + (f" | {self.note}" if self.note else ""))
+        footer = f"{self.exp} | {period} | {self.universe} | {convention} | costs: {self.costs} | {self.split}" + (
+            f" | {self.note}" if self.note else ""
+        )
         fig.text(0.01, 0.005, footer, fontsize=6.5, color="#555", ha="left", va="bottom", wrap=True)
         fig.tight_layout(rect=(0, 0.03, 1, 1))
         path = self.dir / f"{name}.png"
@@ -218,8 +219,13 @@ class FigurePack:
         ax[0].set_title("Calibration (predicted vs actual)")
         ax[1].set_title("ROC (out of sample)")
         ax[2].set_title("Prediction distribution")
-        return self._save(fig, name, f"Calibration, ROC and predictions: {label}", self._period({"p": p}),
-                          "out-of-sample walk-forward predictions")
+        return self._save(
+            fig,
+            name,
+            f"Calibration, ROC and predictions: {label}",
+            self._period({"p": p}),
+            "out-of-sample walk-forward predictions",
+        )
 
     def bars(self, s: pd.Series, title: str, name: str, ylabel: str, period="whole sample"):
         plt = _plt()
@@ -239,8 +245,13 @@ class FigurePack:
         x = np.arange(len(d))
         up = d["Close"] >= d["Open"]
         ax[0].vlines(x, d["Low"], d["High"], color=np.where(up, "#2E9E6A", "#D1495B"), lw=0.8)
-        ax[0].bar(x, (d["Close"] - d["Open"]).abs(), bottom=np.minimum(d["Open"], d["Close"]),
-                  color=np.where(up, "#2E9E6A", "#D1495B"), width=0.6)
+        ax[0].bar(
+            x,
+            (d["Close"] - d["Open"]).abs(),
+            bottom=np.minimum(d["Open"], d["Close"]),
+            color=np.where(up, "#2E9E6A", "#D1495B"),
+            width=0.6,
+        )
         for n, col in ((50, "#C9A227"), (200, "#555")):
             ax[0].plot(x, c.rolling(n).mean().iloc[-days:].to_numpy(), lw=0.9, color=col, label=f"SMA{n}")
         ax[0].plot(x, c.ewm(span=20, adjust=False).mean().iloc[-days:].to_numpy(), lw=0.8, ls="--", label="EMA20")
@@ -263,8 +274,13 @@ class FigurePack:
         ax[2].set_ylabel("RSI 14")
         ax[2].set_xticks(x[:: max(1, days // 8)], [str(t.date()) for t in d.index[:: max(1, days // 8)]], fontsize=7)
         ax[0].set_title(f"{label}: last {days} sessions with indicators and pattern markers")
-        return self._save(fig, name, f"Candlestick chart with indicators: {label}",
-                          f"{d.index[0].date()} to {d.index[-1].date()}", "prices (adjusted)")
+        return self._save(
+            fig,
+            name,
+            f"Candlestick chart with indicators: {label}",
+            f"{d.index[0].date()} to {d.index[-1].date()}",
+            "prices (adjusted)",
+        )
 
     def corr_heatmap(self, rets: pd.DataFrame, name="correlation", title="Correlation of daily returns"):
         return self.heatmap(rets.corr(), title, name, period=f"{rets.index[0].date()} to {rets.index[-1].date()}")

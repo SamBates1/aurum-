@@ -40,7 +40,32 @@ class Research:
     final_model: object
     feature_cols: list
     eval_start: pd.Timestamp
+    sizing_vol: pd.Series | None = None  # vol_hold: volatility used for position size (GVZ-adjusted if available)
+    vol_ratio: pd.Series | None = None  # gold implied/realised ratio applied to 21-day vol (None = not used)
     built_at: str = field(default_factory=lambda: datetime.now().isoformat(timespec="seconds"))
+
+
+def sizing_volatility(vol_21: pd.Series, index: pd.DatetimeIndex, cfg: dict = CFG):
+    """Volatility used to size vol_hold positions. With strategy.vol_estimator == "gvz" (adopted after
+    EXP-017, D-021) the 21-day volatility is scaled by gold's implied/realised ratio, CBOE GVZ divided by
+    GLD's 21-day volatility, clipped to 0.5-2. Falls back, visibly, to plain 21-day volatility when GVZ
+    can't be loaded. Returns (sizing_vol, ratio or None)."""
+    if cfg["strategy"].get("vol_estimator", "realised_21d") != "gvz":
+        return vol_21, None
+    from .features import align
+    from .volatility import realised_21d
+
+    try:
+        gvz = data.daily_prices("^GVZ", cfg=cfg)["Close"] if not cfg.get("offline") else None
+        if gvz is None:
+            raise data.DataError("GVZ not available offline")
+        gld = data.daily_prices(cfg["universe"]["core"][0], cfg=cfg)["Close"]
+    except Exception as exc:
+        data.log_event("warning", "GVZ", f"sizing falls back to 21-day volatility ({exc})")
+        return vol_21, None
+    ratio = (gvz / 100.0) / realised_21d(gld).where(lambda v: v > 0)
+    ratio = align(ratio.clip(0.5, 2.0).to_frame("r"), index)["r"]
+    return (vol_21 * ratio).where(ratio.notna(), vol_21), ratio
 
 
 def research(
@@ -64,10 +89,12 @@ def research(
     eval_start = wf.probs.first_valid_index()
     rf = data.cash_rate(prices.index, cfg)
     atr = atr_fn(prices)
+    sizing_vol, vol_ratio = X["vol_21"], None
     if scfg.get("mode", "timing") == "vol_hold":  # always invested, sized by volatility (EXP-014)
+        sizing_vol, vol_ratio = sizing_volatility(X["vol_21"], prices.index, cfg)
         sim = S.simulate_weights(
             prices.loc[eval_start:],
-            S.vol_target_weight(X["vol_21"], scfg["target_vol"]).loc[eval_start:],
+            S.vol_target_weight(sizing_vol, scfg["target_vol"]).loc[eval_start:],
             cost_bps=cost_bps(ticker, cfg),
             cash_rate=rf,
             band=scfg.get("rebalance_band", 0.05),
@@ -100,6 +127,8 @@ def research(
         final_model=model.fit_final(X, y, mcfg.get("random_state", 0)),
         feature_cols=list(X.columns),
         eval_start=eval_start,
+        sizing_vol=sizing_vol,
+        vol_ratio=vol_ratio,
     )
 
 
@@ -214,9 +243,20 @@ def decide(
     if scfg.get("mode", "timing") == "vol_hold":
         # The score and its reasons are still shown as context, but in this mode the position is
         # simply min(1, target_vol / volatility) of the sleeve: the rule tested in EXP-014.
-        target_weight = float(S.vol_target_weight(pd.Series([row["vol_21"]]), scfg["target_vol"]).iloc[0])
+        vol_now, how = float(row["vol_21"]), "21-day volatility"
+        if res.vol_ratio is not None:
+            known = res.vol_ratio.loc[: bars.index[-1]].dropna()
+            if len(known) and (bars.index[-1] - known.index[-1]).days <= cfg["data"]["max_stale_days"]:
+                vol_now, how = vol_now * float(known.iloc[-1]), f"21-day volatility x GVZ ratio {known.iloc[-1]:.2f}"
+            else:
+                notes.append("Gold implied volatility (GVZ) is stale: sizing uses plain 21-day volatility.")
+        target_weight = float(S.vol_target_weight(pd.Series([vol_now]), scfg["target_vol"]).iloc[0])
         decision = S.BUY if tradeable and target_weight > 0 else S.HOLD
-        notes.insert(0, f"Always-invested mode: hold {target_weight:.0%} of this sleeve (15% volatility target).")
+        notes.insert(
+            0,
+            f"Always-invested mode: hold {target_weight:.0%} of this sleeve "
+            f"({scfg['target_vol']:.0%} volatility target, {how}).",
+        )
     return Decision(
         ticker=ticker,
         target_weight=target_weight,

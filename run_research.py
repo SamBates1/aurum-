@@ -107,7 +107,17 @@ def analyse_ticker(t, macro, cfg, gdx_prices=None):
     start = res.eval_start
     bounds = period_bounds(start, rcfg["holdout_start"])
     sims = benchmarks.run_all(
-        res.prices, res.X, res.score, res.wf.probs, wf_tech.probs, atr, res.rf, scfg, cost_bps(t, cfg), start
+        res.prices,
+        res.X,
+        res.score,
+        res.wf.probs,
+        wf_tech.probs,
+        atr,
+        res.rf,
+        scfg,
+        cost_bps(t, cfg),
+        start,
+        sizing_vol=res.sizing_vol,
     )
     if gdx_prices is not None and is_equity(t, cfg):
         g = gdx_prices.loc[start:]
@@ -251,6 +261,7 @@ def charts(out: Path, per: dict, portfolio: dict, tables: dict, cfg, label: str)
     )
     colors = {
         "strategy": "#B8860B",
+        "timing_v02": "#C0504D",
         "buy_hold": "#555555",
         "vol_sized_hold": "#8FA3BF",
         "sma_trend": "#4C9F70",
@@ -377,6 +388,7 @@ def write_report(out: Path, tables: dict, meta: dict, files: list[str], cfg) -> 
     P = tables["portfolio"]
     keep = [
         "strategy",
+        "timing_v02",
         "buy_hold",
         "vol_sized_hold",
         "sma_trend",
@@ -552,6 +564,7 @@ def main():
     rf = next(iter(per.values()))["res"].rf
     names = [
         "strategy",
+        "timing_v02",
         "buy_hold",
         "vol_sized_hold",
         "sma_trend",
@@ -625,7 +638,7 @@ def main():
     files = charts(
         out,
         per,
-        {k: portfolio[k] for k in ("strategy", "buy_hold", "vol_sized_hold", "sma_trend", "cash")},
+        {k: portfolio[k] for k in ("strategy", "timing_v02", "buy_hold", "vol_sized_hold", "cash")},
         tables,
         cfg,
         label,

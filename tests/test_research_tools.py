@@ -108,9 +108,11 @@ def test_variant_names_unique_and_cheap_variants_run(quick_ctx):
             assert np.isfinite(r.daily["value"]).all(), v.name
 
 
-def test_baseline_variant_is_the_traded_strategy(quick_ctx):
-    base = build_variants()[0].run(quick_ctx, 8.0)
-    pd.testing.assert_frame_equal(base.daily, quick_ctx.res.sim.daily)
+def test_experiment_variants_reproduce_the_traded_strategy(quick_ctx):
+    """vol_hold (EXP-014) is the traded rule when sizing uses plain 21-day volatility (offline: no GVZ)."""
+    v = {x.name: x for x in build_variants()}
+    assert quick_ctx.res.vol_ratio is None  # offline: GVZ unavailable, so sizing falls back to 21-day vol
+    pd.testing.assert_frame_equal(v["vol_hold"].run(quick_ctx, 8.0).daily, quick_ctx.res.sim.daily)
 
 
 def test_verdict_rules():

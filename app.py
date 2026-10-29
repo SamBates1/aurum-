@@ -234,7 +234,17 @@ with tab_bt:
         f"next open, {cost_bps(ticker):g} bps per trade. Same rules as the live signal."
     )
     sims = benchmarks.run_all(
-        r.prices, r.X, r.score, r.wf.probs, None, atr_fn(r.prices), r.rf, SCFG, cost_bps(ticker), r.eval_start
+        r.prices,
+        r.X,
+        r.score,
+        r.wf.probs,
+        None,
+        atr_fn(r.prices),
+        r.rf,
+        SCFG,
+        cost_bps(ticker),
+        r.eval_start,
+        sizing_vol=r.sizing_vol,
     )
     fig = go.Figure()
     for name, color, w in (

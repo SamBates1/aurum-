@@ -17,6 +17,7 @@ def res():
 
     c = load_config()
     c["offline"] = True
+    c["strategy"]["mode"] = "timing"  # these tests cover the BUY/SELL timing machinery (v0.2)
     return pipeline.research("GLD", cfg=c), c
 
 
@@ -82,3 +83,51 @@ def test_research_refuses_short_history(cfg):
     cfg["data"]["min_history_days"] = 10**6
     with pytest.raises(data.DataError):
         pipeline.research("GLD", cfg=cfg)
+
+
+def test_vol_hold_live_weight_matches_backtest_weight():
+    """In the adopted mode, the live target weight equals the weight the backtest used that day."""
+    from aurum import strategy as S2
+    from aurum.config import load_config
+
+    c = load_config()
+    c["offline"] = True
+    c["model"]["retrain_every_days"] = 252
+    r = pipeline.research("NEM", cfg=c)
+    day = r.prices.index[-3]
+    after = pd.Timestamp(day).tz_localize("America/New_York") + pd.Timedelta(hours=17)
+    d = pipeline.decide("NEM", r, c, prices=r.prices.loc[:day], now=after, context=False)
+    expected = S2.vol_target_weight(r.sizing_vol, c["strategy"]["target_vol"]).loc[day]
+    assert d.target_weight == pytest.approx(expected)
+
+
+def test_gvz_sizing_scales_volatility_and_falls_back(monkeypatch):
+    import copy as _copy
+
+    from aurum.config import load_config
+
+    c = load_config()
+    c["offline"] = True
+    gld = data.daily_prices("GLD", cfg=c)
+    idx = gld.index
+    fake_gvz = pd.DataFrame({"Close": 30.0}, index=idx)  # 30% implied vol, constant
+    real = data.daily_prices
+
+    def fake_prices(t, cfg=None, use_cache=True):
+        return fake_gvz if t == "^GVZ" else real(t, cfg=c)
+
+    online = _copy.deepcopy(c)
+    online["offline"] = False
+    monkeypatch.setattr(data, "daily_prices", fake_prices)
+    vol21 = pd.Series(0.20, index=idx)
+    sized, ratio = pipeline.sizing_volatility(vol21, idx, online)
+    from aurum.volatility import realised_21d
+
+    expected = (0.30 / realised_21d(gld["Close"])).clip(0.5, 2.0)
+    pd.testing.assert_series_equal(ratio.dropna(), expected.dropna(), check_names=False)
+    ok = ratio.notna()
+    np.testing.assert_allclose(sized[ok], 0.20 * ratio[ok])
+    assert (sized[~ok] == 0.20).all()  # before GVZ/GLD vol exist: plain 21-day volatility
+    monkeypatch.setattr(data, "daily_prices", lambda *a, **k: (_ for _ in ()).throw(OSError("down")))
+    sized2, ratio2 = pipeline.sizing_volatility(vol21, idx, online)
+    assert ratio2 is None and (sized2 == vol21).all()  # visible fallback, never a crash

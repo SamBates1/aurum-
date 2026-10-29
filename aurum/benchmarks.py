@@ -45,6 +45,7 @@ def run_all(
     scfg: dict,
     cost_bps: float,
     start,
+    sizing_vol: pd.Series | None = None,
 ) -> dict[str, S.SimResult]:
     """Simulate every comparison over prices.loc[start:]."""
     p = prices.loc[start:]
@@ -55,8 +56,22 @@ def run_all(
         return S.simulate(p, score_to_decisions(score.loc[start:], scfg), vol, atr, **common)
 
     always = pd.Series(S.BUY, index=p.index, dtype=object)
+    timing = sized(strategy_score)
+    if scfg.get("mode", "timing") == "vol_hold":  # the traded strategy is always invested, sized by volatility
+        w = S.vol_target_weight(vol if sizing_vol is None else sizing_vol, scfg["target_vol"])
+        strategy = S.simulate_weights(
+            p,
+            w.reindex(p.index),
+            cost_bps=cost_bps,
+            cash_rate=rf,
+            band=scfg.get("rebalance_band", 0.05),
+            fill=scfg.get("fill", "open"),
+        )
+    else:
+        strategy = timing
     out = {
-        "strategy": sized(strategy_score),
+        "strategy": strategy,
+        "timing_v02": timing,
         "buy_hold": S.simulate(
             p, always, vol, atr, cost_bps=cost_bps, cash_rate=rf, stop_atr_mult=None, fixed_exposure=1.0
         ),

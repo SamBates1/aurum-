@@ -1,0 +1,269 @@
+{
+ "strategy_id": "example-70-30-spy-trend-filter",
+ "name": "Example (rejected in EXP-045): 70/30 + SPY 200-day trend filter",
+ "version": 1,
+ "spec_hash": "bac378fceb35",
+ "status": "failed",
+ "explanation": "Worse than the benchmark in development: lower Sharpe ratio and no meaningful reduction in falls.",
+ "checks": [
+  {
+   "name": "Valid definition",
+   "passed": true,
+   "detail": "example-70-30-spy-trend-filter v1, hash bac378fceb35",
+   "kind": "check"
+  },
+  {
+   "name": "Enough clean data",
+   "passed": true,
+   "detail": "20.4 years of common daily data (2006-06-01 to 2026-10-29); longest gap 5.0 days",
+   "kind": "check"
+  },
+  {
+   "name": "No look-ahead",
+   "passed": true,
+   "detail": "targets identical when data after 3 cut dates were removed",
+   "kind": "check"
+  },
+  {
+   "name": "Accounting",
+   "passed": true,
+   "detail": "no borrowing, no negative cash, costs charged on every order",
+   "kind": "check"
+  },
+  {
+   "name": "Execution: next-close fills and 1 day late",
+   "passed": true,
+   "detail": "development Sharpe 0.70; next-close fills 0.67; one day late 0.61",
+   "kind": "check"
+  },
+  {
+   "name": "Not fragile (+-20% on every number)",
+   "passed": true,
+   "detail": "6 nudged versions: development Sharpe from 0.58 to 0.71 (as defined 0.70)",
+   "kind": "check"
+  },
+  {
+   "name": "Deflated Sharpe ratio",
+   "passed": false,
+   "detail": "DSR 0.37 allowing for 100 versions tried (needs >= 0.50)",
+   "kind": "evidence"
+  }
+ ],
+ "numbers": {
+  "periods": {
+   "pre": [
+    "2006-06-01",
+    "2013-10-17"
+   ],
+   "dev": [
+    "2013-10-18",
+    "2023-12-31"
+   ],
+   "holdout": [
+    "2024-01-01",
+    null
+   ]
+  },
+  "comparison": {
+   "pre": {
+    "sharpe": 0.5942898788606173,
+    "bench_sharpe": 0.4690821816131439,
+    "cagr": 0.07595776458568526,
+    "bench_cagr": 0.0821126255568354,
+    "max_drawdown": -0.157577793259862,
+    "bench_max_drawdown": -0.3847433129787008,
+    "d_sharpe": 0.12520769724747344,
+    "share_better": 0.62,
+    "diff_p05": -0.3889829333573748,
+    "diff_p95": 0.5779522117685457,
+    "dd_rel": 0.36958066010834634
+   },
+   "dev": {
+    "sharpe": 0.7006288732509652,
+    "bench_sharpe": 0.7331853708847934,
+    "cagr": 0.07463764281960605,
+    "bench_cagr": 0.10326261200708764,
+    "max_drawdown": -0.15562713006372897,
+    "bench_max_drawdown": -0.25092707304240536,
+    "d_sharpe": -0.032556497633828174,
+    "share_better": 0.377,
+    "diff_p05": -0.32523537681261044,
+    "diff_p95": 0.23992821732212827,
+    "dd_rel": 0.12394723935955898
+   },
+   "holdout": {
+    "sharpe": 1.2833435915759825,
+    "bench_sharpe": 1.2391871578656053,
+    "cagr": 0.20482478953214467,
+    "bench_cagr": 0.22520015821534867,
+    "max_drawdown": -0.09768060353628183,
+    "bench_max_drawdown": -0.12938513787503314,
+    "d_sharpe": 0.04415643371037725,
+    "share_better": 0.556,
+    "diff_p05": -0.31118346861721496,
+    "diff_p95": 0.39756146074226967,
+    "dd_rel": 0.11822764862429724
+   },
+   "full": {
+    "sharpe": 0.7446989199545002,
+    "bench_sharpe": 0.6769750587820649,
+    "cagr": 0.0921992126594291,
+    "bench_cagr": 0.11148420142871962,
+    "max_drawdown": -0.157577793259862,
+    "bench_max_drawdown": -0.3847433129787008,
+    "d_sharpe": 0.06772386117243534,
+    "share_better": 0.649,
+    "diff_p05": -0.1750999347258593,
+    "diff_p95": 0.317079969348567,
+    "dd_rel": 0.41431931829521074
+   }
+  },
+  "dev_2x_costs": {
+   "sharpe": 0.6936399980724559,
+   "bench_sharpe": 0.7327240696584425,
+   "cagr": 0.07390897589854717,
+   "bench_cagr": 0.1031968524819169,
+   "max_drawdown": -0.1563717010065453,
+   "bench_max_drawdown": -0.2509332439584224,
+   "d_sharpe": -0.03908407158598659,
+   "share_better": 0.362,
+   "diff_p05": -0.33371423735923517,
+   "diff_p95": 0.23299783708513955,
+   "dd_rel": 0.11907404588243786
+  },
+  "execution": {
+   "dev_sharpe": 0.7006288732509652,
+   "next_close": 0.67186832059341,
+   "one_day_late": 0.6144866371489275
+  },
+  "sensitivity": [
+   {
+    "change": "SPY weight -10%",
+    "dev_sharpe": 0.6685157196543119
+   },
+   {
+    "change": "SPY weight +10%",
+    "dev_sharpe": 0.6895822872119325
+   },
+   {
+    "change": "band x0.5",
+    "dev_sharpe": 0.7024170981936265
+   },
+   {
+    "change": "band x1.5",
+    "dev_sharpe": 0.7066440980237358
+   },
+   {
+    "change": "spy_trend sma n x0.8",
+    "dev_sharpe": 0.579486481414103
+   },
+   {
+    "change": "spy_trend sma n x1.2",
+    "dev_sharpe": 0.6196820387128584
+   }
+  ],
+  "pbo": {
+   "pbo": 0.8795648795648796,
+   "n_splits": 12870,
+   "median_logit": -1.0986122886681098
+  },
+  "dsr": 0.36609150732284185,
+  "n_trials": 100,
+  "benchmark": "A: 70/30 SPY/GLD, monthly rebalance",
+  "summary_full": {
+   "start": "2006-06-01",
+   "end": "2026-10-29",
+   "years": 20.38095238095238,
+   "final_value": 60343.2041521023,
+   "total_return": 5.03432041521023,
+   "cagr": 0.0921992126594291,
+   "volatility": 0.10330809095917617,
+   "sharpe": 0.7446989199545002,
+   "sortino": 1.023996830161302,
+   "max_drawdown": -0.157577793259862,
+   "max_drawdown_peak": "2010-04-23",
+   "max_drawdown_trough": "2010-08-13",
+   "recovered_on": "2011-03-30",
+   "calmar": 0.5851028292253282,
+   "avg_exposure": 0.8592245016024477,
+   "turnover_per_year": 3.4402341078421084,
+   "costs_per_year": 0.0006918386819006837,
+   "costs_paid": 338.19934982723976,
+   "orders": 134,
+   "orders_per_year": 6.574766355140187,
+   "best_year": 0.2637846091427676,
+   "worst_year": -0.08451361610785879,
+   "worst_day": -0.042172178321422726,
+   "var_95_daily": -0.010698341791272326,
+   "excess_mean_ann": 0.07692652772771234
+  }
+ },
+ "data_label": "Yahoo Finance adjusted daily data (EOD), completed bars to 2026-10-29; historical backtest, net of costs",
+ "code_fingerprint": "0e4461d39251",
+ "git_commit": "124ae7f",
+ "run_at": "2026-10-29T23:21:43+00:00",
+ "spec": {
+  "id": "example-70-30-spy-trend-filter",
+  "name": "Example (rejected in EXP-045): 70/30 + SPY 200-day trend filter",
+  "version": 1,
+  "description": "Example of an indicator rule: hold the SPY part only while SPY closes above its 200-day average, otherwise keep that part in cash. Tested in EXP-045 and REJECTED (lower return, 2.0% a year in extra costs). Kept as a worked example for the designer, not for trading.",
+  "universe": [
+   "SPY",
+   "GLD"
+  ],
+  "base_weights": {
+   "SPY": 0.7,
+   "GLD": 0.3
+  },
+  "benchmark": "spy-gld-70-30-monthly",
+  "schedule": {
+   "rebalance": "daily",
+   "band": 0.05,
+   "act_on_signal_change": false
+  },
+  "sizing": {
+   "method": "fixed",
+   "target_vol": 0.2,
+   "vol_window": 21,
+   "max_weight": 1.0
+  },
+  "signals": [
+   {
+    "id": "spy_trend",
+    "label": "SPY above its 200-day average",
+    "conditions": [
+     {
+      "left": {
+       "ind": "close",
+       "asset": "SPY"
+      },
+      "op": ">",
+      "right": {
+       "ind": "sma",
+       "asset": "SPY",
+       "n": 200
+      }
+     }
+    ],
+    "combine": "all",
+    "apply_to": [
+     "SPY"
+    ],
+    "when_true": 1.0,
+    "when_false": 0.0,
+    "assume_when_unknown": true,
+    "k": 1
+   }
+  ],
+  "exits": {},
+  "execution": {
+   "fill": "open",
+   "costs_bps": {
+    "SPY": 2.0,
+    "GLD": 3.0
+   },
+   "cost_mult": 1.0
+  },
+  "start": "2006-06-01"
+ }
+}

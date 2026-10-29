@@ -1,0 +1,52 @@
+{
+  "run_at": "2026-10-29T13:46:53+00:00",
+  "data": "real",
+  "set": "other",
+  "tickers": [
+    "GDXJ",
+    "SIL",
+    "RGLD",
+    "FNV",
+    "KGC",
+    "AU",
+    "PPLT",
+    "PALL"
+  ],
+  "ticker_starts": {
+    "GDXJ": "2010-02-03",
+    "SIL": "2010-05-19",
+    "RGLD": "2010-02-03",
+    "FNV": "2010-02-03",
+    "KGC": "2010-02-03",
+    "AU": "2010-02-03",
+    "PPLT": "2010-02-09",
+    "PALL": "2010-02-09"
+  },
+  "portfolio_start": "2010-05-19",
+  "periods": {
+    "pre": [
+      "2010-05-19",
+      "2013-10-17"
+    ],
+    "dev": [
+      "2013-10-18",
+      "2023-12-31"
+    ],
+    "holdout": [
+      "2024-01-01",
+      null
+    ]
+  },
+  "fill": "open",
+  "config_hash": "79ebbb3a8f63",
+  "n_trials": 9,
+  "pbo_development": {
+    "pbo": 0.6761460761460761,
+    "n_splits": 12870,
+    "median_logit": -0.8472978603872036
+  },
+  "failed_variants": {},
+  "combine": null,
+  "rebalance": "weekly",
+  "data_events": []
+}

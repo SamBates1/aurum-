@@ -143,6 +143,21 @@ ranges for the trade-plan idea. Seasonality: low priority. GDX overnight drift: 
 - **Documents:** paper-trading plan with pass/fail rules written in advance, deployment checklist, continuous
   improvement plan, and a strategy report ([strategy-report-2026-10-29.md](strategy-report-2026-10-29.md)).
 
+## 2026-10-29 — Master brief: Quant Desk recovery, integrity audit, cross-asset lab
+- **Stage 1:** the Quant Desk branch (PR #1) failed CI on formatting; fixed. The documented daily-report command could
+  not run at all (`ModuleNotFoundError: aurum`), which would have broken the scheduled job; fixed and tested. Desk now
+  shows provider/model, states that all "specialists" are one model with different prompts, labels fact / estimate /
+  hypothesis, reads experiment records by ID only, and logs answers. No real model was available to test against.
+- **Stage 2:** headline result reproduced from scratch (5.5% CAGR, Sharpe 0.36, worst fall −39.1%). Data audit of 35
+  series ([audits/](audits/)): core data clean; CPER and the FRED credit spread unusable (D-031). Fixed: stale-cache
+  history, checkpoints reusable after code changes, missing code/data fingerprints; ledger reconciliation verified.
+- **Stages 3–5:** EXP-037…044 on ten assets, all pre-registered, with a standard figure pack per experiment. Nothing
+  beat the S&P 500; leverage did not help; 70/30 SPY/GLD matched the S&P's return with less risk. No signal family
+  (trend, mean reversion, pairs, candlesticks, ML, macro) passed. GVZ gave the best volatility forecasts (D-032). The
+  strategy is robust to execution delay and doubled costs (D-030).
+- **Lesson:** across about 100 pre-registered portfolio variants and over 500 statistical tests, the only reliable effects are risk effects
+  (volatility sizing, diversification across assets), not return prediction.
+
 ## Open questions
 - Do the miner-vs-GDX and EPU tilts keep their small edge in paper trading (watched, not traded)?
 - Which risk level does the owner choose (EXP-028)?

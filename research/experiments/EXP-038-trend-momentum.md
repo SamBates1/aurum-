@@ -2,7 +2,7 @@
 
 | Field | |
 |---|---|
-| Status | Pre-registered 2026-10-29, before any real-data run |
+| Status | Run 2026-10-29: no trend or momentum rule adopted |
 | Origin | Master brief §5; Moskowitz–Ooi–Pedersen (2012); Faber (2007) |
 
 ## Rules (all windows reported; none selected after seeing results)
@@ -19,5 +19,15 @@ monthly). Long/flat only.
 
 Cross-asset lab rules (README, 'Cross-asset lab'): universe SPY, QQQ, IWM, EFA, TLT, IEF, GLD, SLV, GDX, DBC (CPER excluded: data audit found paired ±30–50% bad prints in 2014–15); costs SPY/QQQ 2, IWM/EFA/TLT/IEF/GLD 3, SLV/GDX 5, DBC 8 bps one way; one account, next-open fills, T-bill on cash; periods pre (to 2013-10-17), dev (to 2023), holdout (2024+); figures in each result folder's `figures/`.
 
-## Results
-_Not yet run on real data._
+## Results (real data, 2026-10-29; `results/2026-10-29-2126-xlab-trend-real/` (summary.md, CSVs, figures/))
+Portfolio verdicts against the same volatility-sized portfolio with no signal (pre / dev / holdout ΔSharpe):
+SMA 50/200 0.00 / −0.04 / −0.10 (REJECT); SMA 20/100 −0.01 / −0.14 / −0.07 (REJECT); EMA 20/100 −0.00 / −0.07 /
+−0.01; above SMA50/100/200 all negative in dev; 63/126/252-day momentum +0.05/+0.10/+0.11 before 2013 but negative
+after 2024 (126 and 252: REJECT, failed on holdout); Donchian 50/20 REJECT (failed on holdout); multi-timeframe REJECT;
+cross-sectional momentum (126 days, top 3) −0.03 / +0.02 / −0.01 and (252−21) +0.15 / −0.10 / +0.14: INCONCLUSIVE.
+PBO across the 13 variants is in the summary.
+
+**Each rule alone on each asset** (long/flat, no sizing): no rule beat buy & hold's Sharpe in more than 43% of (asset,
+period) cells. Trend rules roughly **halve drawdowns** (e.g. SMA 50/200 worst fall −7.8% vs −13.7% before 2013) by
+being out of the market half the time, but give up as much return: risk reduction, not added return per unit of
+risk. This matches EXP-002 (gold timing) on a much wider universe.

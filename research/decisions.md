@@ -160,3 +160,25 @@ and exit gives up more return than it saves; fixed weights beat volatility sizin
 2024–2026, so volatility sizing is kept for what it does reliably, smaller falls, not for higher return per unit of
 risk. The current settings sit in a flat region of the parameter grid. Near-misses to watch, not traded: 15% drawdown
 breaker (fragile under close fills), fixed weights.
+
+**D-030 — Master brief, cross-asset lab (EXP-037…044): the adopted strategy stays unchanged** (2026-10-29)
+Eight pre-registered experiments on ten assets from 2006: no trend, momentum, mean-reversion, pairs, candlestick, ML
+or macro signal met the rules; better volatility forecasts and covariance-based risk parity were inconclusive; the
+adopted strategy is robust to one to five days' execution delay and to 2× costs. Nothing beat the S&P 500's return in
+every period without a deeper worst fall, with or without leverage (EXP-037).
+
+**D-031 — Data-audit actions** (2026-10-29)
+CPER (copper ETF) excluded: paired ±30–50% bad prints in 2014–15 and 8.8% zero-volume days. FRED's high-yield spread
+(BAMLH0A0HYM2) now returns only 3 years of history, so credit is measured with HYG / IEF. Futures OHLC from Yahoo
+(GC=F, SI=F, HG=F) has many open/close values outside the day's range, so only futures closes are used (as before).
+The price cache now refetches if the cached history starts later than requested; every result records code and data
+fingerprints.
+
+**D-032 — GVZ sizing (D-021, D-024) gains independent support** (2026-10-29)
+EXP-040: GVZ-adjusted volatility was the most accurate forecast of the next 21 days' variance (QLIKE 0.209 vs 0.339
+for plain 21-day) and the best-calibrated 99% VaR (0.89% breaches vs 2.32%) for gold assets. Kept.
+
+**Owner decision pending — S&P 500 + gold** (2026-10-29)
+EXP-037 found that 70% SPY + 30% GLD, rebalanced monthly, matched the S&P 500's return (11.3% a year) with a higher
+Sharpe (0.69 vs 0.56) and a shallower worst fall (−38% vs −55%) over 2006–2026. It is a simple allocation, not a trading
+signal, and lies outside Aurum's precious-metals mandate; adopting it is the owner's choice and is not implemented.

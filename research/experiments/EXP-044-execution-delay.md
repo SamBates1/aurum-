@@ -2,7 +2,7 @@
 
 | Field | |
 |---|---|
-| Status | Pre-registered 2026-10-29, before any real-data run |
+| Status | Run 2026-10-29: the adopted strategy is robust to execution delay and costs |
 | Origin | Master brief §13.9 |
 
 ## Grid
@@ -12,5 +12,7 @@ extra day of delay and at 2× costs.
 
 Cross-asset lab rules (README, 'Cross-asset lab'): universe SPY, QQQ, IWM, EFA, TLT, IEF, GLD, SLV, GDX, DBC (CPER excluded: data audit found paired ±30–50% bad prints in 2014–15); costs SPY/QQQ 2, IWM/EFA/TLT/IEF/GLD 3, SLV/GDX 5, DBC 8 bps one way; one account, next-open fills, T-bill on cash; periods pre (to 2013-10-17), dev (to 2023), holdout (2024+); figures in each result folder's `figures/`.
 
-## Results
-_Not yet run on real data._
+## Results (real data, 2026-10-29; `results/2026-10-29-2126-xlab-delay-real/` (summary.md, CSVs, figures/))
+Whole-period Sharpe: next open 0.36 (as traded), next close 0.37, 1 day late 0.37, 2 days late 0.37, 5 days late 0.36;
+at 2× costs 0.35, 3× 0.33, 5× 0.30. Pre-registered robustness test (within 0.05 with one day's delay and at 2× costs):
+**passed**. The strategy reacts slowly by design, so execution timing barely matters.

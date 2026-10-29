@@ -112,14 +112,14 @@ AURUM_OFFLINE=1 python run_experiments.py --quick   # synthetic: checks the code
 | [EXP-034](EXP-034-sizing.md) | Sizing: fixed, inverse-vol, portfolio vol target, miners cap, cash reserve, fixed-fractional | brief | Run: nothing adopted |
 | [EXP-035](EXP-035-risk-levels-and-robustness.md) | Risk levels, robustness grid, costs, one-account engine | brief | Run: flat region; one-account engine standard (D-028) |
 | [EXP-036](EXP-036-regimes-and-diagnostics.md) | Regimes, consistency, tails, what normal looks like | brief | Run: diagnostics and normal ranges |
-| [EXP-037](EXP-037-beat-sp500.md) | Can Aurum-style portfolios beat the S&P 500? | master brief | Pre-registered |
-| [EXP-038](EXP-038-trend-momentum.md) | Trend following and momentum across ten assets | master brief | Pre-registered |
-| [EXP-039](EXP-039-mean-reversion-pairs.md) | Mean reversion and pairs | master brief | Pre-registered |
-| [EXP-040](EXP-040-volatility-models.md) | Volatility models: forecast accuracy and sizing | master brief | Pre-registered |
-| [EXP-041](EXP-041-candlesticks.md) | Candlestick patterns | master brief | Pre-registered |
-| [EXP-042](EXP-042-ml-models.md) | Machine learning vs simple baselines | master brief | Pre-registered |
-| [EXP-043](EXP-043-macro-lead-lag.md) | Macro and cross-asset lead-lag | master brief | Pre-registered |
-| [EXP-044](EXP-044-execution-delay.md) | Execution delay and cost sensitivity of the adopted strategy | master brief | Pre-registered |
+| [EXP-037](EXP-037-beat-sp500.md) | Can Aurum-style portfolios beat the S&P 500? | master brief | Run: nothing beat SPY; SPY+GLD 70/30 same return, less risk |
+| [EXP-038](EXP-038-trend-momentum.md) | Trend following and momentum across ten assets | master brief | Run: none adopted |
+| [EXP-039](EXP-039-mean-reversion-pairs.md) | Mean reversion and pairs | master brief | Run: rejected |
+| [EXP-040](EXP-040-volatility-models.md) | Volatility models: forecast accuracy and sizing | master brief | Run: GVZ best forecast; portfolio inconclusive |
+| [EXP-041](EXP-041-candlesticks.md) | Candlestick patterns | master brief | Run: no pattern works |
+| [EXP-042](EXP-042-ml-models.md) | Machine learning vs simple baselines | master brief | Run: no ML skill |
+| [EXP-043](EXP-043-macro-lead-lag.md) | Macro and cross-asset lead-lag | master brief | Run: nothing confirmed |
+| [EXP-044](EXP-044-execution-delay.md) | Execution delay and cost sensitivity of the adopted strategy | master brief | Run: robust to delay and costs |
 | EXP-009 | Chandelier trailing stop, confirmatory | EXP-005 result | Answered by EXP-023 (more history, new assets): rejected |
 
 Results of each run go in `results/<date>-<time>-real[-…]/summary.md`; conclusions are copied into each EXP file's

@@ -145,3 +145,18 @@ The owner prefers the bot to be able to act on any day. EXP-022 found daily and 
 (Sharpe differences within ±0.03 either way); daily reacts sooner after a sudden fall, at about twice the orders
 (39 vs 21 per asset per year, roughly 0.1% a year more in costs). `strategy.rebalance: daily`. An order is still only
 placed when an asset is more than 5 points (of its sleeve) away from target. Weekly stays available as a setting.
+
+**D-028 — The one-account simulator is the standard backtest** (2026-10-29)
+Audit finding: the backtest kept each asset in its own pot of money, while the paper trader sizes every asset against
+the whole account. `aurum/portfolio.py` simulates one account exactly like the paper trader (and a broker). EXP-035:
+the difference is small (≤ 0.04 Sharpe in every core period), so earlier conclusions stand; new work uses the
+one-account engine.
+
+**D-029 — Owner's strategy brief (EXP-032…036): no rule change adopted** (2026-10-29)
+Twenty pre-registered variants on entries and scaling, stops and exits, circuit breakers and sizing, tested from 2006,
+on eight other assets and with both fill conventions: none met the rules. Recorded findings: investing at once vs
+spreading in is close to a coin-flip (lump sum ahead 54% of the time); averaging down deepens the worst fall; every stop
+and exit gives up more return than it saves; fixed weights beat volatility sizing on Sharpe before 2024 but failed in
+2024–2026, so volatility sizing is kept for what it does reliably, smaller falls, not for higher return per unit of
+risk. The current settings sit in a flat region of the parameter grid. Near-misses to watch, not traded: 15% drawdown
+breaker (fragile under close fills), fixed weights.

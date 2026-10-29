@@ -305,7 +305,24 @@ with tab_paper:
     c1.metric("Equity", f"${eq:,.2f}", f"{eq / start - 1:+.2%}")
     c2.metric("Cash", f"${book.state['cash']:,.2f}")
     c3.metric("Realised P&L", f"${book.state['realised_pnl']:+,.2f}")
-    c4.metric("Fees paid", f"${book.state['fees']:,.2f}")
+    c4.metric("Fees paid", f"${book.state['fees']:,.2f}", f"{book.state['fees'] / start:.2%} of start", "off")
+    hist_eq = [h["equity"] for h in book.state["history"]] or [eq]
+    peak = max(max(hist_eq), eq)
+    invested = eq - book.state["cash"]
+    d1, d2, d3, d4 = st.columns(4)
+    d1.metric("Unrealised P&L", f"${book.unrealised_pnl():+,.2f}")
+    d2.metric("Invested", f"{invested / eq:.0%}" if eq > 0 else "–")
+    d3.metric("Drawdown from peak", f"{eq / peak - 1:+.1%}" if peak > 0 else "–")
+    from aurum import safety
+
+    lc = safety.live_cfg(CFG)
+    killed = (not lc["trading_enabled"]) or safety.KILL_FILE.exists()
+    d4.metric("Trading", "OFF (off switch)" if killed else "ON (paper only)")
+    st.caption(
+        "What normal looks like (backtest of the traded rule, research/experiments/EXP-036): see the latest "
+        "portfolio-lab summary for the 1-, 3-, 6- and 12-month ranges. A result inside the 5th-95th percentile range "
+        "is ordinary luck, not evidence that the strategy has changed."
+    )
     if book.state["positions"]:
         pos = pd.DataFrame(
             [
@@ -327,8 +344,37 @@ with tab_paper:
             width="stretch",
         )
     if len(book.state["history"]) > 1:
-        h = pd.DataFrame(book.state["history"])
-        st.line_chart(h.set_index("time")["equity"])
+        h = pd.DataFrame(book.state["history"]).set_index("time")
+        st.line_chart(h["equity"])
+        st.markdown("**Drawdown from peak**")
+        st.area_chart(h["equity"] / h["equity"].cummax() - 1)
+    if book.state["positions"] and eq > 0:
+        sleeve = eq * min(CFG["strategy"]["max_position_pct"], 1 / max(1, len(tickers)))
+        st.markdown(f"**Exposure by asset** (share of the account; each asset's full sleeve is {sleeve / eq:.0%})")
+        st.bar_chart(pd.Series({t: p["qty"] * p["last_price"] / eq for t, p in book.state["positions"].items()}))
+    log_path = safety.ROOT / lc["decision_log"]
+    if log_path.exists():
+        import json as _json
+
+        recs = [_json.loads(x) for x in log_path.read_text().splitlines()[-50:]]
+        st.markdown("**Decision records** (latest 50: every planned or blocked order with its checks)")
+        st.dataframe(
+            pd.DataFrame(
+                [
+                    {
+                        "time": r["time"],
+                        "ticker": r["ticker"],
+                        "order": f"{(r.get('planned_order') or {}).get('side', '')} "
+                        f"{(r.get('planned_order') or {}).get('from_weight', 0):.0%}->"
+                        f"{(r.get('planned_order') or {}).get('to_weight', 0):.0%}",
+                        "allowed": r["allowed"],
+                        "failed checks": ", ".join(c["check"] for c in r["checks"] if not c["passed"]),
+                    }
+                    for r in recs
+                ]
+            ).iloc[::-1],
+            width="stretch",
+        )
     st.markdown("**Manual trade from current signal**")
     if st.button(f"Execute {ticker} signal now"):
         a = get_decision(ticker)

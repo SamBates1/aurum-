@@ -3,7 +3,7 @@
 | Field | |
 |---|---|
 | Status | Run 2026-10-29: inconclusive; not adopted |
-| Origin | Stage 5; Erb & Harvey (2013) [S6]; the real-yield link broke after 2021 |
+| Origin | Stage 5; Erb & Harvey (2013) [S3]; the real-yield link broke after 2021 |
 
 ## Hypothesis
 When gold is expensive relative to what real interest rates and the dollar imply, its next months are weaker (and vice

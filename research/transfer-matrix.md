@@ -2,7 +2,7 @@
 
 One row per idea discovered. Classification: **Adopt** (strong rationale, regression-tested),
 **Adapt** (useful but changed for Aurum), **Experiment** (benefit uncertain, pre-registered test),
-**Reject** (unsuitable, redundant, unreliable, too complex or unsupported). Last updated 2026-10-29: experiment outcomes in [experiments/README.md](experiments/README.md#registry); rows 31–37 from [topics/new-ideas-2026-10-29.md](topics/new-ideas-2026-10-29.md); rows 38–43 from the research lab (EXP-020…028) and [topics/intraday.md](topics/intraday.md).
+**Reject** (unsuitable, redundant, unreliable, too complex or unsupported). Last updated 2026-10-29: experiment outcomes in [experiments/README.md](experiments/README.md#registry); rows 31–37 from [topics/new-ideas-2026-10-29.md](topics/new-ideas-2026-10-29.md); rows 38–43 from the research lab (EXP-020…028) and [topics/intraday.md](topics/intraday.md); rows 44–49 from the portfolio lab (EXP-032…036).
 Source IDs refer to [sources.md](sources.md).
 
 | # | Technique | Source | Mechanism | Evidence | Relevance to gold/miners | Current Aurum equivalent | Required changes | Main risks | Experiment | Acceptance criteria | Priority | Class |
@@ -46,8 +46,14 @@ Source IDs refer to [sources.md](sources.md).
 | 37 | GDX overnight-drift strategy | [S20] | Close-to-open drift | Mostly a data artefact | GDX | None | – | Unrealistic fills | – | – | – | **Reject** |
 
 | 38 | Weekly rebalancing | Turnover reduction (EXP-014 band follow-up) | Fewer orders, same exposure | EXP-022: same Sharpe, half the orders | All | Daily checks | `strategy.rebalance: weekly` (done) | Larger drift between rebalances | EXP-022 | Dev & pre ΔSharpe ≥ −0.05 | High | **Adopt** (D-022) |
-| 39 | Gold fair value (real yields, dollar) | Erb & Harvey [S6] | Mean reversion of valuation gap | EXP-024: inconclusive | Gold-linked | None | Tilt in `lab.py` | Relationship broke after 2021 | EXP-024 | Lab rules | – | **Reject (for now)** |
+| 39 | Gold fair value (real yields, dollar) | Erb & Harvey [S3] | Mean reversion of valuation gap | EXP-024: inconclusive | Gold-linked | None | Tilt in `lab.py` | Relationship broke after 2021 | EXP-024 | Lab rules | – | **Reject (for now)** |
 | 40 | CFTC speculative positioning | CFTC [S15, S30]; Basu & Miffre [S26] | Crowding / hedging pressure | EXP-025: no effect either way | Gold, silver | None | Parser in `data.py` | Release-date alignment | EXP-025 | Lab rules | – | **Reject** |
 | 41 | News-based risk indices (EPU, GPR) | [S27, S28, S29] | Safe-haven demand | EXP-026: EPU small (+0.02–0.06), GPR negative | GLD, SLV | None | Loaders in `data.py` | Index revisions | EXP-026 | Lab rules | Low | **Watch** (EPU) / **Reject** (GPR) |
 | 42 | GDELT news tone with AI scoring | GDELT | News sentiment | Not testable point-in-time without paid data | All | Live VADER headlines (weight 0) | – | Cost, look-ahead | – | – | – | **Reject** for backtests |
 | 43 | Intraday momentum, overnight holding, intraday risk checks | [S31, S32] | See topics/intraday.md | Pre-cost evidence only | GLD, SLV, GDX | None | Minute data via Alpaca | Costs, data quality | EXP-029…031 | Registry rules on minute data | Medium | **Experiment** (after Alpaca) |
+| 44 | Dollar-cost averaging vs lump sum | Vanguard [S34] | Spreads entry timing risk | EXP-032: lump sum ahead 54% of starts; spreading softens worst cases slightly | All | Lump sum | – | Regret, not expected return | EXP-032 | Rolling starts | – | **Reject** (owner may choose either; no edge) |
+| 45 | Pyramiding / averaging down / buying dips | Practitioner rules | Add on strength or weakness | EXP-032: no gain; averaging down deepens worst fall | All | None | Tilts in `plab.py` | Tail risk | EXP-032 | Lab rules | – | **Reject** |
+| 46 | Fixed-% trailing stops, 200-day trend exits, partial profit-taking | Practitioner rules; Faber | Cut losers, lock gains | EXP-033: smaller falls, much less return | All | None (vol_hold) | – | Whipsaw | EXP-033 | Lab rules | – | **Reject** |
+| 47 | Portfolio circuit breakers, loss limits, equity-curve trading | LEAN risk models; Freqtrade Protections | Cut risk after losses | EXP-033: fragile; 15% breaker best near-miss | All | None | `portfolio.py` overlays | Delay recognition of recovery | EXP-033 | Lab rules | Low | **Watch** (breaker_15) |
+| 48 | Risk parity, portfolio vol target, group caps, cash reserve, fixed-fractional | Standard sizing methods | Allocate risk | EXP-034: no gain over per-asset vol sizing | All | Per-asset vol target | – | – | EXP-034 | Lab rules | – | **Reject** |
+| 49 | One-account simulation | Audit (brief §10) | Parity with paper trader/broker | EXP-035: differs ≤ 0.04 Sharpe | All | Sleeve engine | `portfolio.py` (done) | – | EXP-035 | Parity | High | **Adopt** (D-028) |

@@ -22,6 +22,7 @@ import math
 from datetime import datetime
 from pathlib import Path
 
+from . import safety
 from . import strategy as S
 from .config import CFG, ROOT, all_tickers, cost_bps
 
@@ -117,18 +118,27 @@ class PaperPortfolio:
         if d.target_weight is not None:
             if not getattr(d, "rebalance_day", True):
                 return None  # weekly rebalancing: no order on this day (D-022)
-            return self.rebalance(d.ticker, d.target_weight, d.last_price, prices, d.tradeable)
+            bars = getattr(d, "bars", None)
+            last_close = float(bars["Close"].iloc[-1]) if bars is not None and len(bars) else None
+            return self.rebalance(
+                d.ticker, d.target_weight, d.last_price, prices, d.tradeable, d=d, last_close=last_close
+            )
         return self.apply(d.ticker, d.decision, d.last_price, d.ann_vol, d.atr, prices, d.tradeable)
 
     def rebalance(
-        self, ticker: str, target_weight: float, price: float, prices: dict[str, float], tradeable: bool = True
+        self,
+        ticker: str,
+        target_weight: float,
+        price: float,
+        prices: dict[str, float],
+        tradeable: bool = True,
+        d=None,
+        last_close: float | None = None,
     ) -> str | None:
         """vol_hold mode: move the holding to target_weight x this ticker's sleeve of total equity,
         trading only if the current weight differs by more than the rebalance band (EXP-014 rule).
         No stop-loss in this mode, matching what was tested."""
         scfg = self.cfg["strategy"]
-        if not tradeable:
-            return None
         if not _valid_price(price):
             return f"SKIP {ticker}: invalid price {price!r}"
         equity = self.equity(prices)
@@ -141,6 +151,41 @@ class PaperPortfolio:
             return None
         c = cost_bps(ticker, self.cfg) / 1e4
         delta = (w - cur_w) * sleeve
+        side = "BUY" if delta > 0 else "SELL"
+        checks = safety.pre_trade_checks(
+            ticker=ticker,
+            side=side,
+            target_weight=float(target_weight),
+            price=price,
+            last_close=last_close,
+            tradeable=tradeable,
+            state=self.state,
+            cfg=self.cfg,
+            cash_needed=min(delta, self.state["cash"]) if delta > 0 else 0.0,
+        )
+        planned = {
+            "side": side,
+            "notional": round(abs(delta), 2),
+            "price": price,
+            "from_weight": round(cur_w, 4),
+            "to_weight": round(w, 4),
+        }
+        ok = safety.passed(checks)
+        why = "; ".join(f"{x['check']}: {x['detail']}" for x in checks if not x["passed"])
+        # a blocked order is logged once per day and reason, so a 60-second loop doesn't flood the log
+        seen = self.state.setdefault("blocked_logged", {})
+        key = f"{datetime.now().date()}|{ticker}|{','.join(x['check'] for x in checks if not x['passed'])}"
+        if d is not None and (ok or key not in seen):
+            safety.write_record(
+                safety.decision_record(d, current_weight=cur_w, planned=planned, checks=checks, cfg=self.cfg), self.cfg
+            )
+            if not ok:
+                seen[key] = True
+                for k in sorted(seen)[:-50]:
+                    seen.pop(k)
+        if not ok:
+            return f"BLOCKED {side} {ticker}: {why}"
+        safety.record_order(self.state, ticker, f"{side} {cur_w:.0%}->{w:.0%}")
         if delta > 0:
             delta = min(delta, self.state["cash"]) / (1 + c)
             qty, fee = delta / price, delta * c

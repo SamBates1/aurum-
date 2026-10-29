@@ -126,6 +126,23 @@ ranges for the trade-plan idea. Seasonality: low priority. GDX overnight drift: 
 - **Lesson:** after about 50 pre-registered variants, the edge in this market comes from risk sizing, not prediction. The
   bot is a smoother way to own gold and miners, not a way to beat owning them.
 
+## 2026-10-29 — Owner's strategy brief: audit, portfolio lab, safety
+- **Audit** ([audit-2026-10-29.md](audit-2026-10-29.md)): the backtest ran each asset in its own pot while the paper
+  trader sized against the whole account; fixed with a one-account simulator (D-028, difference ≤ 0.04 Sharpe).
+  Other findings: trading depended on the unused ML model succeeding each morning; no duplicate-order guard; no
+  structured decision records.
+- **Daily decisions** restored at the owner's request (D-027).
+- **Portfolio lab** (EXP-032…036, 20 pre-registered variants, 2006–2026, two asset sets, two fill conventions):
+  nothing adopted (D-029). Lump sum vs spreading in: coin-flip. Averaging down: deeper worst fall. Stops, trend exits,
+  breakers: smaller falls, less return. Fixed weights beat volatility sizing on Sharpe before 2024, failed after.
+  Settings sit in a flat region; strategy survives costs up to ~25 bps.
+- **Diagnostics:** the strategy earns in gold bull markets (+22% a year) and loses about half as much as holding in
+  bear markets (−18% vs −38%); longest time below a previous peak about 9 years (2011–2020), like holding.
+- **Safety** (`aurum/safety.py`): off switch, stale-data and bad-price guards, one order per asset per day, order and
+  position limits, cash check, and a structured record for every planned or blocked order; dashboard monitoring.
+- **Documents:** paper-trading plan with pass/fail rules written in advance, deployment checklist, continuous
+  improvement plan, and a strategy report ([strategy-report-2026-10-29.md](strategy-report-2026-10-29.md)).
+
 ## Open questions
 - Do the miner-vs-GDX and EPU tilts keep their small edge in paper trading (watched, not traded)?
 - Which risk level does the owner choose (EXP-028)?

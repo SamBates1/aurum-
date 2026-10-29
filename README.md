@@ -63,11 +63,14 @@ run_research.py  full study → results/<timestamp>/ and reports/latest/
 run_experiments.py  pre-registered experiments vs the baseline → research/experiments/results/
 aurum/experiments.py  experiment variants (EXP-001…019)
 aurum/lab.py     research lab: weight-based variants, long history, other assets (EXP-020…028)
+aurum/portfolio.py  one-account simulator, the standard backtest (D-028)
+aurum/plab.py    portfolio lab: entries, stops, sizing, risk rules (EXP-032…036)
+aurum/safety.py  pre-trade checks, off switch, decision records
 run_lab.py       runs the research lab → research/experiments/results/<time>-lab-<set>-…/
 research/        knowledge base: framework source-code notes, evidence reviews, decisions, experiments
 run_backtest.py  quick per-ticker backtest
 run_bot.py       headless signal loop, optional paper trading
-tests/           92 tests: look-ahead, accounting, metrics, risk controls, data handling, research tools
+tests/           99 tests: look-ahead, accounting, metrics, risk controls, data handling, research tools
 ```
 
 ## Setup
@@ -108,40 +111,43 @@ thresholds, risk limits, cost assumptions and the holdout date.
 Every download is validated (sorted unique dates, positive prices) and cached under `data/cache/` with its source and
 retrieval time. A failed download falls back to the cache **with a visible warning**; nothing is fabricated.
 
-## Strategy (v0.5: always invested, sized by risk, rebalanced weekly)
+## Strategy (v0.6: always invested, sized by risk)
 
 Adopted on 2026-10-29 after experiments EXP-014, EXP-017 and EXP-022 passed their pre-registered rules on real data
-with both open- and close-price fills ([decisions D-020, D-021, D-022](research/decisions.md)).
+with both open- and close-price fills ([decisions D-020, D-021, D-027](research/decisions.md)); the full
+evidence and rules are in the [strategy report](research/strategy-report-2026-10-29.md).
 
-For each of the six assets, at the close (orders only after Friday's close):
+For each of the six assets, after each close:
 
 1. **Forecast its risk.** 21-day realised volatility, scaled by gold's implied/realised volatility ratio: the CBOE
    gold volatility index (GVZ) divided by GLD's own 21-day volatility, clipped to 0.5–2. When options price more
    risk than has recently occurred, every position is cut; when they price less, positions grow.
 2. **Set the target weight** = min(1, 15% / forecast volatility) of the asset's sleeve (each sleeve is
    `min(20%, 1/N)` of the portfolio). Always invested, never leveraged.
-3. **Rebalance** once a week: after Friday's close, an order is placed for the next open only if the current
-   weight is more than 5 points off target (about 21 orders per asset per year). Per-ticker one-way costs of 3–10 bps.
-4. **Safety:** no trading on stale or missing data; if GVZ is unavailable, sizing falls back to plain 21-day
-   volatility with a visible warning.
+3. **Rebalance** at the next open only if the current weight is more than 5 points off target (decided daily,
+   about 39 orders per asset per year; Friday-only decisions are an equivalent setting). Per-ticker one-way costs of 3–10 bps.
+4. **Safety:** no trading on stale or missing data, implausible prices, duplicate orders or with the off switch on;
+   every planned or blocked order gets a structured record (`aurum/safety.py`). If GVZ is unavailable, sizing falls
+   back to plain 21-day volatility with a visible warning.
 
 The ML model and technical signals still run and are shown on the dashboard with their reasons, but they no longer
 drive trades: tilting positions by the model's predictions (5-, 21- and 63-day horizons) added nothing on top of
 risk-based sizing (EXP-015). The v0.2 BUY/SELL timing strategy (`strategy.mode: timing`) is kept for comparison as
 `timing_v02` in every report.
 
-**Headline results** (real data, six-asset portfolio, after costs, 2006–2026 via the research lab;
-[research/experiments/](research/experiments/README.md)):
+**Headline results** (real data, six assets in one account, after costs, 2006–2026; `run_plab.py`,
+[EXP-035](research/experiments/EXP-035-risk-levels-and-robustness.md)):
 
 | | 2006–2013 (new data) CAGR / Sharpe / max DD | 2013–2023 | 2024–2026 | Whole 2006–2026 |
 |---|---|---|---|---|
-| Traded strategy (weekly, GVZ-sized) | 2.5% / 0.17 / −32.6% | 3.6% / 0.25 / −22.7% | 23.5% / 1.31 / −12.9% | 5.7% / 0.38 / −40.2% |
-| Buy & hold | 4.7% / 0.28 / −63.9% | 6.0% / 0.30 / −41.1% | 39.1% / 1.00 / −36.7% | 9.5% / 0.39 / −65.2% |
+| Traded strategy (daily, GVZ-sized) | 2.3% / 0.15 / −32.4% | 3.4% / 0.24 / −21.1% | 23.1% / 1.30 / −13.0% | 5.5% / 0.37 / −39.1% |
+| Buy & hold | 4.7% / 0.28 / −63.9% | 6.0% / 0.30 / −41.1% | 39.5% / 1.01 / −36.7% | 9.5% / 0.39 / −65.2% |
 
-Over twenty years the strategy earned the **same return per unit of risk as buy & hold** (Sharpe 0.38 vs 0.39) with
-a much smaller worst fall (−40% vs −65%; in the 2011–15 gold bear market −39% vs −63%), but less money in total.
-It is a smoother way to own gold and miners, not a way to beat owning them: about 50 pre-registered prediction
-ideas (ML, trend, regimes, fair value, positioning, news indices) failed to add reliable value. The risk level is a
+Over twenty years the strategy earned about the **same return per unit of risk as buy & hold** (Sharpe 0.37 vs 0.39) with
+a much smaller worst fall (−39% vs −65%; in the 2011–15 gold bear market −38% vs −63%), but less money in total.
+It is a smoother way to own gold and miners, not a way to beat owning them: about 70 pre-registered
+variants (ML, trend, regimes, fair value, positioning, news indices, stops, scaling, breakers, sizing schemes) failed
+to add reliable value. The risk level is a
 choice, not an edge: higher targets earn more and fall further at the same Sharpe ([EXP-028](research/experiments/EXP-028-risk-map.md)).
 Paper trading is the next test.
 

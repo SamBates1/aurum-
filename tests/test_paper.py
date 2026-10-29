@@ -75,12 +75,18 @@ def test_ledger_round_trip_and_v01_migration(tmp_path, cfg):
 
 def test_vol_hold_rebalance_moves_to_target_with_band(book, cfg):
     sleeve = cfg["paper"]["starting_cash"] * min(cfg["strategy"]["max_position_pct"], 1 / 6)
+
+    def next_day():  # each call below stands for a different trading day (one order per asset per day)
+        book.state["orders_by_day"] = {}
+
     assert book.rebalance("GLD", 0.6, 100.0, PX).startswith("BUY")
     held = book.state["positions"]["GLD"]["qty"] * 100.0
     assert held == pytest.approx(0.6 * sleeve, rel=0.01)
+    next_day()
     assert book.rebalance("GLD", 0.62, 100.0, PX) is None  # inside the 5-point band
     assert book.rebalance("GLD", 0.3, 100.0, PX).startswith("SELL")
     assert book.state["positions"]["GLD"]["qty"] * 100.0 == pytest.approx(0.3 * sleeve, rel=0.02)
+    next_day()
     assert book.rebalance("GLD", 0.0, 100.0, PX).startswith("SELL") and "GLD" not in book.state["positions"]
     assert book.state["cash"] == pytest.approx(cfg["paper"]["starting_cash"] - book.state["fees"], rel=1e-9)
 
@@ -105,4 +111,54 @@ def test_no_order_on_a_non_rebalance_day(tmp_path, cfg):
     )
     assert book.act(d, {"GLD": 100.0}) is None and not book.state["positions"]
     d.rebalance_day = True
-    assert book.act(d, {"GLD": 100.0}) is not None
+    assert book.act(d, {"GLD": 100.0}).startswith("BUY")
+
+
+def test_safety_checks_block_duplicates_bad_prices_and_the_kill_switch(tmp_path, cfg, monkeypatch):
+    from aurum import safety
+
+    monkeypatch.setattr(safety, "ROOT", tmp_path)
+    monkeypatch.setattr(safety, "KILL_FILE", tmp_path / "STOP_TRADING")
+    book = PaperPortfolio(tmp_path / "ledger.json", cfg)
+    px = {"GLD": 100.0}
+    assert book.rebalance("GLD", 0.5, 100.0, px).startswith("BUY")
+    assert book.rebalance("GLD", 1.0, 100.0, px).startswith("BLOCKED BUY GLD: one_order_per_day")
+    book.state["orders_by_day"] = {}
+    assert "price_sane" in book.rebalance("GLD", 1.0, 100.0, px, last_close=60.0)  # 67% jump: bad tick
+    (tmp_path / "STOP_TRADING").write_text("stop")
+    assert "kill_switch" in book.rebalance("GLD", 1.0, 100.0, px, last_close=100.0)
+    (tmp_path / "STOP_TRADING").unlink()
+    cfg["live"]["trading_enabled"] = False
+    assert "kill_switch" in book.rebalance("GLD", 1.0, 100.0, px, last_close=100.0)
+    cfg["live"]["trading_enabled"] = True
+    assert "data_fresh" in book.rebalance("GLD", 1.0, 100.0, px, tradeable=False)
+    assert book.rebalance("GLD", 1.0, 100.0, px, last_close=100.0).startswith("BUY")
+
+
+def test_decision_record_is_written_with_checks(tmp_path, cfg, monkeypatch):
+    import json as _json
+    from types import SimpleNamespace
+
+    from aurum import safety
+
+    monkeypatch.setattr(safety, "ROOT", tmp_path)
+    book = PaperPortfolio(tmp_path / "ledger.json", cfg)
+    d = SimpleNamespace(
+        ticker="GLD",
+        target_weight=0.5,
+        rebalance_day=True,
+        last_price=100.0,
+        tradeable=True,
+        decision="BUY",
+        notes=["Always-invested mode: hold 50%"],
+        ann_vol=0.3,
+        as_of="2026-10-28",
+    )
+    book.act(d, {"GLD": 100.0})
+    rec = _json.loads((tmp_path / "logs" / "decisions.jsonl").read_text().splitlines()[-1])
+    assert rec["ticker"] == "GLD" and rec["allowed"] is True
+    assert rec["planned_order"]["side"] == "BUY" and {c["check"] for c in rec["checks"]} >= {
+        "kill_switch",
+        "price_sane",
+    }
+    assert rec["expected_risk"]["position_volatility_contribution"] == pytest.approx(0.15)

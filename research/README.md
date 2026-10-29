@@ -7,13 +7,17 @@ already known instead of starting again.
 ## Start here
 | File | What it holds |
 |---|---|
+| [strategy-report-2026-10-29.md](strategy-report-2026-10-29.md) | **Start here:** the evidence, the comparison table, the recommended rules and the risk framework |
+| [audit-2026-10-29.md](audit-2026-10-29.md) | Where each decision lives in the code; strengths and weaknesses |
+| [paper-trading-plan.md](paper-trading-plan.md) | Pass/fail rules for paper trading, deployment checklist, emergency procedure |
+| [continuous-improvement.md](continuous-improvement.md) | How deterioration is detected and new ideas are tested |
 | [PROJECT_LOG.md](PROJECT_LOG.md) | Chronological record of everything done and learned |
 | [decisions.md](decisions.md) | Every design decision, its reason, and what would change it |
-| [transfer-matrix.md](transfer-matrix.md) | All ideas found so far (43), classified Adopt / Adapt / Experiment / Reject |
+| [transfer-matrix.md](transfer-matrix.md) | All ideas found so far (49), classified Adopt / Adapt / Experiment / Reject |
 | [sources.md](sources.md) | Papers, articles, repositories (pinned commits) and tools, with links |
 | [frameworks/](frameworks/README.md) | Source-code notes: Freqtrade, LEAN, Backtrader, VectorBT, Zipline-reloaded |
 | [topics/](topics/) | Evidence reviews: [gold](topics/gold-evidence.md), [regimes](topics/regimes.md), [ML vs simple](topics/ml-vs-simple.md), [sizing & risk](topics/sizing-and-risk.md), [mean reversion](topics/mean-reversion.md), [alternative signals](topics/alternative-signals.md), [new ideas 2026-10-29](topics/new-ideas-2026-10-29.md), [overfitting statistics](topics/overfitting-statistics.md), [intraday trading](topics/intraday.md) |
-| [experiments/](experiments/README.md) | Protocol, acceptance rules, pre-registered experiments EXP-001…028, research lab, results |
+| [experiments/](experiments/README.md) | Protocol, acceptance rules, pre-registered experiments EXP-001…036, research and portfolio labs, results |
 | [templates/](templates/) | Templates for new source notes and experiments |
 
 ## Workflow for a new idea

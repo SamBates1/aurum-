@@ -101,11 +101,11 @@ AURUM_OFFLINE=1 python run_experiments.py --quick   # synthetic: checks the code
 | [EXP-026](EXP-026-news-risk-indices.md) | News-based risk indices (EPU, GPR) | stage 7 | Run: EPU small but below bar; GPR rejected |
 | [EXP-027](EXP-027-combination.md) | Combine what passed | stage 8 | Not run: nothing to combine |
 | [EXP-028](EXP-028-risk-map.md) | Risk map: 10–30% volatility targets | owner's choice | Run: risk map produced (owner chooses) |
-| [EXP-032](EXP-032-entries-and-scaling.md) | Lump sum vs spreading in, adding to winners, averaging down, buying dips | brief | Pre-registered |
-| [EXP-033](EXP-033-stops-exits-breakers.md) | Stop-losses, trend exits, profit-taking, circuit breakers | brief | Pre-registered |
-| [EXP-034](EXP-034-sizing.md) | Sizing: fixed, inverse-vol, portfolio vol target, miners cap, cash reserve, fixed-fractional | brief | Pre-registered |
-| [EXP-035](EXP-035-risk-levels-and-robustness.md) | Risk levels, robustness grid, costs, one-account engine | brief | Pre-registered |
-| [EXP-036](EXP-036-regimes-and-diagnostics.md) | Regimes, consistency, tails, what normal looks like | brief | Pre-registered |
+| [EXP-032](EXP-032-entries-and-scaling.md) | Lump sum vs spreading in, adding to winners, averaging down, buying dips | brief | Run: nothing adopted |
+| [EXP-033](EXP-033-stops-exits-breakers.md) | Stop-losses, trend exits, profit-taking, circuit breakers | brief | Run: all rejected |
+| [EXP-034](EXP-034-sizing.md) | Sizing: fixed, inverse-vol, portfolio vol target, miners cap, cash reserve, fixed-fractional | brief | Run: nothing adopted |
+| [EXP-035](EXP-035-risk-levels-and-robustness.md) | Risk levels, robustness grid, costs, one-account engine | brief | Run: flat region; one-account engine standard (D-028) |
+| [EXP-036](EXP-036-regimes-and-diagnostics.md) | Regimes, consistency, tails, what normal looks like | brief | Run: diagnostics and normal ranges |
 | EXP-009 | Chandelier trailing stop, confirmatory | EXP-005 result | Answered by EXP-023 (more history, new assets): rejected |
 
 Results of each run go in `results/<date>-<time>-real[-…]/summary.md`; conclusions are copied into each EXP file's

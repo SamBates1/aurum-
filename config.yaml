@@ -82,5 +82,9 @@ live:
   interval: 5m
   refresh_seconds: 60
   use_partial_bar: false        # false = signals use completed daily bars only, exactly as backtested
+  trading_enabled: true         # off switch: false (or a file named STOP_TRADING in the project folder) blocks all orders
+  max_orders_per_day: 12        # safety limit on orders per day across all assets
+  max_price_jump: 0.25          # block an order if the price is more than 25% from the last close (bad data)
+  decision_log: logs/decisions.jsonl   # one structured record per planned or blocked order (git-ignored)
 
 offline: false                  # true = clearly-labelled synthetic data, no internet needed

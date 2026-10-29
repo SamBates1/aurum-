@@ -17,3 +17,7 @@ reports/latest-synthetic/
 # synthetic experiment runs only check the code; real runs are committed
 research/experiments/results/*synthetic*/
 research/experiments/results/.checkpoints/
+
+# decision records and the off-switch file are local to each machine
+/logs/
+/STOP_TRADING

@@ -76,7 +76,8 @@ def build_report(tickers: list[str], cfg: dict = CFG) -> str:
         "",
         "## Cross-asset dashboard",
         "",
-        "| Ticker | Last bar | Close | 1d % | 21d % | 63d % | 252d % | 21d ann. vol % | RSI-14 | vs SMA50 % | vs SMA200 % | Max historical DD % |",
+        "| Ticker | Last bar | Close | 1d % | 21d % | 63d % | 252d % | 21d ann. vol % | "
+        "RSI-14 | vs SMA50 % | vs SMA200 % | Max historical DD % |",
         "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for ticker, s in rows:
@@ -90,11 +91,14 @@ def build_report(tickers: list[str], cfg: dict = CFG) -> str:
         "",
         "## Interpretation guardrails",
         "",
-        "- Momentum and RSI values describe the recent path; they do not establish that a trade has positive expected value.",
-        "- SMA gaps are descriptive trend context. Candlestick patterns and technical rules require pre-registered, out-of-sample tests after costs.",
+        "- Momentum and RSI describe the recent path; they do not establish positive expected value for a trade.",
+        "- SMA gaps are descriptive trend context. Candlestick patterns and technical rules require pre-registered tests "
+        "out of sample and after costs.",
         "- Historical drawdown uses available prices and excludes distributions unless reflected by the data source.",
-        "- Compare assets over identical dates with identical fill, cost and risk assumptions before drawing performance conclusions.",
-        "- Market data may be delayed, revised, incomplete or unavailable. Check each last-bar date before relying on this snapshot.",
+        "- Compare assets over identical dates with identical fill, cost and risk assumptions before drawing "
+        "performance conclusions.",
+        "- Market data may be delayed, revised, incomplete or unavailable. Check each last-bar date before relying "
+        "on this snapshot.",
         "",
         "## Data retrieval issues",
         "",
@@ -110,7 +114,9 @@ def build_report(tickers: list[str], cfg: dict = CFG) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--tickers", nargs="*", help="tickers to include (default: Aurum universe plus SPY/QQQ/DBC/TLT)")
+    parser.add_argument(
+        "--tickers", nargs="*", help="tickers to include (default: Aurum universe plus SPY/QQQ/DBC/TLT)"
+    )
     parser.add_argument("--offline", action="store_true", help="use synthetic data for a code-path check only")
     parser.add_argument("--output", help="explicit output path; defaults to reports/daily/YYYY-MM-DD.md")
     args = parser.parse_args()
@@ -119,7 +125,8 @@ def main() -> None:
         cfg["offline"] = True
     tickers = args.tickers or (all_tickers(cfg) + DEFAULT_COMPARATORS)
     report = build_report(tickers, cfg=cfg)
-    output = Path(args.output) if args.output else ROOT / "reports" / "daily" / f"{datetime.now(timezone.utc):%Y-%m-%d}.md"
+    default_output = ROOT / "reports" / "daily" / f"{datetime.now(timezone.utc):%Y-%m-%d}.md"
+    output = Path(args.output) if args.output else default_output
     if not output.is_absolute():
         output = ROOT / output
     output.parent.mkdir(parents=True, exist_ok=True)

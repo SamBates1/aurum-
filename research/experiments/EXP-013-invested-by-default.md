@@ -61,7 +61,9 @@ raise returns well above the baseline (development CAGR 0.8% → 4.6%), but:
 Close fills (`2026-10-29-1212-real-closefill/`) give the same conclusion with slightly weaker numbers.
 
 **What we learned:** over 2013–2026, buy & hold had the best risk-adjusted return of everything tested. The
-protection Aurum provides comes from *how much* it holds (volatility targeting), not *when* it holds (timing).
+protection Aurum provides comes from *how much* it holds, not *when* it holds (timing). *(Correction, 12:45: the
+`vol_sized_hold` reference sizes once and never resizes, so its protection came mainly from partial cash holdings,
+not from adjusting to volatility; see D-019 correction and EXP-014.)*
 The simplest reference, always invested with volatility-targeted size (`vol_sized_hold`), beat the current
 baseline on return and Sharpe in both periods, with drawdowns ~40% (development) and ~22% (holdout) smaller than
 buy & hold. It is a reference row, not a pre-registered trial, so it is proposed as the candidate new baseline

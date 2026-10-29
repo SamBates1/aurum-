@@ -86,3 +86,9 @@ The protection comes from volatility-targeted sizing. Proposal: make "always inv
 (`vol_sized_hold`: development Sharpe 0.22, max DD −25.8%; holdout CAGR 28.3%) the baseline that every new
 prediction idea must beat, so ideas are judged on whether they add anything to simply holding with sensible
 sizing. To be confirmed by the owner before changing the traded strategy.
+
+**D-019 correction** (2026-10-29, 12:45)
+The `vol_sized_hold` reference used in D-019 sized each position once, at its first entry, and never resized it.
+Its lower drawdowns therefore came mostly from holding part of each sleeve in cash, not from adjusting to
+volatility over time. The baseline switch is **not** made on that evidence. Instead a properly rebalancing version
+(`vol_hold`, EXP-014) is pre-registered with explicit adoption criteria and tested before any change.

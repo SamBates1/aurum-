@@ -34,6 +34,7 @@ class Context:
     cfg: dict
     gdx_close: pd.Series | None = None
     is_equity: bool = False
+    extras: dict = field(default_factory=dict)  # cross-ticker data: xs_returns, gvz, gld_vol (stages 3-4)
     _cache: dict = field(default_factory=dict)
 
     @property
@@ -74,6 +75,36 @@ class Context:
             )
             self._cache[key] = wf.probs
         return self._cache[key]
+
+    def horizon_probs(self, h: int) -> tuple[pd.Series, pd.Series]:
+        """Walk-forward P(up over the next h days) with the same features; returns (probs, labels).
+        The purge gap equals h, so no training label overlaps the test block."""
+        if h == self.cfg["model"]["horizon_days"]:
+            return self.res.wf.probs, self.res.y
+        key = f"h{h}"
+        if key not in self._cache:
+            c = self.prices["Close"]
+            fwd = c.shift(-h) / c - 1
+            y = (fwd > self.cfg["model"]["threshold"]).astype(float).where(fwd.notna())
+            mc = self.cfg["model"]
+            wf = model.walk_forward(self.res.X, y, h, mc["min_train_days"], mc["retrain_every_days"])
+            self._cache[key] = (wf.probs, y)
+        return self._cache[key]
+
+    def base_weight(self, vol: pd.Series | None = None, target_vol: float | None = None) -> pd.Series:
+        vol = self.res.X["vol_21"] if vol is None else vol
+        return S.vol_target_weight(vol, target_vol or self.scfg["target_vol"])
+
+    def simw(self, weight: pd.Series, *, cost_bps: float, band: float = 0.05) -> S.SimResult:
+        """Target-weight simulation over the evaluation period with the configured fill."""
+        return S.simulate_weights(
+            self.prices.loc[self.start :],
+            weight.reindex(self.prices.index).loc[self.start :],
+            cost_bps=cost_bps,
+            cash_rate=self.res.rf,
+            band=band,
+            fill=self.scfg.get("fill", "open"),
+        )
 
     def tb_labels(self) -> pd.Series:
         if "tb" not in self._cache:
@@ -369,6 +400,156 @@ def build_variants() -> list[Variant]:
             fixed_exposure=1.0,
             rules=S.RiskRules(sc(c)["stop_atr_mult"], trail_atr_mult=3.0, reentry_cooldown_days=cool),
         ),
+    )
+
+    # ------------------------------------------------------------------ stages 3-4 (weights engine)
+    from . import volatility as VOL
+
+    # EXP-014: dynamic volatility-sized holding (candidate new baseline, D-019)
+    add(
+        "EXP-014",
+        "vol_hold",
+        "Always invested, weight = min(1, 15% / 21-day vol), rebalanced when off by >5 pts",
+        lambda c, k: c.simw(c.base_weight(), cost_bps=k),
+    )
+    add(
+        "EXP-014",
+        "vol_hold_band0",
+        "vol_hold rebalanced every day (no band)",
+        lambda c, k: c.simw(c.base_weight(), cost_bps=k, band=0.0),
+    )
+    add(
+        "EXP-014",
+        "vol_hold_band10",
+        "vol_hold with a 10-point band",
+        lambda c, k: c.simw(c.base_weight(), cost_bps=k, band=0.10),
+    )
+
+    def monthly(w):
+        keep = np.arange(len(w)) % 21 == 0
+        return w.where(keep)  # NaN = no order that day
+
+    add(
+        "EXP-014",
+        "vol_hold_monthly",
+        "vol_hold resized only every 21 trading days",
+        lambda c, k: c.simw(monthly(c.base_weight()), cost_bps=k, band=0.0),
+    )
+    add(
+        "EXP-014",
+        "vol_hold_tv20",
+        "vol_hold with a 20% volatility target (more invested)",
+        lambda c, k: c.simw(c.base_weight(target_vol=0.20), cost_bps=k),
+    )
+
+    # EXP-015: does a prediction model add value on top of vol_hold? (horizons 5, 21, 63 days)
+    def ml_tilt(c, h):
+        probs, y = c.horizon_probs(h)
+        auc = S.rolling_auc(probs, y, h, c.scfg["ml_skill_min_obs"])
+        skill = pd.Series(
+            S.skill_from_auc(auc.fillna(0.5), c.scfg["ml_auc_floor"], c.scfg["ml_auc_full"]), index=auc.index
+        )
+        tilt = 1 + skill * (2 * probs.reindex(skill.index).fillna(0.5) - 1)  # 0.5..1.5, 1 = no view
+        return (c.base_weight() * tilt.reindex(c.prices.index).fillna(1.0)).clip(0, 1)
+
+    for h in (5, 21, 63):
+        add(
+            "EXP-015",
+            f"ml_tilt_h{h}",
+            f"vol_hold weight x (1 + skill x (2P(up over {h}d) - 1)), capped at 1",
+            lambda c, k, h=h: c.simw(ml_tilt(c, h), cost_bps=k),
+        )
+
+    # EXP-016: cross-sectional ranking among the six assets
+    def xs_tilt(c, lookback, skip=0):
+        closes = c.extras["xs_closes"]
+        mom = closes.shift(skip) / closes.shift(lookback) - 1
+        ranks = mom.rank(axis=1)
+        n = closes.shape[1]
+        r = ranks[c.ticker].where(mom.notna().all(axis=1))
+        mult = pd.Series(1.0, index=r.index)
+        mult[r > n - 2] = 1.5  # top two
+        mult[r <= 2] = 0.5  # bottom two
+        return (c.base_weight() * mult.reindex(c.prices.index).fillna(1.0)).clip(0, 1)
+
+    add(
+        "EXP-016",
+        "xs_mom_126",
+        "Rank the six by 6-month return: top two x1.5, bottom two x0.5 (on vol_hold)",
+        lambda c, k: c.simw(xs_tilt(c, 126), cost_bps=k),
+    )
+    add(
+        "EXP-016",
+        "xs_mom_252_21",
+        "Rank by 12-month return skipping the last month: top x1.5, bottom x0.5",
+        lambda c, k: c.simw(xs_tilt(c, 252, 21), cost_bps=k),
+    )
+
+    # EXP-017: better volatility forecasts for sizing
+    add(
+        "EXP-017",
+        "vol_hold_ewma",
+        "vol_hold sized with EWMA volatility (lambda 0.94)",
+        lambda c, k: c.simw(c.base_weight(VOL.ewma(c.prices["Close"])), cost_bps=k),
+    )
+    add(
+        "EXP-017",
+        "vol_hold_har",
+        "vol_hold sized with a HAR forecast (Parkinson regressors)",
+        lambda c, k: c.simw(c.base_weight(VOL.har_parkinson(c.prices)), cost_bps=k),
+    )
+
+    def gvz_vol(c):
+        g = c.extras.get("gvz")
+        if g is None:
+            raise RuntimeError("GVZ data unavailable")
+        gl = align(g.to_frame("g"), c.prices.index)["g"]
+        gold_vol = align(c.extras["gld_vol"].to_frame("v"), c.prices.index)["v"]
+        return VOL.gvz_adjusted(c.res.X["vol_21"], gl, gold_vol)
+
+    add(
+        "EXP-017",
+        "vol_hold_gvz",
+        "21-day vol scaled by gold implied/realised ratio (GVZ / GLD vol)",
+        lambda c, k: c.simw(c.base_weight(gvz_vol(c)), cost_bps=k),
+    )
+
+    # EXP-018: GVZ as a risk gate
+    def gvz_gate(c):
+        g = c.extras.get("gvz")
+        if g is None:
+            raise RuntimeError("GVZ data unavailable")
+        hi = g > g.rolling(252).quantile(0.8)
+        hi = align(hi.astype(float).to_frame("h"), c.prices.index)["h"].fillna(0) > 0.5
+        return c.base_weight().where(~hi, c.base_weight() * 0.5)
+
+    add(
+        "EXP-018",
+        "gvz_gate",
+        "Halve vol_hold weights while GVZ is above its 1-year 80th percentile",
+        lambda c, k: c.simw(gvz_gate(c), cost_bps=k),
+    )
+
+    # EXP-019: miner vs GDX relative value as a tilt on vol_hold (follow-up to EXP-006 / EXP-010)
+    def miner_tilt(c):
+        if not c.is_equity or c.gdx_close is None:
+            return c.base_weight()
+        ratio = np.log(c.prices["Close"] / align(c.gdx_close.to_frame("g"), c.prices.index)["g"])
+        z = (ratio - ratio.rolling(60).mean()) / ratio.rolling(60).std()
+        on, state = np.zeros(len(z)), False
+        for i, v in enumerate(z.to_numpy()):
+            if np.isfinite(v):
+                state = True if v < -2 else (False if v > 0 else state)
+            on[i] = state
+        mult = pd.Series(np.where(on, 1.5, 1.0), index=z.index)
+        return (c.base_weight() * mult).clip(0, 1)
+
+    add(
+        "EXP-019",
+        "miner_gdx_tilt",
+        "Miners: vol_hold weight x1.5 while 60-day z of miner/GDX went < -2 until > 0",
+        lambda c, k: c.simw(miner_tilt(c), cost_bps=k),
+        applies_to="miners",
     )
 
     # reference rows: shown for comparison, not counted as trials

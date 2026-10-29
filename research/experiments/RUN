@@ -1,7 +1,6 @@
 full
-run:
-run: --fill close
+run: --baseline vol_hold --exps EXP-014,EXP-015,EXP-016,EXP-017,EXP-018,EXP-019
+run: --baseline vol_hold --exps EXP-014,EXP-015,EXP-016,EXP-017,EXP-018,EXP-019 --fill close
 Edit this file and push to main to start an automated run on GitHub's machines (see
 .github/workflows/experiments.yml). Each "run:" line is one run_experiments.py run with those arguments.
-Requested: 2026-10-29 stages 1-2: EXP-013 (invested by default) with normal fills, and EXP-010 (whole
-registry with next-close fills).
+Requested: 2026-10-29 stages 3-4 (EXP-014..019 vs vol_hold), open and close fills.

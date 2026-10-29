@@ -93,6 +93,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--quick", action="store_true", help="retrain yearly and use fewer bootstrap draws")
     ap.add_argument("--tickers", nargs="*", help="subset of tickers")
+    ap.add_argument("--baseline", default="baseline", help="variant every other variant is compared with")
+    ap.add_argument("--exps", help="comma-separated experiment IDs to run (BASE/REF rows always included)")
     ap.add_argument(
         "--fill", choices=["open", "close"], help="override order fills (EXP-010: 'close' = next-day close)"
     )
@@ -106,19 +108,38 @@ def main():
     run_at = datetime.now(timezone.utc)
     tag = "synthetic" if cfg.get("offline") else "real"
     suffix = ("-quick" if args.quick else "") + (f"-{args.fill}fill" if args.fill else "")
+    suffix += f"-vs-{args.baseline}" if args.baseline != "baseline" else ""
     out = RESULTS / f"{run_at:%Y-%m-%d-%H%M}-{tag}{suffix}"  # time in the name: runs never overwrite each other
     out.mkdir(parents=True, exist_ok=True)
 
     variants = build_variants()
+    if args.exps:
+        keep = set(args.exps.split(","))
+        variants = [v for v in variants if v.exp in keep or v.exp in ("BASE", "REF") or v.name == args.baseline]
+    if args.baseline not in [v.name for v in variants]:
+        raise SystemExit(f"baseline variant {args.baseline!r} not found")
     tickers = args.tickers or all_tickers(cfg)
     macro = data.macro_daily(cfg)
     gdx = data.daily_prices(cfg["universe"]["miner_benchmark"], cfg=cfg)["Close"]
+    # cross-ticker inputs for stage 3-4 variants (ranking, implied volatility); all point-in-time
+    xs_closes = pd.DataFrame({t: data.daily_prices(t, cfg=cfg)["Close"] for t in all_tickers(cfg)}).sort_index()
+    try:
+        gvz = data.daily_prices("^GVZ", cfg=cfg)["Close"] if not cfg.get("offline") else None
+    except Exception as exc:
+        data.log_event("error", "GVZ", f"unavailable, GVZ variants will be dropped ({exc})")
+        gvz = None
+    from aurum.volatility import realised_21d
+
+    extras = {"xs_closes": xs_closes, "gvz": gvz, "gld_vol": realised_21d(xs_closes[cfg["universe"]["core"][0]])}
     sims = {v.name: {m: {} for m in ("net", "gross", "x2")} for v in variants}
     rf = None
     failed: dict[str, str] = {}  # variant -> error; a failing variant is dropped, never silently replaced
     # Progress is saved after each ticker, so an interrupted run (e.g. a Codespaces timeout)
     # resumes where it stopped. Checkpoints are keyed by config, so changed settings start afresh.
-    ckpt = RESULTS / ".checkpoints" / f"{tag}{'-quick' if args.quick else ''}-{config_hash(cfg)}"
+    import hashlib
+
+    vkey = hashlib.sha256(",".join(v.name for v in variants).encode()).hexdigest()[:8]
+    ckpt = RESULTS / ".checkpoints" / f"{tag}{'-quick' if args.quick else ''}-{config_hash(cfg)}-{vkey}"
     ckpt.mkdir(parents=True, exist_ok=True)
     started = time.time()
     for n_done, t in enumerate(tickers):
@@ -129,7 +150,7 @@ def main():
         else:
             print(f"[{t}] research ...", flush=True)
             res = research(t, macro, cfg)
-            ctx = Context(t, res, cfg, gdx_close=gdx, is_equity=is_equity(t, cfg))
+            ctx = Context(t, res, cfg, gdx_close=gdx, is_equity=is_equity(t, cfg), extras=extras)
             base_cost = cost_bps(t, cfg)
             saved = {"rf": res.rf, "sims": {}, "failed": {}}
             for v in variants:
@@ -152,14 +173,14 @@ def main():
                 sims[name][mode][t] = sim
     for name, err in failed.items():
         print(f"Dropping variant {name} (failed on {err})")
-    if "baseline" in failed:
+    if args.baseline in failed:
         raise SystemExit("The baseline itself failed; see the error above.")
     variants = [v for v in variants if v.name not in failed]
     sims = {k: v for k, v in sims.items() if k not in failed}
 
     weight = S.sleeve_weight(len(tickers), cfg["strategy"]["max_position_pct"])
     port = {name: {m: combine_sleeves(d[m], {t: weight for t in d[m]}, rf) for m in d} for name, d in sims.items()}
-    start = port["baseline"]["net"].daily.index[0]  # common out-of-sample start across tickers
+    start = port[args.baseline]["net"].daily.index[0]  # common out-of-sample start across tickers
     hold_start = pd.Timestamp(cfg["research"]["holdout_start"])
     periods = {"development": (start, hold_start - pd.Timedelta(days=1)), "holdout": (hold_start, None)}
 
@@ -178,7 +199,7 @@ def main():
         res_p = {}
         for period, (a, b) in periods.items():
             for mode in ("net", "gross", "x2"):
-                res_p[(period, mode)] = compare(port[v.name][mode], port["baseline"][mode], rf, a, b, cfg)
+                res_p[(period, mode)] = compare(port[v.name][mode], port[args.baseline][mode], rf, a, b, cfg)
         for (period, mode), d in res_p.items():
             for k, val in d.items():
                 r[f"{period}_{mode}_{k}"] = val
@@ -192,7 +213,7 @@ def main():
         r["dsr_dev"] = stats.deflated_sharpe(dev_ex[v.name], trial_sr)
         r["verdict"] = (
             "baseline"
-            if v.name == "baseline"
+            if v.name == args.baseline
             else "reference"
             if v.exp == "REF"
             else verdict(
@@ -230,6 +251,7 @@ def main():
         "holdout_start": str(hold_start.date()),
         "data_events": data.DATA_EVENTS,
         "failed_variants": failed,
+        "baseline": args.baseline,
     }
     (out / "metadata.json").write_text(json.dumps(meta, indent=2, default=str))
     write_summary(out, table, meta)
@@ -256,7 +278,8 @@ def write_summary(out: Path, t: pd.DataFrame, meta: dict):
         f"({pbo.get('n_splits', 0)} CSCV splits). Around 50% means picking the best-looking variant is no better "
         "than chance.",
         "",
-        "Portfolio level, net of costs. ΔSharpe is vs the baseline over identical dates; 'better' is the share of "
+        f"Portfolio level, net of costs. ΔSharpe is vs the baseline (`{meta.get('baseline', 'baseline')}`) "
+        "over identical dates; 'better' is the share of "
         "block-bootstrap resamples in which the variant beat the baseline; DSR is the deflated Sharpe ratio "
         "(probability the Sharpe is real after allowing for all variants tried).",
         "",

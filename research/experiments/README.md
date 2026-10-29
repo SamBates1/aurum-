@@ -59,6 +59,12 @@ kept each asset in its own pot). Baseline `traded` = the traded rule with daily 
 verdict rules and out-of-asset check as the research lab; the trial set is every non-descriptive variant in the run.
 Experiments EXP-032 … EXP-036 (owner's brief of 2026-10-29). Run with `plab:` lines in `RUN`.
 
+## Cross-asset lab (rules written 2026-10-29, before any cross-asset result existed)
+`run_xlab.py` tests the master brief's strategy families on ten assets (SPY, QQQ, IWM, EFA, TLT, IEF, GLD, SLV, GDX,
+DBC) in one account with the same periods and lab verdict rules; the baseline for signal families is the same
+volatility-sized portfolio **with no signal**, so a pass means the signal adds something beyond sizing. Every run
+writes a standard figure pack. Run with `xlab:` lines in `RUN`.
+
 ## Running
 
 **Automated (no terminal needed):** `.github/workflows/experiments.yml` runs `run_research.py` and
@@ -106,6 +112,14 @@ AURUM_OFFLINE=1 python run_experiments.py --quick   # synthetic: checks the code
 | [EXP-034](EXP-034-sizing.md) | Sizing: fixed, inverse-vol, portfolio vol target, miners cap, cash reserve, fixed-fractional | brief | Run: nothing adopted |
 | [EXP-035](EXP-035-risk-levels-and-robustness.md) | Risk levels, robustness grid, costs, one-account engine | brief | Run: flat region; one-account engine standard (D-028) |
 | [EXP-036](EXP-036-regimes-and-diagnostics.md) | Regimes, consistency, tails, what normal looks like | brief | Run: diagnostics and normal ranges |
+| [EXP-037](EXP-037-beat-sp500.md) | Can Aurum-style portfolios beat the S&P 500? | master brief | Pre-registered |
+| [EXP-038](EXP-038-trend-momentum.md) | Trend following and momentum across ten assets | master brief | Pre-registered |
+| [EXP-039](EXP-039-mean-reversion-pairs.md) | Mean reversion and pairs | master brief | Pre-registered |
+| [EXP-040](EXP-040-volatility-models.md) | Volatility models: forecast accuracy and sizing | master brief | Pre-registered |
+| [EXP-041](EXP-041-candlesticks.md) | Candlestick patterns | master brief | Pre-registered |
+| [EXP-042](EXP-042-ml-models.md) | Machine learning vs simple baselines | master brief | Pre-registered |
+| [EXP-043](EXP-043-macro-lead-lag.md) | Macro and cross-asset lead-lag | master brief | Pre-registered |
+| [EXP-044](EXP-044-execution-delay.md) | Execution delay and cost sensitivity of the adopted strategy | master brief | Pre-registered |
 | EXP-009 | Chandelier trailing stop, confirmatory | EXP-005 result | Answered by EXP-023 (more history, new assets): rejected |
 
 Results of each run go in `results/<date>-<time>-real[-…]/summary.md`; conclusions are copied into each EXP file's

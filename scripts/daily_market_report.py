@@ -92,8 +92,8 @@ def build_report(tickers: list[str], cfg: dict = CFG) -> str:
         "## Interpretation guardrails",
         "",
         "- Momentum and RSI describe the recent path; they do not establish positive expected value for a trade.",
-        "- SMA gaps are descriptive trend context. Candlestick patterns and technical rules require pre-registered tests "
-        "out of sample and after costs.",
+        "- SMA gaps are descriptive trend context. Candlestick patterns and technical rules "
+        "require pre-registered tests out of sample and after costs.",
         "- Historical drawdown uses available prices and excludes distributions unless reflected by the data source.",
         "- Compare assets over identical dates with identical fill, cost and risk assumptions before drawing "
         "performance conclusions.",

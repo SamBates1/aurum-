@@ -1,0 +1,29 @@
+{
+  "run_at": "2026-10-29T12:48:30+00:00",
+  "data": "real",
+  "quick": false,
+  "tickers": [
+    "GLD",
+    "SLV",
+    "GDX",
+    "NEM",
+    "AEM",
+    "WPM"
+  ],
+  "config_hash": "2c9c656d1a4b",
+  "n_trials": 16,
+  "fill": "open",
+  "pbo_development": {
+    "pbo": 0.17925407925407924,
+    "n_splits": 12870,
+    "median_logit": 1.5404450409471486
+  },
+  "development": [
+    "2013-10-18",
+    "2023-12-31"
+  ],
+  "holdout_start": "2024-01-01",
+  "data_events": [],
+  "failed_variants": {},
+  "baseline": "vol_hold"
+}

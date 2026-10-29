@@ -22,7 +22,7 @@ import pandas as pd
 from aurum import data, stats
 from aurum import strategy as S
 from aurum.backtest import combine_sleeves, performance, risk_free_daily, slice_sim
-from aurum.config import CFG, config_hash, cost_bps
+from aurum.config import CFG, code_fingerprint, config_hash, cost_bps, git_commit
 from aurum.lab import CRISES, SETS, LabCtx, periods
 from aurum.plab import PortCtx, build_port_variants, extra_stats, rolling_window_returns
 from aurum.portfolio import simulate_portfolio
@@ -356,6 +356,9 @@ def main():
         "fill": scfg.get("fill", "open"),
         "rebalance": scfg.get("rebalance", "daily"),
         "config_hash": config_hash(cfg),
+        "code_fingerprint": code_fingerprint(),
+        "git_commit": git_commit(),
+        "data_fingerprint": data.data_fingerprint(prices),
         "n_trials": len(trials),
         "pbo_development": pbo,
         "failed_variants": failed,

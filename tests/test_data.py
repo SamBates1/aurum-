@@ -125,3 +125,48 @@ def test_retry_recovers_from_transient_failures(monkeypatch):
     assert len(data._retry(flaky, "test")) == 2
     with pytest.raises(OSError):
         data._retry(mock.Mock(side_effect=OSError("down")), "test", attempts=2)
+
+
+def test_cache_refetches_when_history_starts_too_late(tmp_path, monkeypatch, cfg):
+    """Audit 2026-10-29: the price cache is keyed by ticker only; if data.start moves earlier, a fresh cache
+    with a shorter history must not be reused."""
+    import json
+
+    import pandas as pd
+
+    cfg = {**cfg, "offline": False, "data": {**cfg["data"], "start": "2006-01-01", "cache_hours": 12}}
+    monkeypatch.setattr(data, "CACHE_DIR", tmp_path)
+    idx = pd.bdate_range("2015-01-01", periods=30)
+    short = pd.DataFrame({"Open": 1.0, "High": 1.1, "Low": 0.9, "Close": 1.0, "Volume": 1}, index=idx)
+    p, m = data._cache_paths("XYZ")
+    short.to_csv(p)
+    m.write_text(
+        json.dumps({"name": "XYZ", "retrieved_at": pd.Timestamp.now(tz="UTC").isoformat(), "first": "2015-01-01"})
+    )
+    long_idx = pd.bdate_range("2006-01-02", periods=40)
+    full = pd.DataFrame({"Open": 1.0, "High": 1.1, "Low": 0.9, "Close": 1.0, "Volume": 1}, index=long_idx)
+    monkeypatch.setattr(data, "_yf_download", lambda t, start: full)
+    out = data.daily_prices("XYZ", cfg=cfg)
+    assert out.index[0] == long_idx[0]
+
+
+def test_code_fingerprint_changes_with_code(tmp_path, monkeypatch):
+    from aurum import config
+
+    (tmp_path / "aurum").mkdir()
+    (tmp_path / "aurum" / "a.py").write_text("x = 1")
+    monkeypatch.setattr(config, "ROOT", tmp_path)
+    before = config.code_fingerprint()
+    (tmp_path / "aurum" / "a.py").write_text("x = 2")
+    assert config.code_fingerprint() != before
+
+
+def test_data_fingerprint_detects_revised_prices():
+    import pandas as pd
+
+    idx = pd.bdate_range("2020-01-01", periods=5)
+    a = pd.Series([1.0, 2, 3, 4, 5], index=idx)
+    b = a.copy()
+    b.iloc[2] = 3.01  # e.g. a dividend adjustment revising history
+    fa, fb = data.data_fingerprint({"A": a})["A"], data.data_fingerprint({"A": b})["A"]
+    assert fa["rows"] == fb["rows"] and fa["sha256_close"] != fb["sha256_close"]

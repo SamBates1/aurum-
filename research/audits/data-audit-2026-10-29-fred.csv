@@ -1,0 +1,8 @@
+series,description,rows,first,last,longest_gap_days,note
+DFII10,10y real yield,5960,2003-01-02,2026-10-28,4,"latest revision, not a point-in-time vintage; used with a 2-business-day lag"
+T10YIE,10y breakeven inflation,5960,2003-01-02,2026-10-28,4,"latest revision, not a point-in-time vintage; used with a 2-business-day lag"
+DTB3,3-month T-bill,18197,1954-01-04,2026-10-28,5,"latest revision, not a point-in-time vintage; used with a 2-business-day lag"
+DGS10,10y nominal yield,16191,1962-01-02,2026-10-28,5,"latest revision, not a point-in-time vintage; used with a 2-business-day lag"
+DGS2,2y nominal yield,12599,1976-06-01,2026-10-28,5,"latest revision, not a point-in-time vintage; used with a 2-business-day lag"
+BAMLH0A0HYM2,US high-yield credit spread,786,2023-10-30,2026-10-28,4,"latest revision, not a point-in-time vintage; used with a 2-business-day lag"
+USEPUINDXD,economic policy uncertainty (daily),15275,1985-01-01,2026-10-27,1,"latest revision, not a point-in-time vintage; used with a 2-business-day lag"

@@ -22,7 +22,7 @@ import pandas as pd
 from aurum import data, stats
 from aurum import strategy as S
 from aurum.backtest import combine_sleeves, performance, risk_free_daily, slice_sim
-from aurum.config import CFG, config_hash, cost_bps
+from aurum.config import CFG, code_fingerprint, config_hash, cost_bps, git_commit
 from aurum.lab import CRISES, SETS, LabCtx, build_lab_variants, periods
 from run_experiments import RESULTS, compare
 
@@ -249,6 +249,8 @@ def main():
         },
         "fill": scfg.get("fill", "open"),
         "config_hash": config_hash(cfg),
+        "code_fingerprint": code_fingerprint(),
+        "git_commit": git_commit(),
         "n_trials": len(trials),
         "pbo_development": pbo,
         "failed_variants": failed,

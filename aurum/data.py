@@ -189,7 +189,38 @@ def daily_prices(ticker: str, cfg: dict = CFG, use_cache: bool = True) -> pd.Dat
         return validate_ohlcv(_yf_download(ticker, start=start), ticker)
 
     hours = cfg["data"]["cache_hours"] if use_cache else 0
+    meta = cache_info(ticker)
+    # audit 2026-10-29: the cache is keyed by ticker only, so after data.start was moved earlier a fresh cache
+    # could silently return a shorter history; refetch when the cached history starts too late
+    if (
+        meta
+        and hours > 0
+        and pd.Timestamp(meta.get("first", "1900-01-01")) > pd.Timestamp(start) + pd.Timedelta(days=10)
+    ):
+        hours = 0
     return validate_ohlcv(_cached(ticker, f"yahoo:{ticker}", fetch, hours), ticker)
+
+
+def data_fingerprint(frames: dict[str, pd.DataFrame | pd.Series]) -> dict[str, dict]:
+    """Rows, first/last date and a checksum per series, recorded with results so a run can be matched to the data
+    it used (Yahoo revises adjusted prices when dividends are paid, so the same dates can give new numbers)."""
+    import hashlib
+
+    out = {}
+    for k, f in frames.items():
+        if f is None or len(f) == 0:
+            out[k] = {"rows": 0}
+            continue
+        s = f["Close"] if isinstance(f, pd.DataFrame) and "Close" in f else f
+        s = s.squeeze() if isinstance(s, pd.DataFrame) else s
+        digest = hashlib.sha256(np.round(pd.to_numeric(s, errors="coerce").to_numpy(float), 6).tobytes()).hexdigest()
+        out[k] = {
+            "rows": int(len(s)),
+            "first": str(s.index[0].date()),
+            "last": str(s.index[-1].date()),
+            "sha256_close": digest[:16],
+        }
+    return out
 
 
 def intraday_prices(ticker: str, interval: str | None = None, cfg: dict = CFG) -> pd.DataFrame:

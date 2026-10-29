@@ -92,7 +92,7 @@ See https://pandas.pydata.org/docs/dev/whatsnew/v3.1.0.html#deprecation-inplace 
 /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/yfinance/multi.py:224: Pandas4Warning: The inplace keyword in DataFrame.sort_index is deprecated and will be removed in a future version (PDEP-8).
 See https://pandas.pydata.org/docs/dev/whatsnew/v3.1.0.html#deprecation-inplace for more details.
   data.sort_index(level=0, axis=1, inplace=True)
-Writing results to /home/runner/work/aurum-/aurum-/results/20261029-143944
+Writing results to /home/runner/work/aurum-/aurum-/results/20261029-210359
 [aurum:warning] CL=F: dropped 1 rows with missing/non-positive close
 Researching GLD ...
 /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/yfinance/utils.py:568: Pandas4Warning: The inplace keyword in DataFrame.sort_index is deprecated and will be removed in a future version (PDEP-8).
@@ -211,7 +211,7 @@ See https://pandas.pydata.org/docs/dev/whatsnew/v3.1.0.html#deprecation-inplace 
 
 # Aurum research report
 
-**Generated:** 2026-10-29T14:39:44+00:00 · **commit:** `3549bdd` · **config:** `97e478d6d12a`
+**Generated:** 2026-10-29T21:03:59+00:00 · **commit:** `ee74907` · **config:** `06a5da0f55b7`
 
 
 ## Setup
@@ -228,15 +228,15 @@ Equal sleeves across tickers (each capped at 20%), after costs.
 
 | strategy | cagr | volatility | sharpe | sortino | max_drawdown | calmar | time_in_market | trades | costs_per_year |
 |---|---|---|---|---|---|---|---|---|---|
-| strategy | 23.1% | 13.4% | 1.299 | 1.849 | -13.5% | 1.710 | 100.0% | 0 | 0.2% |
-| timing_v02 | 20.9% | 17.3% | 0.941 | 1.255 | -17.2% | 1.217 | 76.9% | 78 | 0.3% |
-| buy_hold | 43.0% | 35.8% | 1.060 | 1.473 | -38.0% | 1.132 | 100.0% | 0 | 0.0% |
-| vol_sized_hold | 27.5% | 25.1% | 0.925 | 1.262 | -29.5% | 0.933 | 100.0% | 0 | 0.0% |
-| sma_trend | 22.2% | 19.5% | 0.908 | 1.209 | -20.0% | 1.107 | 82.4% | 38 | 0.2% |
-| momentum | 13.4% | 14.7% | 0.638 | 0.820 | -22.0% | 0.608 | 33.7% | 27 | 0.1% |
-| technical_only | 19.0% | 15.0% | 0.954 | 1.245 | -15.7% | 1.209 | 70.6% | 127 | 0.4% |
-| ml_only | 18.0% | 7.9% | 1.598 | 2.371 | -5.1% | 3.525 | 48.7% | 182 | 0.6% |
-| ml_no_macro | 15.1% | 6.9% | 1.454 | 2.175 | -5.1% | 2.954 | 42.6% | 217 | 0.7% |
+| strategy | 23.1% | 13.4% | 1.293 | 1.840 | -13.5% | 1.704 | 100.0% | 0 | 0.2% |
+| timing_v02 | 20.8% | 17.3% | 0.935 | 1.247 | -17.1% | 1.213 | 76.9% | 78 | 0.3% |
+| buy_hold | 42.6% | 35.9% | 1.052 | 1.461 | -38.0% | 1.122 | 100.0% | 0 | 0.0% |
+| vol_sized_hold | 27.3% | 25.1% | 0.918 | 1.251 | -29.5% | 0.925 | 100.0% | 0 | 0.0% |
+| sma_trend | 22.1% | 19.5% | 0.907 | 1.208 | -20.0% | 1.107 | 82.4% | 38 | 0.2% |
+| momentum | 13.2% | 14.7% | 0.628 | 0.808 | -22.0% | 0.602 | 33.7% | 27 | 0.1% |
+| technical_only | 19.0% | 15.0% | 0.954 | 1.245 | -15.7% | 1.210 | 70.6% | 127 | 0.4% |
+| ml_only | 17.3% | 7.8% | 1.538 | 2.275 | -5.1% | 3.400 | 48.6% | 181 | 0.6% |
+| ml_no_macro | 15.2% | 7.0% | 1.448 | 2.153 | -5.1% | 2.983 | 42.8% | 217 | 0.7% |
 | cash | 4.4% | 0.0% | – | – | 0.0% | – | 0.0% | 0 | 0.0% |
 
 
@@ -247,14 +247,14 @@ Equal sleeves across tickers (each capped at 20%), after costs.
 | strategy | cagr | volatility | sharpe | sortino | max_drawdown | calmar | time_in_market | trades | costs_per_year |
 |---|---|---|---|---|---|---|---|---|---|
 | strategy | 3.4% | 11.5% | 0.241 | 0.345 | -20.8% | 0.164 | 100.0% | 0 | 0.2% |
-| timing_v02 | 0.6% | 8.3% | -0.031 | -0.044 | -21.4% | 0.030 | 46.1% | 568 | 0.7% |
+| timing_v02 | 0.9% | 8.2% | -0.004 | -0.006 | -21.2% | 0.042 | 45.9% | 568 | 0.7% |
 | buy_hold | 6.0% | 30.1% | 0.303 | 0.437 | -43.0% | 0.140 | 100.0% | 0 | 0.0% |
 | vol_sized_hold | 3.4% | 14.3% | 0.221 | 0.316 | -25.8% | 0.134 | 100.0% | 0 | 0.0% |
 | sma_trend | -0.2% | 9.2% | -0.110 | -0.150 | -24.7% | -0.008 | 48.6% | 325 | 0.4% |
 | momentum | -0.6% | 5.8% | -0.293 | -0.388 | -15.0% | -0.041 | 24.5% | 283 | 0.3% |
-| technical_only | 1.7% | 9.1% | 0.090 | 0.129 | -20.4% | 0.082 | 49.4% | 613 | 0.7% |
-| ml_only | -0.4% | 6.1% | -0.246 | -0.338 | -16.7% | -0.025 | 35.8% | 955 | 1.1% |
-| ml_no_macro | 0.3% | 5.8% | -0.138 | -0.191 | -19.8% | 0.014 | 35.8% | 830 | 0.9% |
+| technical_only | 1.7% | 9.1% | 0.092 | 0.131 | -20.4% | 0.083 | 49.4% | 612 | 0.7% |
+| ml_only | -0.5% | 6.0% | -0.259 | -0.356 | -16.8% | -0.029 | 35.5% | 955 | 1.1% |
+| ml_no_macro | 0.4% | 5.9% | -0.112 | -0.155 | -20.0% | 0.021 | 36.3% | 834 | 0.9% |
 | cash | 1.3% | 0.1% | – | – | -0.0% | 3522.615 | 0.0% | 0 | 0.0% |
 
 
@@ -264,15 +264,15 @@ Descriptive intervals, not a formal significance test. Overlapping labels and ma
 
 | period | vs | sharpe | sharpe_p05 | sharpe_p95 | sharpe_diff | diff_p05 | diff_p95 | share_resamples_better |
 |---|---|---|---|---|---|---|---|---|
-| development | buy_hold | 0.241 | -0.250 | 0.797 | -0.062 | -0.214 | 0.093 | 0.263 |
+| development | buy_hold | 0.241 | -0.250 | 0.797 | -0.062 | -0.214 | 0.093 | 0.262 |
 | development | vol_sized_hold | 0.241 | -0.250 | 0.797 | 0.020 | -0.151 | 0.187 | 0.582 |
-| development | sma_trend | 0.241 | -0.250 | 0.797 | 0.351 | 0.027 | 0.713 | 0.959 |
-| holdout | buy_hold | 1.299 | 0.287 | 2.291 | 0.239 | -0.032 | 0.485 | 0.928 |
-| holdout | vol_sized_hold | 1.299 | 0.287 | 2.291 | 0.374 | 0.047 | 0.677 | 0.971 |
-| holdout | sma_trend | 1.299 | 0.287 | 2.291 | 0.391 | -0.098 | 0.824 | 0.907 |
-| full | buy_hold | 0.495 | 0.031 | 0.947 | 0.009 | -0.122 | 0.130 | 0.544 |
-| full | vol_sized_hold | 0.495 | 0.031 | 0.947 | 0.061 | -0.102 | 0.214 | 0.730 |
-| full | sma_trend | 0.495 | 0.031 | 0.947 | 0.250 | -0.042 | 0.523 | 0.918 |
+| development | sma_trend | 0.241 | -0.250 | 0.797 | 0.351 | 0.027 | 0.713 | 0.958 |
+| holdout | buy_hold | 1.293 | 0.271 | 2.284 | 0.241 | -0.028 | 0.487 | 0.931 |
+| holdout | vol_sized_hold | 1.293 | 0.271 | 2.284 | 0.375 | 0.050 | 0.678 | 0.975 |
+| holdout | sma_trend | 1.293 | 0.271 | 2.284 | 0.386 | -0.105 | 0.812 | 0.904 |
+| full | buy_hold | 0.493 | 0.030 | 0.945 | 0.009 | -0.121 | 0.130 | 0.545 |
+| full | vol_sized_hold | 0.493 | 0.030 | 0.945 | 0.062 | -0.101 | 0.215 | 0.734 |
+| full | sma_trend | 0.493 | 0.030 | 0.945 | 0.249 | -0.045 | 0.522 | 0.916 |
 
 
 ## Model quality: holdout
@@ -281,20 +281,20 @@ AUC 0.5 = coin flip. Brier/log loss below their baseline (a constant forecast at
 
 | ticker | model | n | auc | accuracy | base_rate | brier | brier_baseline | log_loss | log_loss_baseline |
 |---|---|---|---|---|---|---|---|---|---|
-| GLD | ml_all_features | 705 | 0.533 | 0.586 | 0.604 | 0.250 | 0.239 | 0.696 | 0.671 |
-| GLD | ml_technical_only | 705 | 0.562 | 0.536 | 0.604 | 0.251 | 0.239 | 0.695 | 0.671 |
+| GLD | ml_all_features | 705 | 0.530 | 0.584 | 0.603 | 0.251 | 0.239 | 0.698 | 0.672 |
+| GLD | ml_technical_only | 705 | 0.561 | 0.535 | 0.603 | 0.251 | 0.239 | 0.696 | 0.672 |
 | SLV | ml_all_features | 705 | 0.454 | 0.487 | 0.563 | 0.264 | 0.246 | 0.723 | 0.685 |
 | SLV | ml_technical_only | 705 | 0.446 | 0.472 | 0.563 | 0.267 | 0.246 | 0.730 | 0.685 |
-| GDX | ml_all_features | 705 | 0.531 | 0.545 | 0.560 | 0.261 | 0.246 | 0.720 | 0.686 |
-| GDX | ml_technical_only | 705 | 0.521 | 0.495 | 0.560 | 0.268 | 0.246 | 0.741 | 0.686 |
-| NEM | ml_all_features | 705 | 0.507 | 0.487 | 0.570 | 0.264 | 0.245 | 0.725 | 0.683 |
-| NEM | ml_technical_only | 705 | 0.511 | 0.513 | 0.570 | 0.267 | 0.245 | 0.732 | 0.683 |
-| AEM | ml_all_features | 705 | 0.517 | 0.526 | 0.570 | 0.260 | 0.245 | 0.717 | 0.683 |
-| AEM | ml_technical_only | 705 | 0.528 | 0.530 | 0.570 | 0.256 | 0.245 | 0.707 | 0.683 |
-| WPM | ml_all_features | 705 | 0.531 | 0.559 | 0.559 | 0.254 | 0.247 | 0.704 | 0.686 |
-| WPM | ml_technical_only | 705 | 0.552 | 0.521 | 0.559 | 0.251 | 0.247 | 0.695 | 0.686 |
+| GDX | ml_all_features | 705 | 0.527 | 0.543 | 0.559 | 0.262 | 0.247 | 0.722 | 0.686 |
+| GDX | ml_technical_only | 705 | 0.517 | 0.492 | 0.559 | 0.269 | 0.247 | 0.742 | 0.686 |
+| NEM | ml_all_features | 705 | 0.507 | 0.485 | 0.570 | 0.264 | 0.245 | 0.724 | 0.683 |
+| NEM | ml_technical_only | 705 | 0.512 | 0.508 | 0.570 | 0.267 | 0.245 | 0.731 | 0.683 |
+| AEM | ml_all_features | 705 | 0.517 | 0.522 | 0.569 | 0.260 | 0.245 | 0.718 | 0.684 |
+| AEM | ml_technical_only | 705 | 0.526 | 0.530 | 0.569 | 0.257 | 0.245 | 0.709 | 0.684 |
+| WPM | ml_all_features | 705 | 0.530 | 0.560 | 0.557 | 0.254 | 0.247 | 0.705 | 0.687 |
+| WPM | ml_technical_only | 705 | 0.553 | 0.523 | 0.557 | 0.251 | 0.247 | 0.695 | 0.687 |
 
 
 
-Full results: /home/runner/work/aurum-/aurum-/results/20261029-143944
+Full results: /home/runner/work/aurum-/aurum-/results/20261029-210359
 Committable summary: /home/runner/work/aurum-/aurum-/reports/latest

@@ -54,8 +54,10 @@ jobs:
           lines=$(grep '^run:' research/experiments/RUN 2>/dev/null | sed 's/^run://' || true)
           labs=$(grep '^lab:' research/experiments/RUN 2>/dev/null | sed 's/^lab://' || true)
           plabs=$(grep '^plab:' research/experiments/RUN 2>/dev/null | sed 's/^plab://' || true)
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then lines="$default_args"; labs=""; plabs=""; fi
-          if [ -z "$lines" ] && [ -z "$labs" ] && [ -z "$plabs" ]; then lines="$default_args"; fi
+          audits=$(grep '^audit:' research/experiments/RUN 2>/dev/null | sed 's/^audit://' || true)
+          xlabs=$(grep '^xlab:' research/experiments/RUN 2>/dev/null | sed 's/^xlab://' || true)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then lines="$default_args"; labs=""; plabs=""; audits=""; xlabs=""; fi
+          if [ -z "$lines$labs$plabs$audits$xlabs" ]; then lines="$default_args"; fi
           status=0
           if [ -n "$lines" ]; then
             while IFS= read -r args; do
@@ -77,6 +79,17 @@ jobs:
               python run_plab.py $args 2>&1 | tee -a experiments-run.log || status=1
             done <<< "$plabs"
           fi
+          # "audit:" lines run the data-quality audit; "xlab:" lines the cross-asset lab (EXP-037 onwards)
+          if [ -n "$audits" ]; then
+            echo "=== python run_data_audit.py ===" | tee -a experiments-run.log
+            python run_data_audit.py 2>&1 | tee -a experiments-run.log || status=1
+          fi
+          if [ -n "$xlabs" ]; then
+            while IFS= read -r args; do
+              echo "=== python run_xlab.py $args ===" | tee -a experiments-run.log
+              python run_xlab.py $args 2>&1 | tee -a experiments-run.log || status=1
+            done <<< "$xlabs"
+          fi
           exit $status
         shell: bash -o pipefail {0}
       - name: Commit results (also on failure, with the logs)
@@ -87,7 +100,7 @@ jobs:
           tail -n 300 experiments-run.log > research/experiments/logs/last-experiments-run.log 2>/dev/null || true
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A -- reports research/experiments
+          git add -A -- reports research/experiments research/audits
           git diff --cached --quiet && { echo "Nothing to commit"; exit 0; }
           git commit -m "Automated run: research report and experiment results (${{ job.status }})"
           git pull --rebase origin main

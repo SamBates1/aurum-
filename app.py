@@ -296,7 +296,16 @@ with tab_bt:
 
 # ---------- paper portfolio ----------
 with tab_paper:
-    st.caption("Simulated money only. Fills at the latest price seen; real fills would differ.")
+    from aurum.config import code_fingerprint, config_hash
+
+    st.warning(
+        "SIMULATED PAPER TRADING: no real money and no broker orders. Fills use the latest price seen; real fills "
+        "would differ."
+    )
+    st.caption(
+        f"Strategy: {CFG['strategy'].get('mode')} · target vol {CFG['strategy']['target_vol']:.0%} · decisions "
+        f"{CFG['strategy'].get('rebalance', 'daily')} · config `{config_hash()}` · code `{code_fingerprint()}`"
+    )
     book = PaperPortfolio()
     px = {t: float(get_live_daily(t)["Close"].iloc[-1]) for t in tickers}
     eq = book.equity(px)
@@ -318,6 +327,19 @@ with tab_paper:
     lc = safety.live_cfg(CFG)
     killed = (not lc["trading_enabled"]) or safety.KILL_FILE.exists()
     d4.metric("Trading", "OFF (off switch)" if killed else "ON (paper only)")
+    from datetime import date as _date
+
+    today_orders = book.state.get("orders_by_day", {}).get(str(_date.today()), {})
+    e1, e2 = st.columns(2)
+    e1.metric("Orders today / daily limit", f"{len(today_orders)} / {lc['max_orders_per_day']}")
+    fresh = {}
+    for t in tickers:
+        try:
+            fresh[t] = data.staleness_days(get_live_daily(t))
+        except Exception:
+            fresh[t] = None
+    stale = [t for t, a in fresh.items() if a is None or a > CFG["data"]["max_stale_days"]]
+    e2.metric("Data freshness", "all fresh" if not stale else f"STALE: {', '.join(stale)}")
     st.caption(
         "What normal looks like (backtest of the traded rule, research/experiments/EXP-036): see the latest "
         "portfolio-lab summary for the 1-, 3-, 6- and 12-month ranges. A result inside the 5th-95th percentile range "

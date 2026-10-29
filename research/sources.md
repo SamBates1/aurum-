@@ -21,6 +21,12 @@ Cited by ID across the knowledge base. "Read" notes how deeply each was checked:
 | S13 | Bailey, Borwein, López de Prado & Zhu (2017), *The Probability of Backtest Overfitting*, Journal of Computational Finance | abstract | [SSRN 2326253](https://papers.ssrn.com/abstract=2326253) |
 | S14 | Kaminski & Lo (2014), *When Do Stop-Loss Rules Stop Losses?*, Journal of Financial Markets | summary | [MIT DSpace](https://dspace.mit.edu/handle/1721.1/114876), [CXO summary](https://www.cxoadvisory.com/?p=1809) |
 | S15 | CFTC, *Commitments of Traders* report descriptions (release timing) | official page | [CFTC](https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm) |
+| S19 | *Predicting Realized Variance Out of Sample: Can Anything Beat The Benchmark?* (arXiv 2506.07928) | abstract + results | [arXiv](https://arxiv.org/pdf/2506.07928) |
+| S20 | Quantpedia, *Dangers of Relying on OHLC Prices – the Case of Overnight Drift in GDX ETF* | summary | [Quantpedia](https://vvv.quantpedia.com/?p=38266) |
+| S21 | Baltas & Kosowski, *Demystifying Time-Series Momentum Strategies: Volatility Estimators, Trading Rules and Pairwise Correlations* | abstract | [SSRN 2140091](https://papers.ssrn.com/abstract=2140091) |
+| S22 | CBOE Gold Volatility Index (GVZ), volatility model pages | descriptive | [NYU V-Lab](https://vlab.stern.nyu.edu/volatility/VOL.GVZ:VIND-R.GJR-GARCH) |
+| S23 | *Temporal conformal prediction for financial returns* (arXiv 2507.05470) | abstract | [arXiv](https://arxiv.org/abs/2507.05470v1) |
+| S24 | Baur, gold seasonality (September and November effects), via CXO Advisory | summary | [CXO](https://cxoadvisory.com/calendar-effects/gold-seasonality-drivers) |
 | S16 | Politis & Romano (1994), *The Stationary Bootstrap*, Journal of the American Statistical Association | known reference | – |
 | S17 | López de Prado (2018), *Advances in Financial Machine Learning*, Wiley (triple-barrier labels, purging, meta-labelling) | known reference | – |
 | S18 | Bailey & López de Prado (2012), *The Sharpe Ratio Efficient Frontier*, Journal of Risk (Probabilistic Sharpe Ratio) | known reference | – |

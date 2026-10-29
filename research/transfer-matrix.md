@@ -2,7 +2,7 @@
 
 One row per idea discovered. Classification: **Adopt** (strong rationale, regression-tested),
 **Adapt** (useful but changed for Aurum), **Experiment** (benefit uncertain, pre-registered test),
-**Reject** (unsuitable, redundant, unreliable, too complex or unsupported). Last updated 2026-10-29: experiment outcomes in [experiments/README.md](experiments/README.md#registry).
+**Reject** (unsuitable, redundant, unreliable, too complex or unsupported). Last updated 2026-10-29: experiment outcomes in [experiments/README.md](experiments/README.md#registry); rows 31–37 from [topics/new-ideas-2026-10-29.md](topics/new-ideas-2026-10-29.md).
 Source IDs refer to [sources.md](sources.md).
 
 | # | Technique | Source | Mechanism | Evidence | Relevance to gold/miners | Current Aurum equivalent | Required changes | Main risks | Experiment | Acceptance criteria | Priority | Class |
@@ -37,3 +37,11 @@ Source IDs refer to [sources.md](sources.md).
 | 28 | Same-bar close fills / 365-day year defaults | VectorBT defaults | Convenience | Causes look-ahead / mis-annualisation | – | Next-open fills, 252 days | – | – | – | – | – | **Reject** |
 | 29 | Non-standard Sortino (std of losing trades) | Freqtrade `data/metrics.py` | – | Not the textbook definition | – | Proper downside deviation | – | – | – | – | – | **Reject** |
 | 30 | Adopting an external engine wholesale | All five | Mature features | Heavy setup; GPL for two | 6 daily-bar assets | Own ~300-line tested engine | – | Lock-in, complexity | – | – | – | **Reject** (D-013) |
+| 31 | Next-close (market-on-close) fills as robustness check | Quantpedia [S20] | OHLC opens are often not executable | Large gap between OHLC and realistic fills for GDX | All six assets | Next-open fills | Fill option in `strategy.simulate` | None: it is a check | EXP-010 | Conclusions unchanged under close fills | **High** | **Adopt (as a check)** |
+| 32 | HAR / EWMA volatility forecasts for sizing | [S19] | Volatility clusters and is forecastable | HAR hard to beat out of sample | Sizing is Aurum's main edge | 21-day realised vol | Forecast function, sizing input | Little; small gains | EXP-011 | Realised vol closer to target; drawdown no worse | High | **Experiment** |
+| 33 | Continuous trend signal with no-trade band | Baltas & Kosowski [S21] | Fewer, smaller trades | Turnover −⅓, no significant loss | Cost drag ~0.7%/yr | Binary BUY/SELL | Exposure scaling in simulator | Partial positions complicate stops | EXP-012 | Lower turnover, ΔSharpe ≥ 0 | Medium | **Experiment** |
+| 34 | Gold implied volatility (GVZ) | CBOE; [S22] | Forward-looking gold risk | Thin evidence for returns | Better than VIX for gold | VIX | Data loader | Short history (2008+) | With EXP-011 / EXP-003 re-run | Registry rules | Medium | **Experiment** |
+| 35 | Volatility-based price ranges (conformal check) | [S23] | Ranges instead of direction | Vol-model intervals often best | Trade-plan idea | None | Range output + coverage test | Tail under-coverage in crises | Coverage test | ~95% coverage incl. tails | Medium | **Adapt** |
+| 36 | Gold seasonality (Sep/Nov) | Baur [S24] | Seasonal demand / haven flows | Significant in one study | Gold | None | Calendar feature | Data mining | Optional | Registry rules | Low | **Experiment (low)** |
+| 37 | GDX overnight-drift strategy | [S20] | Close-to-open drift | Mostly a data artefact | GDX | None | – | Unrealistic fills | – | – | – | **Reject** |
+

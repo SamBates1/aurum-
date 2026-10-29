@@ -82,6 +82,13 @@ Portfolio of six equal sleeves, after costs, out of sample from 2013-10-18:
 - **Interpretation:** the system's value is risk control (smaller drawdowns), not return prediction; this
   matches the literature on weak out-of-sample predictability (topics/ml-vs-simple.md).
 
+## 2026-10-29 — New ideas scan
+Short literature scan ([topics/new-ideas-2026-10-29.md](topics/new-ideas-2026-10-29.md)). Most important: daily
+"open" prices may not be tradable (Quantpedia), so every Aurum result assumes fills that may be optimistic;
+EXP-010 (next-close fills) proposed as a validity check. Also proposed: HAR volatility forecasts for sizing
+(EXP-011), a smoother continuous trend signal to cut costs (EXP-012), gold implied volatility (GVZ), and price
+ranges for the trade-plan idea. Seasonality: low priority. GDX overnight drift: rejected.
+
 ## Open questions
 - Does the chandelier stop hold up on new data (EXP-009)?
 - Does the gold/real-yield regime break show up as poor holdout performance?

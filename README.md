@@ -100,6 +100,14 @@ No API keys are needed: Yahoo Finance and FRED are used without credentials. `.e
 Configuration is in [`config.yaml`](config.yaml): universe, macro series, model settings, strategy weights and
 thresholds, risk limits, cost assumptions and the holdout date.
 
+## AI Quant Desk
+
+An optional conversational research desk is available in the Streamlit multipage navigation. It includes six specialist roles and a whole-team debate mode, using read-only excerpts from the saved research archive. See [the setup guide](docs/QUANT_DESK.md).
+
+The desk defaults to a local Ollama OpenAI-compatible endpoint (`http://localhost:11434/v1`, model `qwen2.5:7b`) to avoid per-token API fees. Install/run Ollama and pull the model (`ollama pull qwen2.5:7b`) before starting Streamlit, or configure `AURUM_LLM_BASE_URL`, `AURUM_LLM_MODEL` and optional `AURUM_LLM_API_KEY` locally. A hosted endpoint may incur charges. No new Python package is required for the chat API client.
+
+This feature does not automatically browse live markets, execute experiments, change strategy code, or place trades. It is an interactive research assistant; generated ideas must be validated with reproducible backtests. Scheduled autonomous research is a future phase.
+
 ## Data
 
 | Source | Series | Use | Limitations |

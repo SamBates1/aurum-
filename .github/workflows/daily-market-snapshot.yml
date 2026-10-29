@@ -1,0 +1,38 @@
+name: Daily market snapshot
+
+on:
+  schedule:
+    - cron: "30 21 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Generate read-only market snapshot
+        run: python scripts/daily_market_report.py
+      - name: Upload snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: aurum-market-snapshot-${{ github.run_id }}
+          path: |
+            reports/daily/*.md
+            reports/daily/*.png
+          if-no-files-found: error
+          retention-days: 14

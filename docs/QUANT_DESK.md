@@ -54,6 +54,7 @@ Aurum already has a research lab for comparable asset tests. Use:
 - python run_plab.py --set other to test the predefined alternate precious-metals universe.
 - python run_lab.py --set core and python run_lab.py --set other for the strategy research lab.
 - python run_experiments.py --quick for a faster experiment-code check (use synthetic/offline mode for code-path checks only).
+- python run_experiments.py --tickers SPY --quick to evaluate Aurum's strategy rules on SPY against that ticker's buy-and-hold reference. This is an exploratory comparison, not proof that SPY or the rules are better; use the same holdout, costs and decision protocol.
 
 To test whether the system generalises beyond precious metals, add a broad-market benchmark such as SPY to a separately registered, same-date experiment; do not infer a trading edge from the daily snapshot alone. Keep all variants registered before running, report gross/net and 2x-cost results, use walk-forward validation, preserve a final holdout, and account for every attempted variant in multiple-testing statistics.
 

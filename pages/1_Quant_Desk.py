@@ -31,7 +31,8 @@ if mode == "Chat with one specialist":
     st.caption(AGENTS[agent])
 else:
     st.info(
-        "Four specialists assess the question independently; an independent reviewer then challenges and synthesises them."
+        "Four specialists assess the question independently; an independent reviewer then "
+        "challenges and synthesises them."
     )
 
 if "quant_desk_messages" not in st.session_state:

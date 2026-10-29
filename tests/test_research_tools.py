@@ -112,7 +112,12 @@ def test_experiment_variants_reproduce_the_traded_strategy(quick_ctx):
     """vol_hold (EXP-014) is the traded rule when sizing uses plain 21-day volatility (offline: no GVZ)."""
     v = {x.name: x for x in build_variants()}
     assert quick_ctx.res.vol_ratio is None  # offline: GVZ unavailable, so sizing falls back to 21-day vol
-    pd.testing.assert_frame_equal(v["vol_hold"].run(quick_ctx, 8.0).daily, quick_ctx.res.sim.daily)
+    rule = quick_ctx.scfg.get("rebalance", "daily")
+    if rule == "daily":
+        pd.testing.assert_frame_equal(v["vol_hold"].run(quick_ctx, 8.0).daily, quick_ctx.res.sim.daily)
+    # the traded rule (D-022: weekly orders) is vol_hold's weights on rebalance days only
+    w = quick_ctx.base_weight().where(S.rebalance_days(quick_ctx.prices.index, rule))
+    pd.testing.assert_frame_equal(quick_ctx.simw(w, cost_bps=8.0).daily, quick_ctx.res.sim.daily)
 
 
 def test_verdict_rules():

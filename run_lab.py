@@ -140,8 +140,11 @@ def main():
         for v in variants:
             try:
                 w = v.weight(ctx).reindex(prices.index)
-                if v.every > 1:
-                    w = w.where(np.arange(len(w)) % v.every == 0)
+                sched = v.schedule or scfg.get("rebalance", "daily")
+                if sched == "every5":
+                    w = w.where(np.arange(len(w)) % 5 == 0)
+                else:
+                    w = w.where(S.rebalance_days(prices.index, sched))
                 cap = v.account / len(tickers) if v.account else None
                 for mode, kk in (("net", k), ("gross", 0.0), ("x2", 2 * k)):
                     sims[v.name][mode][t] = S.simulate_weights(
@@ -250,6 +253,7 @@ def main():
         "pbo_development": pbo,
         "failed_variants": failed,
         "combine": args.combine,
+        "rebalance": scfg.get("rebalance", "daily"),
         "data_events": data.DATA_EVENTS,
     }
     (out / "metadata.json").write_text(json.dumps(meta, indent=2, default=str))
@@ -271,7 +275,8 @@ def write_summary(out, t: pd.DataFrame, crises: pd.DataFrame, years: pd.DataFram
         f"Assets: {', '.join(meta['tickers'])}; portfolio from {meta['portfolio_start']} (common start). "
         f"Periods: " + "; ".join(f"{k} {a} → {b or 'now'}" for k, (a, b) in meta["periods"].items()) + ". "
         f"Orders fill at the next {meta['fill']}; net of costs; equal sleeves. Baseline = `vol_hold_gvz` "
-        f"(the traded strategy). {meta['n_trials']} trial variants; PBO (development) "
+        f"(the traded strategy, orders {meta.get('rebalance', 'daily')}). {meta['n_trials']} trial variants; "
+        "PBO (development) "
         f"{meta['pbo_development'].get('pbo', float('nan')):.0%}.",
         "",
         "## Return, risk and Sharpe by period",

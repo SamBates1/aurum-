@@ -115,6 +115,8 @@ class PaperPortfolio:
     def act(self, d, prices: dict[str, float]) -> str | None:
         """Execute a pipeline.Decision in whichever mode produced it."""
         if d.target_weight is not None:
+            if not getattr(d, "rebalance_day", True):
+                return None  # weekly rebalancing: no order on this day (D-022)
             return self.rebalance(d.ticker, d.target_weight, d.last_price, prices, d.tradeable)
         return self.apply(d.ticker, d.decision, d.last_price, d.ann_vol, d.atr, prices, d.tradeable)
 

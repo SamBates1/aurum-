@@ -94,3 +94,15 @@ def test_vol_hold_mode_decision_and_research(cfg):
     assert r.sim.daily["invested"].mean() > 0.9  # always invested
     d = pipeline.decide("GLD", r, cfg, context=False)
     assert 0 < d.target_weight <= 1 and d.notes[0].startswith("Always-invested mode")
+
+
+def test_no_order_on_a_non_rebalance_day(tmp_path, cfg):
+    from types import SimpleNamespace
+
+    book = PaperPortfolio(tmp_path / "ledger.json", cfg)
+    d = SimpleNamespace(
+        ticker="GLD", target_weight=0.5, rebalance_day=False, last_price=100.0, tradeable=True, decision="BUY"
+    )
+    assert book.act(d, {"GLD": 100.0}) is None and not book.state["positions"]
+    d.rebalance_day = True
+    assert book.act(d, {"GLD": 100.0}) is not None

@@ -94,7 +94,9 @@ def research(
         sizing_vol, vol_ratio = sizing_volatility(X["vol_21"], prices.index, cfg)
         sim = S.simulate_weights(
             prices.loc[eval_start:],
-            S.vol_target_weight(sizing_vol, scfg["target_vol"]).loc[eval_start:],
+            S.vol_target_weight(sizing_vol, scfg["target_vol"])
+            .where(S.rebalance_days(prices.index, scfg.get("rebalance", "daily")))
+            .loc[eval_start:],
             cost_bps=cost_bps(ticker, cfg),
             cash_rate=rf,
             band=scfg.get("rebalance_band", 0.05),
@@ -152,6 +154,7 @@ class Decision:
     notes: list[str]
     as_of: str
     target_weight: float | None = None  # vol_hold mode: share of the sleeve to hold in the asset
+    rebalance_day: bool = True  # vol_hold mode: False = show the target but place no order today (D-022)
 
 
 def decide(
@@ -240,6 +243,7 @@ def decide(
 
     atr_now = float(atr_fn(bars).iloc[-1])
     target_weight = None
+    rebalance_day = True
     if scfg.get("mode", "timing") == "vol_hold":
         # The score and its reasons are still shown as context, but in this mode the position is
         # simply min(1, target_vol / volatility) of the sleeve: the rule tested in EXP-014.
@@ -251,7 +255,11 @@ def decide(
             else:
                 notes.append("Gold implied volatility (GVZ) is stale: sizing uses plain 21-day volatility.")
         target_weight = float(S.vol_target_weight(pd.Series([vol_now]), scfg["target_vol"]).iloc[0])
+        rule = scfg.get("rebalance", "daily")
+        rebalance_day = bool(S.rebalance_days(bars.index, rule).iloc[-1])
         decision = S.BUY if tradeable and target_weight > 0 else S.HOLD
+        if not rebalance_day:
+            notes.insert(0, "Weekly rebalancing (D-022): orders are only placed after Friday's close.")
         notes.insert(
             0,
             f"Always-invested mode: hold {target_weight:.0%} of this sleeve "
@@ -260,6 +268,7 @@ def decide(
     return Decision(
         ticker=ticker,
         target_weight=target_weight,
+        rebalance_day=rebalance_day,
         decision=decision,
         score=score,
         components=components,

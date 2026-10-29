@@ -497,6 +497,22 @@ def simulate_weights(
     return res
 
 
+def rebalance_days(index: pd.DatetimeIndex, rule: str = "daily") -> pd.Series:
+    """Days on which a vol_hold order may be decided (D-022). "daily": every day. "weekly": the last
+    trading day of each calendar week in the index; for the final row, only if it is a Friday (the
+    week may not be over yet). Orders decided on those closes fill at the next open."""
+    if rule == "daily":
+        return pd.Series(True, index=index)
+    if rule != "weekly":
+        raise ValueError(f"unknown rebalance rule {rule!r}")
+    s = pd.Series(index, index=index)
+    week = s.dt.isocalendar().week.astype(int) + 100 * s.dt.isocalendar().year.astype(int)
+    last = week != week.shift(-1)
+    if len(index):
+        last.iloc[-1] = index[-1].weekday() == 4
+    return last
+
+
 def vol_target_weight(ann_vol: pd.Series, target_vol: float, cap: float = 1.0) -> pd.Series:
     """min(cap, target_vol / forecast volatility); 0 where volatility is unknown."""
     w = (target_vol / ann_vol.where(ann_vol > 0)).clip(upper=cap)

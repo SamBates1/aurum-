@@ -88,3 +88,12 @@ def test_every_lab_variant_runs_offline(cfg):
         w = v.weight(ctx)
         assert w.index.equals(p.index), v.name
         assert ((w >= 0) & (w <= 1)).all(), v.name
+
+
+def test_weekly_rebalance_days():
+    idx = pd.bdate_range("2026-10-05", "2026-10-21")  # Mon 5 Oct ... Wed 21 Oct
+    m = S.rebalance_days(idx.delete(idx.get_loc(pd.Timestamp("2026-10-16"))), "weekly")  # Fri 16 Oct a holiday
+    assert m[pd.Timestamp("2026-10-09")] and m[pd.Timestamp("2026-10-15")]  # Friday; Thursday before the holiday
+    assert not m[pd.Timestamp("2026-10-21")]  # last row is a Wednesday: the week is not over
+    assert m.sum() == 2
+    assert S.rebalance_days(idx, "daily").all()

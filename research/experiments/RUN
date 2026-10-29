@@ -1,7 +1,8 @@
 full
 lab: --set core
 lab: --set core --fill close
+lab: --set other
 Edit this file and push to main to start an automated run on GitHub's machines (see
 .github/workflows/experiments.yml). Each "run:" line is one run_experiments.py run with those arguments;
 each "lab:" line is one run_lab.py run (research lab, EXP-020 onwards).
-Requested: 2026-10-29 rerun of the core lab after fixing the EPU (duplicate dates) and GPR (date parsing)
+Requested: 2026-10-29 confirmation runs after adopting weekly rebalancing (D-022): the traded baseline now places orders after Friday's close.

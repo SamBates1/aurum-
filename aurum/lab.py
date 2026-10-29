@@ -110,7 +110,7 @@ class LabVariant:
     name: str
     description: str
     weight: Callable[[LabCtx], pd.Series]
-    every: int = 1  # decide only every n-th trading day (EXP-022 weekly)
+    schedule: str | None = None  # None = as configured (strategy.rebalance); "daily", "weekly", "every5"
     account: float | None = None  # whole shares; account value in dollars, split equally across sleeves (EXP-022)
     trial: bool = True  # counted in DSR/PBO (reference and descriptive rows are not)
 
@@ -260,7 +260,12 @@ def build_lab_variants(combine: list[str] | None = None) -> list[LabVariant]:
 
     # EXP-022 trading the way Alpaca will (practical choices, not signals: not trials)
     add(
-        "EXP-022", "weekly", "Orders only every 5th trading day (same band)", lambda c: c.weight(), every=5, trial=False
+        "EXP-022",
+        "weekly",
+        "Orders only every 5th trading day (same band)",
+        lambda c: c.weight(),
+        schedule="every5",
+        trial=False,
     )
     add(
         "EXP-022",

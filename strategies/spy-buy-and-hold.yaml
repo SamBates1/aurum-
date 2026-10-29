@@ -1,0 +1,15 @@
+id: spy-buy-and-hold
+name: "Benchmark: SPY buy and hold"
+version: 1
+description: All money in SPY on the first day, never traded again. The S&P 500 benchmark.
+universe: [SPY]
+base_weights: {SPY: 1.0}
+benchmark: SPY
+schedule: {rebalance: once, band: 0.0}
+sizing: {method: fixed}
+signals: []
+exits: {}
+execution:
+  fill: open
+  costs_bps: {SPY: 2}
+start: "2006-06-01"

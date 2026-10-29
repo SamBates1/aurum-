@@ -158,6 +158,11 @@ ranges for the trade-plan idea. Seasonality: low priority. GDX overnight drift: 
 - **Lesson:** across about 100 pre-registered portfolio variants and over 500 statistical tests, the only reliable effects are risk effects
   (volatility sizing, diversification across assets), not return prediction.
 
+- **Strategy platform (master build prompt, 2026-10-29 night):** strategy definitions shared by backtest, designer and
+  paper trader; Strategy Designer with linked decision charts; Fair Test applying the lab rules; experiment registry
+  with luck and holdout counters; independent risk engine; eligibility gates with owner approvals; paper trading of
+  the owner's Option 3 pair (D-034, D-035). The designer engine reproduces EXP-045 exactly.
+
 ## Open questions
 - Do the miner-vs-GDX and EPU tilts keep their small edge in paper trading (watched, not traded)?
 - Which risk level does the owner choose (EXP-028)?

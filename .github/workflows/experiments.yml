@@ -57,8 +57,9 @@ jobs:
           audits=$(grep '^audit:' research/experiments/RUN 2>/dev/null | sed 's/^audit://' || true)
           xlabs=$(grep '^xlab:' research/experiments/RUN 2>/dev/null | sed 's/^xlab://' || true)
           reports=$(grep '^report:' research/experiments/RUN 2>/dev/null | sed 's/^report://' || true)
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then lines="$default_args"; labs=""; plabs=""; audits=""; xlabs=""; fi
-          if [ -z "$lines$labs$plabs$audits$xlabs$reports" ]; then lines="$default_args"; fi
+          designers=$(grep '^designer:' research/experiments/RUN 2>/dev/null | sed 's/^designer://; s/^ *$/ /' || true)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then lines="$default_args"; labs=""; plabs=""; audits=""; xlabs=""; designers=""; fi
+          if [ -z "$lines$labs$plabs$audits$xlabs$reports$designers" ]; then lines="$default_args"; fi
           status=0
           if [ -n "$lines" ]; then
             while IFS= read -r args; do
@@ -96,6 +97,13 @@ jobs:
             echo "=== daily market report (sample) ===" | tee -a experiments-run.log
             python scripts/daily_market_report.py --output "research/monitoring/daily-report-$(date -u +%Y-%m-%d).md" 2>&1 | tee -a experiments-run.log || status=1
           fi
+          # "designer:" lines run every saved strategy through the Strategy Designer engine and the Fair Test
+          if [ -n "$designers" ]; then
+            while IFS= read -r args; do
+              echo "=== python run_designer.py $args ===" | tee -a experiments-run.log
+              python run_designer.py $args 2>&1 | tee -a experiments-run.log || status=1
+            done <<< "$designers"
+          fi
           exit $status
         shell: bash -o pipefail {0}
       - name: Commit results (also on failure, with the logs)
@@ -106,7 +114,7 @@ jobs:
           tail -n 300 experiments-run.log > research/experiments/logs/last-experiments-run.log 2>/dev/null || true
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A -- reports research/experiments research/audits research/monitoring
+          git add -A -- reports research/experiments research/audits research/monitoring research/fairtests research/designer
           git diff --cached --quiet && { echo "Nothing to commit"; exit 0; }
           git commit -m "Automated run: research report and experiment results (${{ job.status }})"
           git pull --rebase origin main

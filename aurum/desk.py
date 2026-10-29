@@ -102,6 +102,45 @@ def latest_results(limit: int = 8) -> list[str]:
     return names[:limit]
 
 
+def strategy_context(max_chars: int = 3500) -> str:
+    """Strategy Designer state for the desk: saved strategies in plain English, latest Fair Test verdicts, owner
+    approvals and paper ledgers. Read-only; numbers are copied from saved files, never computed by the model."""
+    import json as _json
+
+    from . import designer, gates
+    from . import fairtest as ft
+    from . import spec as sp
+
+    lines = ["\n--- STRATEGY DESIGNER: SAVED STRATEGIES (historical backtests; paper trading only) ---"]
+    fts = ft.latest_results()
+    for sid, s in sp.library().items():
+        h = sp.spec_hash(s)
+        r = fts.get(h)
+        appr = gates.approval_for(h)
+        lines.append(
+            f"{sid} v{s['version']} (hash {h}): {s['name']}. "
+            + " ".join(designer.describe(s)[:3])
+            + (
+                f" Fair Test: {r['status'].upper()} ({r['run_at'][:10]}): {r['explanation']}"
+                if r
+                else " Fair Test: none saved."
+            )
+            + (f" Owner approval: {appr['role']} ({appr['date']})." if appr else " Not approved for paper trading.")
+        )
+    from .config import CFG
+
+    for item in (CFG.get("paper", {}) or {}).get("strategies", []) or []:
+        led = ROOT / item["ledger"]
+        if led.is_file():
+            d = _json.loads(led.read_text())
+            eq = d["cash"] + sum(p["qty"] * p["last_price"] for p in d.get("positions", {}).values())
+            lines.append(
+                f"PAPER LEDGER {item['ledger']} ({item['role']}): equity ${eq:,.2f}, "
+                f"{len(d.get('trades', []))} simulated orders."
+            )
+    return "\n".join(lines)[:max_chars]
+
+
 def context_for(question: str, max_chars: int = 16000) -> str:
     """Research context for one question: the standard files plus any experiment the question names (e.g.
     'EXP-037'), the experiment registry and the latest result folders. Read-only and size-bounded."""
@@ -121,6 +160,10 @@ def context_for(question: str, max_chars: int = 16000) -> str:
     res = latest_results()
     if res:
         parts.append("\n--- LATEST REAL-DATA RESULT FOLDERS ---\n" + "\n".join(res))
+    try:
+        parts.append(strategy_context())
+    except Exception as exc:  # the desk must still answer if a strategy file is broken
+        parts.append(f"\n--- STRATEGY DESIGNER --- unavailable: {exc}")
     head = "".join(parts)
     return (head + research_context(max(1000, max_chars - len(head))))[:max_chars]
 

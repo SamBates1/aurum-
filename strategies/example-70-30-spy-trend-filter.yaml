@@ -1,0 +1,29 @@
+id: example-70-30-spy-trend-filter
+name: "Example (rejected in EXP-045): 70/30 + SPY 200-day trend filter"
+version: 1
+description: >-
+  Example of an indicator rule: hold the SPY part only while SPY closes above its 200-day average, otherwise keep
+  that part in cash. Tested in EXP-045 and REJECTED (lower return, 2.0% a year in extra costs). Kept as a worked
+  example for the designer, not for trading.
+universe: [SPY, GLD]
+base_weights: {SPY: 0.70, GLD: 0.30}
+benchmark: spy-gld-70-30-monthly
+schedule: {rebalance: daily, band: 0.05}
+sizing: {method: fixed}
+signals:
+  - id: spy_trend
+    label: SPY above its 200-day average
+    conditions:
+      - left: {ind: close, asset: SPY}
+        op: ">"
+        right: {ind: sma, asset: SPY, n: 200}
+    combine: all
+    apply_to: [SPY]
+    when_true: 1.0
+    when_false: 0.0
+    assume_when_unknown: true
+exits: {}
+execution:
+  fill: open
+  costs_bps: {SPY: 2, GLD: 3}
+start: "2006-06-01"

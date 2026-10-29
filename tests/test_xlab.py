@@ -1,6 +1,7 @@
 """Cross-asset lab (EXP-037 onwards): look-ahead, statistics and accounting checks on hand-built data."""
 
 import numpy as np
+import pytest
 import pandas as pd
 from conftest import make_prices
 
@@ -94,3 +95,18 @@ def test_trend_signals_use_only_past_prices():
         full = fn(c)
         cut = fn(c.iloc[:450])
         np.testing.assert_array_equal(full.iloc[:450].fillna(-1).to_numpy(), cut.fillna(-1).to_numpy())
+
+
+def test_run_honours_the_configured_fill():
+    """Regression: the first EXP-037 close-fill run ignored --fill for the ETF legs."""
+    p = {"A": make_prices([100, 101, 102, 103, 104.0], opens=[100, 100.5, 105, 102, 103.0])}
+    tgt = pd.DataFrame({"A": [1.0, np.nan, np.nan, np.nan, np.nan]}, index=p["A"].index)
+    old = X.DEFAULT_FILL
+    try:
+        X.DEFAULT_FILL = "open"
+        a = X.run(p, tgt, 0.0, costs={"A": 0}).daily["value"].iloc[-1]
+        X.DEFAULT_FILL = "close"
+        b = X.run(p, tgt, 0.0, costs={"A": 0}).daily["value"].iloc[-1]
+    finally:
+        X.DEFAULT_FILL = old
+    assert a == pytest.approx(104 / 100.5) and b == pytest.approx(104 / 101)

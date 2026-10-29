@@ -182,3 +182,10 @@ for plain 21-day) and the best-calibrated 99% VaR (0.89% breaches vs 2.32%) for 
 EXP-037 found that 70% SPY + 30% GLD, rebalanced monthly, matched the S&P 500's return (11.3% a year) with a higher
 Sharpe (0.69 vs 0.56) and a shallower worst fall (−38% vs −55%) over 2006–2026. It is a simple allocation, not a trading
 signal, and lies outside Aurum's precious-metals mandate; adopting it is the owner's choice and is not implemented.
+
+**D-033 — Owner's goal: profit close to the S&P 500 with protection in downturns; S&P + gold confirmed** (2026-10-29)
+The owner chose both goals. EXP-045 confirmed that a 70/30 SPY/GLD mix (monthly) keeps the S&P 500's return (11.3% a
+year, 2006–2026) with a Sharpe of 0.69 vs 0.56 and a worst fall of −38% vs −55%, robust to the mix (80/20–60/40),
+rebalancing frequency and fill convention. Downturn overlays failed the strict pre-registered test; the 20%-volatility
+risk cap was a near miss (Sharpe 0.81, worst fall −26%, but a larger loss in the fast 2020 crash). Not yet implemented
+as the traded strategy: the owner is asked which allocation to paper-trade.

@@ -433,7 +433,7 @@ def verdict_md(t: pd.DataFrame, per_names) -> list[str]:
     return L
 
 
-def sim_both(fund, tgt, rf, band=0.0, fill="open"):
+def sim_both(fund, tgt, rf, band=0.0, fill=None):
     return (
         as_sim(X.run(fund, tgt, rf, band=band, fill=fill).daily),
         as_sim(X.run(fund, tgt, rf, band=band, fill=fill, cost_mult=2.0).daily),
@@ -1602,6 +1602,7 @@ def main():
     cfg = copy.deepcopy(CFG)
     if args.fill:
         cfg["strategy"]["fill"] = args.fill
+    X.DEFAULT_FILL = cfg["strategy"].get("fill", "open")
     out = EXPS[args.exp](cfg)
     print(f"\nWrote {out}")
 

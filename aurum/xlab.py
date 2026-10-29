@@ -52,6 +52,9 @@ def common_index(prices: dict[str, pd.DataFrame]) -> pd.DatetimeIndex:
     return idx.sort_values()
 
 
+DEFAULT_FILL = "open"  # set by run_xlab.py from --fill, so every experiment honours the fill convention
+
+
 def run(
     prices,
     target,
@@ -59,7 +62,7 @@ def run(
     *,
     costs=None,
     band=0.0,
-    fill="open",
+    fill=None,
     cost_mult=1.0,
     overlay=None,
     leverage=1.0,
@@ -67,6 +70,7 @@ def run(
 ):
     """Simulate target weights (shares of equity). With leverage > 1 the targets are scaled up and the borrowed
     amount pays T-bill + financing_spread (annual), modelled as a daily charge on (gross exposure - 1)."""
+    fill = fill or DEFAULT_FILL
     tick = list(target.columns)
     c = {t: (costs or COSTS).get(t, 10) * cost_mult for t in tick}
     if leverage == 1.0:

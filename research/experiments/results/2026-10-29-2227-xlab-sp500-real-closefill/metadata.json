@@ -1,0 +1,92 @@
+{
+  "run_at": "2026-10-29T22:27:29+00:00",
+  "data": "real",
+  "config_hash": "d8f9c0d8a554",
+  "code_fingerprint": "ba6307161a3c",
+  "git_commit": "30a452f",
+  "data_fingerprint": {
+    "SPY": {
+      "rows": 5115,
+      "first": "2006-06-30",
+      "last": "2026-10-29",
+      "sha256_close": "dbdb74ba74793766"
+    },
+    "QQQ": {
+      "rows": 5115,
+      "first": "2006-06-30",
+      "last": "2026-10-29",
+      "sha256_close": "db8b5253be109a45"
+    },
+    "IWM": {
+      "rows": 5115,
+      "first": "2006-06-30",
+      "last": "2026-10-29",
+      "sha256_close": "55ea18300f1db30c"
+    },
+    "EFA": {
+      "rows": 5115,
+      "first": "2006-06-30",
+      "last": "2026-10-29",
+      "sha256_close": "4a607a17c18e5a1b"
+    },
+    "TLT": {
+      "rows": 5115,
+      "first": "2006-06-30",
+      "last": "2026-10-29",
+      "sha256_close": "753a2e9d0cf228f6"
+    },
+    "IEF": {
+      "rows": 5115,
+      "first": "2006-06-30",
+      "last": "2026-10-29",
+      "sha256_close": "11e8137fe1152427"
+    },
+    "GLD": {
+      "rows": 5115,
+      "first": "2006-06-30",
+      "last": "2026-10-29",
+      "sha256_close": "c81d9d2abb232292"
+    },
+    "SLV": {
+      "rows": 5115,
+      "first": "2006-06-30",
+      "last": "2026-10-29",
+      "sha256_close": "9079aa4d331684dd"
+    },
+    "GDX": {
+      "rows": 5115,
+      "first": "2006-06-30",
+      "last": "2026-10-29",
+      "sha256_close": "b4fc3128be6399bd"
+    },
+    "DBC": {
+      "rows": 5115,
+      "first": "2006-06-30",
+      "last": "2026-10-29",
+      "sha256_close": "89f0bd392cebd838"
+    }
+  },
+  "data_events": [
+    {
+      "time": "2026-10-29T22:27:21+00:00",
+      "level": "warning",
+      "source": "GC=F",
+      "message": "1 rows with high < low"
+    }
+  ],
+  "exp": "EXP-037",
+  "periods": {
+    "pre": [
+      "2006-06-30",
+      "2013-10-17"
+    ],
+    "dev": [
+      "2013-10-18",
+      "2023-12-31"
+    ],
+    "holdout": [
+      "2024-01-01",
+      null
+    ]
+  }
+}

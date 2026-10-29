@@ -1,0 +1,37 @@
+{
+  "run_at": "2026-10-29T22:27:17+00:00",
+  "data": "real",
+  "config_hash": "d8f9c0d8a554",
+  "code_fingerprint": "ba6307161a3c",
+  "git_commit": "30a452f",
+  "data_fingerprint": {
+    "SPY": {
+      "rows": 5136,
+      "first": "2006-06-01",
+      "last": "2026-10-29",
+      "sha256_close": "28718bfe175b003e"
+    },
+    "GLD": {
+      "rows": 5136,
+      "first": "2006-06-01",
+      "last": "2026-10-29",
+      "sha256_close": "fd38b928937a3d77"
+    },
+    "IEF": {
+      "rows": 5136,
+      "first": "2006-06-01",
+      "last": "2026-10-29",
+      "sha256_close": "d01abae201e857f0"
+    }
+  },
+  "data_events": [
+    {
+      "time": "2026-10-29T22:27:11+00:00",
+      "level": "warning",
+      "source": "GC=F",
+      "message": "1 rows with high < low"
+    }
+  ],
+  "exp": "EXP-045",
+  "fill": "close"
+}

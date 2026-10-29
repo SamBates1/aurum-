@@ -145,13 +145,37 @@ def _read_cache(path: Path, kind: str):
 # ---------------------------------------------------------------------------
 # prices
 # ---------------------------------------------------------------------------
+def _retry(fn, name: str, attempts: int = 4, wait: float = 5.0):
+    """Call fn(); on an exception or an empty result, wait (5s, 10s, 20s) and try again.
+    Free data sources occasionally rate-limit cloud machines; failures stay visible."""
+    import time
+
+    for i in range(attempts):
+        try:
+            out = fn()
+            if out is not None and len(out):
+                return out
+            err = "empty response"
+        except Exception as exc:  # noqa: BLE001 - re-raised after the last attempt
+            err = exc
+            if i == attempts - 1:
+                raise
+        if i < attempts - 1:
+            log_event("warning", name, f"attempt {i + 1} failed ({err}); retrying")
+            time.sleep(wait * 2**i)
+    return out
+
+
 def _yf_download(ticker: str, **kwargs) -> pd.DataFrame:
     import yfinance as yf
 
-    df = yf.download(ticker, auto_adjust=True, progress=False, **kwargs)
-    if df is not None and isinstance(df.columns, pd.MultiIndex):
-        df.columns = df.columns.get_level_values(0)
-    return df
+    def once():
+        df = yf.download(ticker, auto_adjust=True, progress=False, **kwargs)
+        if df is not None and isinstance(df.columns, pd.MultiIndex):
+            df.columns = df.columns.get_level_values(0)
+        return df
+
+    return _retry(once, f"yahoo:{ticker}")
 
 
 def daily_prices(ticker: str, cfg: dict = CFG, use_cache: bool = True) -> pd.DataFrame:
@@ -194,7 +218,7 @@ def staleness_days(prices: pd.DataFrame, now: datetime | None = None) -> int:
 # macro and cash rate
 # ---------------------------------------------------------------------------
 def _fred_series(series_id: str) -> pd.Series:
-    raw = pd.read_csv(FRED_CSV.format(series=series_id))
+    raw = _retry(lambda: pd.read_csv(FRED_CSV.format(series=series_id)), f"fred:{series_id}")
     date_col, value_col = raw.columns[0], raw.columns[-1]  # handles old and new FRED headers
     s = pd.to_numeric(raw[value_col], errors="coerce")
     s.index = pd.to_datetime(raw[date_col])

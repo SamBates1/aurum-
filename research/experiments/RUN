@@ -1,0 +1,4 @@
+full
+Edit this file (first word: "full" or "quick") and push to main to start an automated run
+of run_research.py and run_experiments.py on GitHub's machines. See .github/workflows/experiments.yml.
+Requested: 2026-10-29 first automated real-data run.

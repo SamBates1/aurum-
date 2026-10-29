@@ -38,6 +38,13 @@ stationary block-bootstrap resamples **and** ΔSharpe ≥ 0 at 2× costs.
 Also reported: **PBO** across all variants. If PBO ≥ 0.5, even "KEEP" results deserve scepticism.
 
 ## Running
+
+**Automated (no terminal needed):** `.github/workflows/experiments.yml` runs `run_research.py` and
+`run_experiments.py` on GitHub's machines and commits the results and logs back. Start it by editing and
+pushing `research/experiments/RUN` (first word `full` or `quick`), with **Actions → Experiments → Run workflow**,
+or by enabling the weekly schedule in the workflow file.
+
+**Manually (e.g. in Codespaces):**
 ```bash
 python run_experiments.py            # real data (roughly 20–40 min); commit research/experiments/results/<date>-real/
 python run_experiments.py --quick    # yearly retraining, fewer bootstrap draws

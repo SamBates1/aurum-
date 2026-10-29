@@ -1,0 +1,62 @@
+name: Experiments
+
+# Runs the research report and the pre-registered experiments on real market data on
+# GitHub's machines, then commits the results back to the repository.
+# Start a run by: pushing a change to research/experiments/RUN (what Claude does),
+# the "Run workflow" button in the Actions tab, or the optional weekly schedule below.
+on:
+  push:
+    branches: [main]
+    paths: [research/experiments/RUN]
+  workflow_dispatch:
+    inputs:
+      quick:
+        description: "Quick mode (yearly retraining, fewer bootstrap draws)"
+        type: boolean
+        default: false
+  # schedule:
+  #   - cron: "17 2 * * 1"   # uncomment for a weekly run (Mondays 02:17 UTC)
+
+permissions:
+  contents: write   # needed only to commit the results
+
+concurrency:
+  group: experiments
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install
+        run: pip install -r requirements.txt
+      - name: Research report
+        run: python run_research.py 2>&1 | tee research-run.log
+        shell: bash -o pipefail {0}
+      - name: Experiments
+        run: |
+          if [ "${{ inputs.quick }}" = "true" ] || grep -qi '^quick' research/experiments/RUN 2>/dev/null; then
+            python run_experiments.py --quick 2>&1 | tee experiments-run.log
+          else
+            python run_experiments.py 2>&1 | tee experiments-run.log
+          fi
+        shell: bash -o pipefail {0}
+      - name: Commit results (also on failure, with the logs)
+        if: always()
+        run: |
+          mkdir -p research/experiments/logs
+          tail -n 300 research-run.log > research/experiments/logs/last-research-run.log 2>/dev/null || true
+          tail -n 300 experiments-run.log > research/experiments/logs/last-experiments-run.log 2>/dev/null || true
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A -- reports research/experiments
+          git diff --cached --quiet && { echo "Nothing to commit"; exit 0; }
+          git commit -m "Automated run: research report and experiment results (${{ job.status }})"
+          git pull --rebase origin main
+          git push origin HEAD:main

@@ -110,3 +110,18 @@ def test_staleness_measured_in_new_york_days():
     p = make_prices([1, 2], start="2026-10-21")  # Wed, Thu
     now = pd.Timestamp("2026-10-27 12:00", tz="America/New_York")
     assert data.staleness_days(p, now) == 5
+
+
+def test_retry_recovers_from_transient_failures(monkeypatch):
+    monkeypatch.setattr("time.sleep", lambda s: None)
+    calls = iter([OSError("rate limited"), pd.DataFrame(), make_prices([1, 2])])
+
+    def flaky():
+        x = next(calls)
+        if isinstance(x, Exception):
+            raise x
+        return x
+
+    assert len(data._retry(flaky, "test")) == 2
+    with pytest.raises(OSError):
+        data._retry(mock.Mock(side_effect=OSError("down")), "test", attempts=2)

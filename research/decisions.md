@@ -59,3 +59,9 @@ See `experiments/README.md`. Prevents the project drifting into data-mined compl
 Owner's idea: tell me when to buy/sell, at what price, the stop, and how long to hold. Deferred at the
 owner's request; EXP-007 (triple-barrier labels and exits) tests the stop/target/holding-period rules such a
 plan would be built on.
+
+**D-016 — Real-data runs happen on GitHub Actions** (2026-10-29)
+Context: Claude's workspace cannot download market data, and Codespaces stops after 30 idle minutes, which most
+likely cut short the first experiment run. Reasons: GitHub's runners have internet, cost nothing for a public repository,
+and commit results back, so Claude can start a run (by pushing `research/experiments/RUN`) and read the
+results without the owner typing commands. Revisit if: Yahoo Finance blocks GitHub's machines persistently.

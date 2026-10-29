@@ -1,5 +1,5 @@
 {
-  "run_at": "2026-10-29T11:36:55+00:00",
+  "run_at": "2026-10-29T12:14:05+00:00",
   "data": "real",
   "quick": false,
   "tickers": [
@@ -11,11 +11,12 @@
     "WPM"
   ],
   "config_hash": "2c9c656d1a4b",
-  "n_trials": 26,
+  "n_trials": 30,
+  "fill": "open",
   "pbo_development": {
-    "pbo": 0.7697746697746698,
+    "pbo": 0.6256410256410256,
     "n_splits": 12870,
-    "median_logit": -1.252762968495368
+    "median_logit": -0.8938178760220964
   },
   "development": [
     "2013-10-18",

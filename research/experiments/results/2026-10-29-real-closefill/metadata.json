@@ -1,0 +1,28 @@
+{
+  "run_at": "2026-10-29T12:23:03+00:00",
+  "data": "real",
+  "quick": false,
+  "tickers": [
+    "GLD",
+    "SLV",
+    "GDX",
+    "NEM",
+    "AEM",
+    "WPM"
+  ],
+  "config_hash": "f04adb31f6e4",
+  "n_trials": 30,
+  "fill": "close",
+  "pbo_development": {
+    "pbo": 0.7341880341880341,
+    "n_splits": 12870,
+    "median_logit": -1.4271163556401456
+  },
+  "development": [
+    "2013-10-18",
+    "2023-12-31"
+  ],
+  "holdout_start": "2024-01-01",
+  "data_events": [],
+  "failed_variants": {}
+}

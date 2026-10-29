@@ -2,7 +2,7 @@
 
 | Field | |
 |---|---|
-| Status | Pre-registered 2026-10-29, awaiting a real-data run |
+| Status | Run 2026-10-29: not adopted |
 | Origin | Stage 3; Moskowitz–Ooi–Pedersen (momentum persists 1–12 months); first results showed 5-day direction is close to a coin flip. |
 
 ## Common setup (stages 3–4, pre-registered 2026-10-29 before any real-data run)
@@ -22,5 +22,13 @@ The same model predicts 21- or 63-day direction better than 5-day direction, and
 ## Acceptance criteria
 Standard rules vs `vol_hold`. Also compare out-of-sample AUC by horizon (diagnostic).
 
-## Results
-_Not yet run._
+## Results (real data, 2026-10-29 12:46 UTC; `results/2026-10-29-1248-real-vs-vol_hold/` and `…-1251-real-closefill-vs-vol_hold/`)
+16 variants tried; PBO across them 18% (open fills) / 9% (close fills): low, so the ranking of variants is fairly stable between halves of the history.
+
+| Variant | Dev Sharpe | Dev ΔSharpe vs vol_hold | better | Holdout ΔSharpe | DSR | Verdict (open fills) | Dev ΔSharpe / verdict (close fills) |
+|---|---|---|---|---|---|---|---|
+| ml_tilt_h5 | +0.11 | -0.01 | 32% | -0.02 | 0.50 | REJECT | +0.01 / INCONCLUSIVE |
+| ml_tilt_h21 | +0.08 | -0.04 | 17% | -0.14 | 0.46 | REJECT | -0.03 / REJECT |
+| ml_tilt_h63 | +0.10 | -0.03 | 41% | -0.17 | 0.48 | REJECT | -0.01 / REJECT |
+
+**No horizon helped.** Tilting by the model's prediction was neutral at 5 days and slightly harmful at 21 and 63 days, in both periods and with both fills. Longer horizons did not make the model useful. **Conclusion: the ML model adds nothing on top of volatility-sized holding; not adopted.**

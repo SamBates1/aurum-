@@ -2,7 +2,7 @@
 
 | Field | |
 |---|---|
-| Status | Pre-registered 2026-10-29, awaiting a real-data run |
+| Status | Run 2026-10-29: not adopted |
 | Origin | Stage 4; replaces the equity VIX gate tested in EXP-003 with gold's own implied volatility. |
 
 ## Common setup (stages 3–4, pre-registered 2026-10-29 before any real-data run)
@@ -22,5 +22,11 @@ Halving exposure when gold options price unusually high risk reduces drawdowns w
 ## Acceptance criteria
 Risk-control path (volatility-adjusted drawdown ≥ 20% better, ΔSharpe ≥ −0.05) vs `vol_hold`.
 
-## Results
-_Not yet run._
+## Results (real data, 2026-10-29 12:46 UTC; `results/2026-10-29-1248-real-vs-vol_hold/` and `…-1251-real-closefill-vs-vol_hold/`)
+16 variants tried; PBO across them 18% (open fills) / 9% (close fills): low, so the ranking of variants is fairly stable between halves of the history.
+
+| Variant | Dev Sharpe | Dev ΔSharpe vs vol_hold | better | Holdout ΔSharpe | DSR | Verdict (open fills) | Dev ΔSharpe / verdict (close fills) |
+|---|---|---|---|---|---|---|---|
+| gvz_gate | +0.09 | -0.03 | 30% | +0.26 | 0.47 | REJECT | -0.08 / REJECT |
+
+**Rejected.** Halving exposure when GVZ is high lowered development Sharpe (−0.03 / −0.08) without reducing drawdown, even though it helped on the holdout (+0.26). Using GVZ *continuously* in sizing (EXP-017) worked; using it as an on/off switch did not. **Not adopted.**

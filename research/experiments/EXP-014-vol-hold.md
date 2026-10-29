@@ -2,7 +2,7 @@
 
 | Field | |
 |---|---|
-| Status | Pre-registered 2026-10-29, awaiting a real-data run |
+| Status | Run 2026-10-29: **adopted** |
 | Origin | Stage 2 (EXP-013) and correction of D-019: the `vol_sized_hold` reference chose its size once and never resized, so its lower drawdowns came mostly from holding cash. |
 
 ## Common setup (stages 3–4, pre-registered 2026-10-29 before any real-data run)
@@ -22,5 +22,29 @@ Holding every asset at weight min(1, 15% / 21-day volatility), resized as volati
 ## Acceptance criteria
 **Adopt `vol_hold` as the traded strategy** only if, versus the current timing baseline, in both development and holdout and with both open and close fills: CAGR higher **and** Sharpe higher; **and** its max drawdown is at least 25% smaller than buy & hold's in both periods. The band/monthly/target variants are judged with the standard rules against `vol_hold` (lower turnover with ΔSharpe ≥ 0 counts in favour).
 
-## Results
-_Not yet run._
+## Results (real data, 2026-10-29 12:46 UTC; `results/2026-10-29-1248-real-vs-vol_hold/` and `…-1251-real-closefill-vs-vol_hold/`)
+16 variants tried; PBO across them 18% (open fills) / 9% (close fills): low, so the ranking of variants is fairly stable between halves of the history.
+
+| Variant | Dev Sharpe | Dev ΔSharpe vs vol_hold | better | Holdout ΔSharpe | DSR | Verdict (open fills) | Dev ΔSharpe / verdict (close fills) |
+|---|---|---|---|---|---|---|---|
+| vol_hold | +0.12 | +0.00 | 0% | +0.00 | 0.51 | baseline | +0.00 / baseline |
+| vol_hold_band0 | +0.12 | -0.00 | 39% | -0.02 | 0.51 | REJECT | -0.01 / REJECT |
+| vol_hold_band10 | +0.12 | -0.01 | 31% | +0.04 | 0.50 | REJECT | +0.01 / INCONCLUSIVE |
+| vol_hold_monthly | +0.10 | -0.02 | 36% | +0.11 | 0.49 | REJECT | -0.00 / REJECT |
+| vol_hold_tv20 | +0.14 | +0.01 | 81% | -0.04 | 0.53 | INCONCLUSIVE | +0.01 / INCONCLUSIVE |
+
+**Adoption test for `vol_hold` vs the timing strategy (pre-registered criteria):**
+
+| | Timing (v0.2) open / close fills | vol_hold open / close fills | Buy & hold |
+|---|---|---|---|
+| Dev CAGR | 0.8% / 0.2% | **2.0% / 1.7%** | 6.0% |
+| Dev Sharpe | −0.02 / −0.09 | **0.12 / 0.10** | 0.30 |
+| Dev max drawdown | −21.4% / −20.5% | −27.8% / −28.2% (35% smaller than B&H) | −43.0% |
+| Holdout CAGR | 20.8% / 21.7% | **24.6% / 25.4%** | 44.2% |
+| Holdout Sharpe vs B&H | −0.15 / −0.12 | **+0.18 / +0.24** | 0 |
+| Holdout max drawdown | −17.2% / −17.9% | −13.7% / −13.5% (64% smaller than B&H) | −38.0% |
+
+All criteria met in both periods with both fills: higher CAGR and Sharpe than timing, and drawdowns more than 25%
+smaller than buy & hold. **Adopted (D-020).** On the holdout it even beat buy & hold's Sharpe, though it earned
+much less in absolute terms. Band width and monthly resizing made no meaningful difference (turnover-cost trade-off
+is small at these costs); a 20% target gave slightly more return with deeper drawdowns (inconclusive).

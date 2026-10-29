@@ -2,7 +2,7 @@
 
 | Field | |
 |---|---|
-| Status | Pre-registered 2026-10-29, awaiting a real-data run |
+| Status | Run 2026-10-29: not adopted |
 | Origin | Stage 3; cross-sectional momentum literature; idea that relative performance is easier to predict than direction. |
 
 ## Common setup (stages 3–4, pre-registered 2026-10-29 before any real-data run)
@@ -22,5 +22,12 @@ Assets with the strongest recent returns relative to the other five keep outperf
 ## Acceptance criteria
 Standard rules vs `vol_hold`. Note: with only six highly correlated assets the effect may be small.
 
-## Results
-_Not yet run._
+## Results (real data, 2026-10-29 12:46 UTC; `results/2026-10-29-1248-real-vs-vol_hold/` and `…-1251-real-closefill-vs-vol_hold/`)
+16 variants tried; PBO across them 18% (open fills) / 9% (close fills): low, so the ranking of variants is fairly stable between halves of the history.
+
+| Variant | Dev Sharpe | Dev ΔSharpe vs vol_hold | better | Holdout ΔSharpe | DSR | Verdict (open fills) | Dev ΔSharpe / verdict (close fills) |
+|---|---|---|---|---|---|---|---|
+| xs_mom_126 | +0.03 | -0.10 | 0% | -0.06 | 0.39 | REJECT | -0.09 / REJECT |
+| xs_mom_252_21 | +0.06 | -0.06 | 5% | -0.05 | 0.44 | REJECT | -0.07 / REJECT |
+
+**Rejected.** Over-weighting the recent leaders among the six assets *lowered* development Sharpe (−0.06 to −0.10, worse in 95–100% of resamples) with both fills. With six highly correlated gold assets, relative momentum did not persist. **Not adopted.**

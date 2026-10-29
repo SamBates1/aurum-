@@ -98,9 +98,19 @@ ranges for the trade-plan idea. Seasonality: low priority. GDX overnight drift: 
   always invested with volatility-targeted size (D-019), pending the owner's decision.
 - Engine: optional close fills and re-entry cooldown; result folders now time-stamped so runs never overwrite.
 
+## 2026-10-29 — Stages 3–4 and the strategy switch
+- Built a target-weight engine (positions resized as volatility changes) after finding the stage-2
+  `vol_sized_hold` reference never resized (D-019 correction).
+- **Adopted:** always invested, sized by volatility (EXP-014, D-020), with sizing scaled by gold implied
+  volatility (EXP-017, D-021). Both passed with open and close fills.
+- **Rejected / not adopted:** ML tilts at 5/21/63-day horizons (no value), cross-sectional ranking (harmful),
+  GVZ on/off gate, EWMA/HAR (no robust gain). Miner-vs-GDX tilt: consistent +0.09, just below the bar.
+- **Lesson:** in this market, value came from *how much* to hold and from forward-looking risk (options), not
+  from predicting direction.
+
 ## Open questions
 - Does the chandelier stop hold up on new data (EXP-009)?
-- Is the miner-vs-GDX effect real, or an artefact of fill timing?
-- Can any prediction signal beat volatility-sized holding (D-019)?
+- Does the miner-vs-GDX tilt add value on top of GVZ-sized holding?
+- Will paper trading confirm the GVZ-sized strategy's risk and return?
 - Does the gold/real-yield regime break show up as poor holdout performance?
 - Should ML be kept at all if trend rules match it (EXP-002 vs baseline)?

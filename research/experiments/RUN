@@ -1,6 +1,6 @@
 full
-run: --baseline vol_hold --exps EXP-014,EXP-015,EXP-016,EXP-017,EXP-018,EXP-019
-run: --baseline vol_hold --exps EXP-014,EXP-015,EXP-016,EXP-017,EXP-018,EXP-019 --fill close
+run: --exps NONE
 Edit this file and push to main to start an automated run on GitHub's machines (see
 .github/workflows/experiments.yml). Each "run:" line is one run_experiments.py run with those arguments.
-Requested: 2026-10-29 stages 3-4 (EXP-014..019 vs vol_hold), open and close fills.
+Requested: 2026-10-29 refresh of the research report after switching to the GVZ-sized vol_hold strategy
+(D-020, D-021); "--exps NONE" keeps the experiment step to the baseline and reference rows.

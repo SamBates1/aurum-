@@ -2,7 +2,7 @@
 
 | Field | |
 |---|---|
-| Status | Pre-registered 2026-10-29, awaiting a real-data run |
+| Status | Run 2026-10-29: not adopted |
 | Origin | EXP-006 looked much stronger with close fills (+0.25) than open fills (+0.08) in EXP-010: needs explaining. |
 
 ## Common setup (stages 3–4, pre-registered 2026-10-29 before any real-data run)
@@ -22,5 +22,11 @@ Miners that fall far behind GDX tend to catch up; if real, the effect should app
 ## Acceptance criteria
 Standard rules vs `vol_hold`, **and** the result must have the same sign and similar size with open and close fills; otherwise it is treated as a fill artefact.
 
-## Results
-_Not yet run._
+## Results (real data, 2026-10-29 12:46 UTC; `results/2026-10-29-1248-real-vs-vol_hold/` and `…-1251-real-closefill-vs-vol_hold/`)
+16 variants tried; PBO across them 18% (open fills) / 9% (close fills): low, so the ranking of variants is fairly stable between halves of the history.
+
+| Variant | Dev Sharpe | Dev ΔSharpe vs vol_hold | better | Holdout ΔSharpe | DSR | Verdict (open fills) | Dev ΔSharpe / verdict (close fills) |
+|---|---|---|---|---|---|---|---|
+| miner_gdx_tilt | +0.21 | +0.09 | 100% | +0.04 | 0.62 | INCONCLUSIVE | +0.09 / INCONCLUSIVE |
+
+**Consistent but just below the bar.** On the weights engine the miner-vs-GDX tilt gave +0.09 development Sharpe with *both* fills (better in 100% of resamples), +0.04 / +0.03 on the holdout, DSR 0.62 / 0.56. The earlier fill sensitivity (EXP-010) disappears here, so the effect looks real but small. It misses the +0.10 threshold, so **not adopted**; strongest candidate for the next round, re-tested on top of the GVZ-sized strategy.

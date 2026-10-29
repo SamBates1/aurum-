@@ -64,12 +64,12 @@ AURUM_OFFLINE=1 python run_experiments.py --quick   # synthetic: checks the code
 | [EXP-008](EXP-008-cot-positioning.md) | CFTC positioning signal | CFTC COT data | Designed, not coded |
 | [EXP-010](EXP-010-close-fills.md) | Fill at the next close instead of the next open (robustness check) | Quantpedia [S20] | Run: results robust to fill assumption (D-018) |
 | [EXP-013](EXP-013-invested-by-default.md) | Invested by default, protect when needed | First real results; profit goal | Run: goal not met; vol-sized holding proposed as new baseline (D-019) |
-| [EXP-014](EXP-014-vol-hold.md) | Always invested, sized by volatility (candidate new baseline) | stage 2 follow-up | Pre-registered, running |
-| [EXP-015](EXP-015-ml-tilt-horizons.md) | Does prediction add value, and at which horizon? | stage 3 | Pre-registered, running |
-| [EXP-016](EXP-016-cross-sectional-ranking.md) | Ranking the six assets against each other | stage 3 | Pre-registered, running |
-| [EXP-017](EXP-017-volatility-forecasts.md) | Better volatility forecasts for sizing | stage 4 | Pre-registered, running |
-| [EXP-018](EXP-018-gvz-gate.md) | Gold implied volatility as a risk gate | stage 4 | Pre-registered, running |
-| [EXP-019](EXP-019-miner-gdx-tilt.md) | Miner vs GDX relative value, rechecked | stage 3 | Pre-registered, running |
+| [EXP-014](EXP-014-vol-hold.md) | Always invested, sized by volatility (candidate new baseline) | stage 2 follow-up | Run: **adopted** as traded strategy (D-020) |
+| [EXP-015](EXP-015-ml-tilt-horizons.md) | Does prediction add value, and at which horizon? | stage 3 | Run: no horizon helps, not adopted |
+| [EXP-016](EXP-016-cross-sectional-ranking.md) | Ranking the six assets against each other | stage 3 | Run: rejected |
+| [EXP-017](EXP-017-volatility-forecasts.md) | Better volatility forecasts for sizing | stage 4 | Run: GVZ sizing **adopted** (D-021) |
+| [EXP-018](EXP-018-gvz-gate.md) | Gold implied volatility as a risk gate | stage 4 | Run: rejected |
+| [EXP-019](EXP-019-miner-gdx-tilt.md) | Miner vs GDX relative value, rechecked | stage 3 | Run: consistent +0.09, just below bar; re-test next |
 | EXP-009 (proposed) | Chandelier trailing stop, confirmatory | EXP-005 result | Not run: needs data not used in EXP-005 (new months via paper trading, or other assets) to be a fair test |
 
 Results of each run go in `results/<date>-<time>-real[-…]/summary.md`; conclusions are copied into each EXP file's

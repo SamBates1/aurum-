@@ -92,3 +92,18 @@ The `vol_sized_hold` reference used in D-019 sized each position once, at its fi
 Its lower drawdowns therefore came mostly from holding part of each sleeve in cash, not from adjusting to
 volatility over time. The baseline switch is **not** made on that evidence. Instead a properly rebalancing version
 (`vol_hold`, EXP-014) is pre-registered with explicit adoption criteria and tested before any change.
+
+**D-020 — Switch the traded strategy to "always invested, sized by volatility" (vol_hold)** (2026-10-29)
+EXP-014 met every pre-registered adoption criterion in both periods with both fill conventions: versus the
+v0.2 timing strategy, development CAGR 2.0% vs 0.8% and Sharpe 0.12 vs −0.02; holdout CAGR 24.6% vs 20.8% and
+Sharpe above buy & hold's; max drawdowns 35% (development) and 64% (holdout) smaller than buy & hold.
+`config.yaml: strategy.mode = vol_hold`. The ML score and reasons remain on the dashboard as context only.
+The timing strategy is kept as `timing_v02` for comparison. The owner asked for the switch; it was made only
+after the properly rebalancing version passed.
+
+**D-021 — Size positions with gold implied volatility (GVZ)** (2026-10-29)
+EXP-017's `vol_hold_gvz` passed all acceptance rules with both fills (DSR 0.66 / 0.63, PBO across the run 18% / 9%)
+and reduced development drawdown from −27.8% to −20.8%. `strategy.vol_estimator = gvz`: 21-day volatility × (GVZ /
+GLD 21-day volatility), clipped 0.5–2. If GVZ cannot be loaded or is stale, sizing falls back to plain 21-day
+volatility with a visible warning. Revisit if: GVZ data becomes unreliable, or paper trading shows realised risk
+far from target.

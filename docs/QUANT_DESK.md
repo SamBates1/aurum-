@@ -1,53 +1,66 @@
-# Aurum Quant Desk
+# Aurum Quant Desk and automated research
+
+## Quant Desk
 
 The Quant Desk is an optional AI conversation layer for the existing Aurum research system. It adds specialist roles and a team-debate mode without changing the adopted trading strategy or placing orders.
 
-## What is included
-
 - **Quant Researcher** — proposes falsifiable experiments and benchmark comparisons.
-- **Technical Analyst** — discusses trend, momentum, volatility and candlestick features, with a requirement to test signals rather than assume they work.
+- **Technical Analyst** — discusses trend, momentum, volatility and candlestick features, treating them as hypotheses to test.
 - **Macro Analyst** — interprets gold, rates, dollar and cross-asset context.
 - **ML Quant** — evaluates model choice, calibration, leakage and incremental predictive value.
 - **Risk Manager** — challenges drawdown, concentration, turnover, costs and position sizing.
-- **Independent Reviewer** — tries to falsify the proposed conclusion and checks for overfitting.
-- **Team debate** — asks multiple roles to independently assess a question and then produces a synthesis.
+- **Independent Reviewer** — tries to falsify conclusions and checks for overfitting.
+- **Team debate** — four specialists independently assess a question, then the reviewer synthesises their answers.
 
-The desk injects a small, read-only context from the repository's README, strategy report, decisions and latest portfolio-lab summary when those files exist. It does not run arbitrary code, edit strategy files, or place trades.
+The desk injects bounded, read-only excerpts from the repository's saved research. It does not execute arbitrary code, edit strategy files, or place trades.
 
-## Run it
+## Run the chat
 
-1. Install Aurum's existing dependencies and activate the virtual environment.
-2. Install/run an OpenAI-compatible local model server such as Ollama if you want no per-token API bill. For Ollama, pull a chat model first, for example `ollama pull qwen2.5:7b`.
-3. Run the model server, then launch the Streamlit app:
-   ```bash
-   python -m streamlit run app.py
-   ```
-4. Open **Quant Desk** in Streamlit's multipage navigation.
+1. Install Aurum's dependencies and activate the virtual environment.
+2. Install and run Ollama if you want to avoid per-token API charges.
+3. Pull a chat model, for example: ollama pull qwen2.5:7b.
+4. Run: python -m streamlit run app.py.
+5. Open Quant Desk in Streamlit's multipage navigation.
 
-Defaults target a local OpenAI-compatible endpoint at `http://localhost:11434/v1`, model `qwen2.5:7b`. Configure these optional variables in your ignored local `.env` or shell:
+Defaults target http://localhost:11434/v1, model qwen2.5:7b. Configure these optional variables in your local shell or ignored .env:
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `AURUM_LLM_BASE_URL` | `http://localhost:11434/v1` | OpenAI-compatible `/chat/completions` base URL |
-| `AURUM_LLM_MODEL` | `qwen2.5:7b` | Model name served by your provider |
-| `AURUM_LLM_API_KEY` | unset | Optional provider key; do not commit it |
+| AURUM_LLM_BASE_URL | http://localhost:11434/v1 | OpenAI-compatible /chat/completions base URL |
+| AURUM_LLM_MODEL | qwen2.5:7b | Model name served by your provider |
+| AURUM_LLM_API_KEY | unset | Optional provider key; never commit it |
 
-A local model can avoid per-request API charges, but needs enough RAM/compute and may be less capable. A hosted API may cost money according to the provider's pricing. Chat messages are sent to whichever model endpoint you configure; do not submit secrets or private account data.
+Local models need sufficient RAM/compute and may be less capable. Hosted APIs may incur charges. Do not submit secrets or private account data.
 
-## Automation roadmap
+## Automated daily market snapshot
 
-This first version is interactive, not a permanently running autonomous agent. The next safe steps are opt-in scheduled data refreshes and research reports, followed by pre-registered experiment runs. Keep them separate from the chat UI, limit runtime/API spending, save logs and provenance, and never allow generated research to deploy strategy changes automatically.
+Run manually:
 
-Recommended automation sequence:
-1. Reproduce the current baseline and retain a dated report.
-2. Compare the existing precious-metals universe with a broad equity benchmark (e.g. SPY) using the same dates, fills, costs and risk metrics.
-3. Pre-register a small number of technical/momentum/mean-reversion experiments and run walk-forward tests.
-4. Accept a new signal only if it improves on simple baselines out of sample after costs, with uncertainty and multiple-testing risk reported.
-5. Paper-trade approved changes with realistic fills before considering any broker integration.
+    python scripts/daily_market_report.py
 
-## Important limits
+Use a subset:
+
+    python scripts/daily_market_report.py --tickers GLD SLV GDX SPY
+
+The script uses Aurum's validated/cache-aware price data layer and writes a Markdown report under reports/daily/. It summarises the most recent available bar, 1/21/63/252-session returns, 21-session annualised volatility, RSI-14, gaps to 50/200-day moving averages, and historical drawdown. The default universe includes Aurum assets plus SPY, QQQ, DBC and TLT as cross-asset comparison candidates. This is descriptive monitoring, not a signal or a fair performance comparison; a proper comparison must use the same dates, fills, costs and risk accounting.
+
+A GitHub Actions workflow runs on weekdays at 21:30 UTC and on manual dispatch. It uploads the report as an artifact for 14 days; it does not commit generated files, call an LLM, place orders or modify the strategy. Data availability and market holidays can cause missing or stale observations, which are shown in the report.
+
+## Asset comparison and experiment protocol
+
+Aurum already has a research lab for comparable asset tests. Use:
+
+- python run_plab.py --set core to reproduce the core precious-metals portfolio lab.
+- python run_plab.py --set other to test the predefined alternate precious-metals universe.
+- python run_lab.py --set core and python run_lab.py --set other for the strategy research lab.
+- python run_experiments.py --quick for a faster experiment-code check (use synthetic/offline mode for code-path checks only).
+
+To test whether the system generalises beyond precious metals, add a broad-market benchmark such as SPY to a separately registered, same-date experiment; do not infer a trading edge from the daily snapshot alone. Keep all variants registered before running, report gross/net and 2x-cost results, use walk-forward validation, preserve a final holdout, and account for every attempted variant in multiple-testing statistics.
+
+## Safety and limits
 
 - AI explanations are hypotheses, not evidence; verify numeric claims against generated reports.
-- The model sees only the repository context included in the prompt; it is not automatically browsing the internet or streaming live prices.
-- The desk does not train itself from conversations. Improvements require explicit, reproducible experiments and review.
-- This is educational research software, not investment advice. No real-money execution is enabled.
+- The chat does not automatically browse the internet or stream live prices.
+- The daily snapshot is scheduled data collection, not continuous intraday monitoring.
+- The desk does not learn from conversations or deploy generated strategy changes. Improvements require explicit, reproducible experiments and review.
+- Paper-trading performance is not live execution evidence. Real-money execution is not enabled by this feature.

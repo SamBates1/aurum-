@@ -1,0 +1,48 @@
+{
+  "run_at": "2026-10-29T21:29:43+00:00",
+  "data": "real",
+  "config_hash": "06a5da0f55b7",
+  "code_fingerprint": "974f8980ae26",
+  "git_commit": "eb62d13",
+  "data_fingerprint": {
+    "SPY": {
+      "rows": 5136,
+      "first": "2006-06-01",
+      "last": "2026-10-29",
+      "sha256_close": "d07243c410dd6e07"
+    },
+    "EFA": {
+      "rows": 5136,
+      "first": "2006-06-01",
+      "last": "2026-10-29",
+      "sha256_close": "8f398482ef6f3c3f"
+    },
+    "TLT": {
+      "rows": 5136,
+      "first": "2006-06-01",
+      "last": "2026-10-29",
+      "sha256_close": "c2d036bd1c3312ff"
+    },
+    "GLD": {
+      "rows": 5136,
+      "first": "2006-06-01",
+      "last": "2026-10-29",
+      "sha256_close": "fd38b928937a3d77"
+    },
+    "GDX": {
+      "rows": 5136,
+      "first": "2006-06-01",
+      "last": "2026-10-29",
+      "sha256_close": "862cd7be9ec4c9c4"
+    },
+    "DBC": {
+      "rows": 5136,
+      "first": "2006-06-01",
+      "last": "2026-10-29",
+      "sha256_close": "829fe14bfcc9ae31"
+    }
+  },
+  "data_events": [],
+  "exp": "EXP-042",
+  "pbo_development": 0.6724164724164724
+}

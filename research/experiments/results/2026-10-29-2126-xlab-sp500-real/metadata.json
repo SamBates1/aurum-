@@ -1,0 +1,98 @@
+{
+  "run_at": "2026-10-29T21:26:22+00:00",
+  "data": "real",
+  "config_hash": "06a5da0f55b7",
+  "code_fingerprint": "974f8980ae26",
+  "git_commit": "eb62d13",
+  "data_fingerprint": {
+    "SPY": {
+      "rows": 5115,
+      "first": "2006-06-30",
+      "last": "2026-10-29",
+      "sha256_close": "a2e19ab40c7ffbc6"
+    },
+    "QQQ": {
+      "rows": 5115,
+      "first": "2006-06-30",
+      "last": "2026-10-29",
+      "sha256_close": "a8259f900b9df216"
+    },
+    "IWM": {
+      "rows": 5115,
+      "first": "2006-06-30",
+      "last": "2026-10-29",
+      "sha256_close": "7d22b7839ebbbf82"
+    },
+    "EFA": {
+      "rows": 5115,
+      "first": "2006-06-30",
+      "last": "2026-10-29",
+      "sha256_close": "353400ab973923a7"
+    },
+    "TLT": {
+      "rows": 5115,
+      "first": "2006-06-30",
+      "last": "2026-10-29",
+      "sha256_close": "fd081575734d41ed"
+    },
+    "IEF": {
+      "rows": 5115,
+      "first": "2006-06-30",
+      "last": "2026-10-29",
+      "sha256_close": "78179b5422ffbaeb"
+    },
+    "GLD": {
+      "rows": 5115,
+      "first": "2006-06-30",
+      "last": "2026-10-29",
+      "sha256_close": "c81d9d2abb232292"
+    },
+    "SLV": {
+      "rows": 5115,
+      "first": "2006-06-30",
+      "last": "2026-10-29",
+      "sha256_close": "9079aa4d331684dd"
+    },
+    "GDX": {
+      "rows": 5115,
+      "first": "2006-06-30",
+      "last": "2026-10-29",
+      "sha256_close": "cc781fc9f5daf1f1"
+    },
+    "DBC": {
+      "rows": 5115,
+      "first": "2006-06-30",
+      "last": "2026-10-29",
+      "sha256_close": "e593a52b696ae196"
+    }
+  },
+  "data_events": [
+    {
+      "time": "2026-10-29T21:26:04+00:00",
+      "level": "warning",
+      "source": "GC=F",
+      "message": "1 rows with high < low"
+    },
+    {
+      "time": "2026-10-29T21:26:04+00:00",
+      "level": "warning",
+      "source": "GC=F",
+      "message": "1 rows with high < low"
+    }
+  ],
+  "exp": "EXP-037",
+  "periods": {
+    "pre": [
+      "2006-06-30",
+      "2013-10-17"
+    ],
+    "dev": [
+      "2013-10-18",
+      "2023-12-31"
+    ],
+    "holdout": [
+      "2024-01-01",
+      null
+    ]
+  }
+}

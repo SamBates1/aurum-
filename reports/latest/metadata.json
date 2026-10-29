@@ -1,6 +1,6 @@
 {
-  "run_at": "2026-10-29T21:03:59+00:00",
-  "git_commit": "ee74907",
+  "run_at": "2026-10-29T21:25:09+00:00",
+  "git_commit": "eb62d13",
   "config_hash": "06a5da0f55b7",
   "offline": false,
   "tickers": [
@@ -28,7 +28,7 @@
     "GLD": {
       "name": "GLD",
       "source": "yahoo:GLD",
-      "retrieved_at": "2026-10-29T21:04:02+00:00",
+      "retrieved_at": "2026-10-29T21:25:12+00:00",
       "rows": 4232,
       "first": "2010-01-04",
       "last": "2026-10-29"
@@ -36,7 +36,7 @@
     "SLV": {
       "name": "SLV",
       "source": "yahoo:SLV",
-      "retrieved_at": "2026-10-29T21:04:15+00:00",
+      "retrieved_at": "2026-10-29T21:25:20+00:00",
       "rows": 4232,
       "first": "2010-01-04",
       "last": "2026-10-29"
@@ -44,7 +44,7 @@
     "GDX": {
       "name": "GDX",
       "source": "yahoo:GDX",
-      "retrieved_at": "2026-10-29T21:04:01+00:00",
+      "retrieved_at": "2026-10-29T21:25:12+00:00",
       "rows": 4232,
       "first": "2010-01-04",
       "last": "2026-10-29"
@@ -52,7 +52,7 @@
     "NEM": {
       "name": "NEM",
       "source": "yahoo:NEM",
-      "retrieved_at": "2026-10-29T21:04:40+00:00",
+      "retrieved_at": "2026-10-29T21:25:35+00:00",
       "rows": 4232,
       "first": "2010-01-04",
       "last": "2026-10-29"
@@ -60,7 +60,7 @@
     "AEM": {
       "name": "AEM",
       "source": "yahoo:AEM",
-      "retrieved_at": "2026-10-29T21:04:53+00:00",
+      "retrieved_at": "2026-10-29T21:25:42+00:00",
       "rows": 4232,
       "first": "2010-01-04",
       "last": "2026-10-29"
@@ -68,7 +68,7 @@
     "WPM": {
       "name": "WPM",
       "source": "yahoo:WPM",
-      "retrieved_at": "2026-10-29T21:05:06+00:00",
+      "retrieved_at": "2026-10-29T21:25:50+00:00",
       "rows": 4232,
       "first": "2010-01-04",
       "last": "2026-10-29"
@@ -76,7 +76,7 @@
   },
   "data_events": [
     {
-      "time": "2026-10-29T21:04:01+00:00",
+      "time": "2026-10-29T21:25:11+00:00",
       "level": "warning",
       "source": "CL=F",
       "message": "dropped 1 rows with missing/non-positive close"

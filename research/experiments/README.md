@@ -54,14 +54,15 @@ AURUM_OFFLINE=1 python run_experiments.py --quick   # synthetic: checks the code
 ## Registry
 | ID | Idea | Origin | Status |
 |---|---|---|---|
-| [EXP-001](EXP-001-intrabar-stops.md) | Intrabar stop fills vs close-checked stops | LEAN / Backtrader / VectorBT / Freqtrade fill logic | Adopted as default for parity (D-012); impact to be measured |
-| [EXP-002](EXP-002-trend-following.md) | Time-series momentum, breakout, trend filter | Moskowitz–Ooi–Pedersen; Hurst–Ooi–Pedersen; turtle breakouts | Pre-registered, awaiting real data |
-| [EXP-003](EXP-003-regime-gates.md) | Macro/volatility regime gates | Erb–Harvey; regime literature | Pre-registered, awaiting real data |
-| [EXP-004](EXP-004-model-families.md) | Logistic, forest, calibrated, ensemble vs boosting | ML-vs-simple literature; FreqAI | Pre-registered, awaiting real data |
-| [EXP-005](EXP-005-risk-overlays.md) | Stops, trailing, breakers, vol targets | Kaminski–Lo; Harvey et al.; Freqtrade Protections; LEAN risk models | Pre-registered, awaiting real data |
-| [EXP-006](EXP-006-mean-reversion.md) | Bollinger dips, miner vs GDX reversion | Mean-reversion literature; Tufano | Pre-registered, awaiting real data |
-| [EXP-007](EXP-007-triple-barrier.md) | Triple-barrier labels and exits (trade plan) | López de Prado (AFML ch. 3) | Pre-registered, awaiting real data |
+| [EXP-001](EXP-001-intrabar-stops.md) | Intrabar stop fills vs close-checked stops | LEAN / Backtrader / VectorBT / Freqtrade fill logic | Run: intrabar stops confirmed (D-012 kept) |
+| [EXP-002](EXP-002-trend-following.md) | Time-series momentum, breakout, trend filter | Moskowitz–Ooi–Pedersen; Hurst–Ooi–Pedersen; turtle breakouts | Run: no improvement, not adopted |
+| [EXP-003](EXP-003-regime-gates.md) | Macro/volatility regime gates | Erb–Harvey; regime literature | Run: no improvement, not adopted |
+| [EXP-004](EXP-004-model-families.md) | Logistic, forest, calibrated, ensemble vs boosting | ML-vs-simple literature; FreqAI | Run: inconclusive, not adopted |
+| [EXP-005](EXP-005-risk-overlays.md) | Stops, trailing, breakers, vol targets | Kaminski–Lo; Harvey et al.; Freqtrade Protections; LEAN risk models | Run: chandelier stop promising, fails DSR → EXP-009 |
+| [EXP-006](EXP-006-mean-reversion.md) | Bollinger dips, miner vs GDX reversion | Mean-reversion literature; Tufano | Run: inconclusive, not adopted |
+| [EXP-007](EXP-007-triple-barrier.md) | Triple-barrier labels and exits (trade plan) | López de Prado (AFML ch. 3) | Run: inconclusive, not adopted |
 | [EXP-008](EXP-008-cot-positioning.md) | CFTC positioning signal | CFTC COT data | Designed, not coded |
+| EXP-009 (proposed) | Chandelier trailing stop, confirmatory | EXP-005 result | Not run: needs data not used in EXP-005 (new months via paper trading, or other assets) to be a fair test |
 
 Results of each run go in `results/<date>-real/summary.md`; conclusions are copied into each EXP file's
 "Results" section and into `../decisions.md`.

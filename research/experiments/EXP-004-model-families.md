@@ -2,7 +2,7 @@
 
 | Field | |
 |---|---|
-| Status | Pre-registered 2026-10-27, awaiting a real-data run |
+| Status | Run 2026-10-29 on real data: see Results |
 | Origin | ML-vs-simple literature [S10][S11]; FreqAI's model plug-ins. |
 | Current Aurum equivalent | Aurum uses one model (shallow gradient boosting) with fixed parameters. |
 
@@ -18,6 +18,15 @@ Standard rules. Also compare development AUC and Brier score in `run_research.py
 ## Main risks and limitations
 No hyperparameter search (each search would add trials). Random forest is the slowest variant.
 
-## Results
-_Not yet run on real data._ After `python run_experiments.py`, copy the rows for this experiment from
-`results/<date>-real/summary.md` here, with the verdict and any decision recorded in `../decisions.md`.
+## Results (real data, run 2026-10-29, `results/2026-10-29-real/`)
+Portfolio of 6 sleeves, net of costs, vs the baseline over identical dates. Development 2013-10-18 → 2023-12-31;
+holdout from 2024-01-01. 26 variants tried in total; PBO across them 77%.
+
+| Variant | Dev Sharpe | Dev ΔSharpe | better | ΔSharpe 2× cost | Dev max DD | Holdout ΔSharpe | DSR | Verdict |
+|---|---|---|---|---|---|---|---|---|
+| model_logit | -0.01 | +0.00 | 53% | +0.02 | -22.1% | +0.05 | 0.25 | INCONCLUSIVE |
+| model_forest | +0.07 | +0.08 | 77% | +0.10 | -21.1% | -0.02 | 0.33 | INCONCLUSIVE |
+| model_hgb_calibrated | +0.08 | +0.09 | 78% | +0.10 | -19.0% | -0.07 | 0.35 | INCONCLUSIVE |
+| model_ensemble | +0.05 | +0.06 | 82% | +0.08 | -20.3% | +0.00 | 0.32 | INCONCLUSIVE |
+
+Forest, calibrated boosting and the ensemble were slightly better than the baseline model in development (+0.06 to +0.09, beating it in 77–82% of resamples) but below the +0.10 bar, flat-to-worse on the holdout, and DSR ≈ 0.33. Logistic regression matched the baseline. **Conclusion: model choice makes little difference; none adopted. The ensemble is the most consistent and could be re-tested if the model's role grows.**

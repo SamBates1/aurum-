@@ -2,7 +2,7 @@
 
 One row per idea discovered. Classification: **Adopt** (strong rationale, regression-tested),
 **Adapt** (useful but changed for Aurum), **Experiment** (benefit uncertain, pre-registered test),
-**Reject** (unsuitable, redundant, unreliable, too complex or unsupported). Last updated 2026-10-27.
+**Reject** (unsuitable, redundant, unreliable, too complex or unsupported). Last updated 2026-10-29: experiment outcomes in [experiments/README.md](experiments/README.md#registry).
 Source IDs refer to [sources.md](sources.md).
 
 | # | Technique | Source | Mechanism | Evidence | Relevance to gold/miners | Current Aurum equivalent | Required changes | Main risks | Experiment | Acceptance criteria | Priority | Class |

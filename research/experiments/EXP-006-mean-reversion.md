@@ -2,7 +2,7 @@
 
 | Field | |
 |---|---|
-| Status | Pre-registered 2026-10-27, awaiting a real-data run |
+| Status | Run 2026-10-29 on real data: see Results |
 | Origin | Mean-reversion and relative-value literature; Tufano (1998) on varying miner exposure [S5]. See topics/mean-reversion.md. |
 | Current Aurum equivalent | Aurum has no mean-reversion component except an RSI-extreme term in the technical score. |
 
@@ -18,6 +18,13 @@ Standard rules; also inspect the worst trades (relative-value gaps can be inform
 ## Main risks and limitations
 Long-only; cointegration pairs rejected for now (needs shorting).
 
-## Results
-_Not yet run on real data._ After `python run_experiments.py`, copy the rows for this experiment from
-`results/<date>-real/summary.md` here, with the verdict and any decision recorded in `../decisions.md`.
+## Results (real data, run 2026-10-29, `results/2026-10-29-real/`)
+Portfolio of 6 sleeves, net of costs, vs the baseline over identical dates. Development 2013-10-18 → 2023-12-31;
+holdout from 2024-01-01. 26 variants tried in total; PBO across them 77%.
+
+| Variant | Dev Sharpe | Dev ΔSharpe | better | ΔSharpe 2× cost | Dev max DD | Holdout ΔSharpe | DSR | Verdict |
+|---|---|---|---|---|---|---|---|---|
+| bollinger_reversion | -0.05 | -0.04 | 48% | -0.01 | -3.9% | +0.43 | 0.21 | INCONCLUSIVE |
+| miner_vs_gdx_reversion | +0.06 | +0.07 | 68% | +0.09 | -13.3% | +0.17 | 0.33 | INCONCLUSIVE |
+
+Neither mean-reversion rule passed. Bollinger dip-buying cut drawdown to −3.9% but by trading rarely, with lower development Sharpe; miner-vs-GDX reversion was slightly better in development (+0.07) and on the holdout (+0.17) but below the bars (DSR 0.33). **Conclusion: not adopted; miner-vs-GDX is worth watching.**

@@ -65,3 +65,11 @@ Context: Claude's workspace cannot download market data, and Codespaces stops af
 likely cut short the first experiment run. Reasons: GitHub's runners have internet, cost nothing for a public repository,
 and commit results back, so Claude can start a run (by pushing `research/experiments/RUN`) and read the
 results without the owner typing commands. Revisit if: Yahoo Finance blocks GitHub's machines persistently.
+
+**D-017 — After the first experiment run, no strategy change is adopted** (2026-10-29)
+Context: 25 pre-registered variants vs the baseline on real data (`experiments/results/2026-10-29-real/`).
+None met all acceptance rules; PBO across variants was 77%, i.e. the best-looking variant in one half of the
+history is usually below median in the other half. Reasons: adopting the best-looking variant now would be
+exactly the selection bias the rules exist to prevent. Kept: intrabar stops (D-012, confirmed by EXP-001).
+Candidate: chandelier trailing stop (EXP-005) passed every rule except the deflated Sharpe (0.39 < 0.50).
+Revisit if: the chandelier stop is confirmed on data not used here (EXP-009).

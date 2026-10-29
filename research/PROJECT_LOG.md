@@ -67,7 +67,22 @@ Portfolio of six equal sleeves, after costs, out of sample from 2013-10-18:
 - `ml_only` had a holdout Sharpe of 1.61 but −0.24 in development: treated as luck, not evidence.
 - `run_experiments.py` produced no results folder: the run did not complete or was not saved. To redo.
 
+## 2026-10-29 — Automated runs and first experiment results
+- The Codespaces experiment run was most likely cut short by the 30-minute idle timeout; experiment runs were
+  made resumable, then moved to GitHub Actions (`.github/workflows/experiments.yml`, D-016). The first automated
+  run's experiment results were silently dropped by a `results/` rule in `.gitignore`; fixed and re-run.
+- **Results** (`experiments/results/2026-10-29-real/summary.md`), portfolio level, net of costs:
+  - Baseline: development Sharpe −0.01, holdout +0.92 (buy & hold: +0.30 / +1.08), with roughly half the drawdown.
+  - No variant passed all rules. PBO 77%: picking the in-sample winner is worse than chance.
+  - Intrabar stops beat closing-price stops (confirms D-012).
+  - Trend rules, regime gates, mean reversion: no reliable improvement.
+  - Model families: small, consistent development gains (+0.06 to +0.09) that did not hold on the holdout.
+  - Chandelier trailing stop: best result (+0.12 development, +0.26 holdout, 94% of resamples) but deflated
+    Sharpe 0.39 → candidate, not adopted (D-017).
+- **Interpretation:** the system's value is risk control (smaller drawdowns), not return prediction; this
+  matches the literature on weak out-of-sample predictability (topics/ml-vs-simple.md).
+
 ## Open questions
-- Does any variant beat the baseline after DSR on real data?
+- Does the chandelier stop hold up on new data (EXP-009)?
 - Does the gold/real-yield regime break show up as poor holdout performance?
 - Should ML be kept at all if trend rules match it (EXP-002 vs baseline)?

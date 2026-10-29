@@ -1,261 +1,33 @@
-=== python run_experiments.py  --baseline vol_hold --exps EXP-014,EXP-015,EXP-016,EXP-017,EXP-018,EXP-019 ===
-/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/yfinance/utils.py:568: Pandas4Warning: The inplace keyword in DataFrame.sort_index is deprecated and will be removed in a future version (PDEP-8).
-See https://pandas.pydata.org/docs/dev/whatsnew/v3.1.0.html#deprecation-inplace for more details.
-  quotes.sort_index(inplace=True)
-/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/yfinance/utils.py:514: Pandas4Warning: The inplace keyword in DataFrame.drop is deprecated and will be removed in a future version (PDEP-8).
-See https://pandas.pydata.org/docs/dev/whatsnew/v3.1.0.html#deprecation-inplace for more details.
-  df.drop(
-/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/yfinance/utils.py:518: Pandas4Warning: The inplace keyword in DataFrame.rename is deprecated and will be removed in a future version (PDEP-8).
-See https://pandas.pydata.org/docs/dev/whatsnew/v3.1.0.html#deprecation-inplace for more details.
-  df.rename(columns={
-/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/yfinance/multi.py:220: Pandas4Warning: The inplace keyword in DataFrame.rename is deprecated and will be removed in a future version (PDEP-8).
-See https://pandas.pydata.org/docs/dev/whatsnew/v3.1.0.html#deprecation-inplace for more details.
-  data.rename(columns=ctx.isins, inplace=True)
-/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/yfinance/multi.py:224: Pandas4Warning: The inplace keyword in DataFrame.sort_index is deprecated and will be removed in a future version (PDEP-8).
-See https://pandas.pydata.org/docs/dev/whatsnew/v3.1.0.html#deprecation-inplace for more details.
-  data.sort_index(level=0, axis=1, inplace=True)
+=== python run_experiments.py  --exps NONE ===
 [GLD] research ...
 [GLD]   BASE baseline
-[GLD]   EXP-014 vol_hold
-[GLD]   EXP-014 vol_hold_band0
-[GLD]   EXP-014 vol_hold_band10
-[GLD]   EXP-014 vol_hold_monthly
-[GLD]   EXP-014 vol_hold_tv20
-[GLD]   EXP-015 ml_tilt_h5
-[GLD]   EXP-015 ml_tilt_h21
-[GLD]   EXP-015 ml_tilt_h63
-[GLD]   EXP-016 xs_mom_126
-[GLD]   EXP-016 xs_mom_252_21
-[GLD]   EXP-017 vol_hold_ewma
-[GLD]   EXP-017 vol_hold_har
-[GLD]   EXP-017 vol_hold_gvz
-[GLD]   EXP-018 gvz_gate
-[GLD]   EXP-019 miner_gdx_tilt
 [GLD]   REF buy_hold
 [GLD]   REF vol_sized_hold
 [GLD] saved. 0 min elapsed, 5 ticker(s) left
 [SLV] research ...
 [SLV]   BASE baseline
-[SLV]   EXP-014 vol_hold
-[SLV]   EXP-014 vol_hold_band0
-[SLV]   EXP-014 vol_hold_band10
-[SLV]   EXP-014 vol_hold_monthly
-[SLV]   EXP-014 vol_hold_tv20
-[SLV]   EXP-015 ml_tilt_h5
-[SLV]   EXP-015 ml_tilt_h21
-[SLV]   EXP-015 ml_tilt_h63
-[SLV]   EXP-016 xs_mom_126
-[SLV]   EXP-016 xs_mom_252_21
-[SLV]   EXP-017 vol_hold_ewma
-[SLV]   EXP-017 vol_hold_har
-[SLV]   EXP-017 vol_hold_gvz
-[SLV]   EXP-018 gvz_gate
-[SLV]   EXP-019 miner_gdx_tilt
 [SLV]   REF buy_hold
 [SLV]   REF vol_sized_hold
-[SLV] saved. 1 min elapsed, 4 ticker(s) left
+[SLV] saved. 0 min elapsed, 4 ticker(s) left
 [GDX] research ...
 [GDX]   BASE baseline
-[GDX]   EXP-014 vol_hold
-[GDX]   EXP-014 vol_hold_band0
-[GDX]   EXP-014 vol_hold_band10
-[GDX]   EXP-014 vol_hold_monthly
-[GDX]   EXP-014 vol_hold_tv20
-[GDX]   EXP-015 ml_tilt_h5
-[GDX]   EXP-015 ml_tilt_h21
-[GDX]   EXP-015 ml_tilt_h63
-[GDX]   EXP-016 xs_mom_126
-[GDX]   EXP-016 xs_mom_252_21
-[GDX]   EXP-017 vol_hold_ewma
-[GDX]   EXP-017 vol_hold_har
-[GDX]   EXP-017 vol_hold_gvz
-[GDX]   EXP-018 gvz_gate
-[GDX]   EXP-019 miner_gdx_tilt
 [GDX]   REF buy_hold
 [GDX]   REF vol_sized_hold
-[GDX] saved. 1 min elapsed, 3 ticker(s) left
+[GDX] saved. 0 min elapsed, 3 ticker(s) left
 [NEM] research ...
 [NEM]   BASE baseline
-[NEM]   EXP-014 vol_hold
-[NEM]   EXP-014 vol_hold_band0
-[NEM]   EXP-014 vol_hold_band10
-[NEM]   EXP-014 vol_hold_monthly
-[NEM]   EXP-014 vol_hold_tv20
-[NEM]   EXP-015 ml_tilt_h5
-[NEM]   EXP-015 ml_tilt_h21
-[NEM]   EXP-015 ml_tilt_h63
-[NEM]   EXP-016 xs_mom_126
-[NEM]   EXP-016 xs_mom_252_21
-[NEM]   EXP-017 vol_hold_ewma
-[NEM]   EXP-017 vol_hold_har
-[NEM]   EXP-017 vol_hold_gvz
-[NEM]   EXP-018 gvz_gate
-[NEM]   EXP-019 miner_gdx_tilt
 [NEM]   REF buy_hold
 [NEM]   REF vol_sized_hold
-[NEM] saved. 2 min elapsed, 2 ticker(s) left
+[NEM] saved. 0 min elapsed, 2 ticker(s) left
 [AEM] research ...
 [AEM]   BASE baseline
-[AEM]   EXP-014 vol_hold
-[AEM]   EXP-014 vol_hold_band0
-[AEM]   EXP-014 vol_hold_band10
-[AEM]   EXP-014 vol_hold_monthly
-[AEM]   EXP-014 vol_hold_tv20
-[AEM]   EXP-015 ml_tilt_h5
-[AEM]   EXP-015 ml_tilt_h21
-[AEM]   EXP-015 ml_tilt_h63
-[AEM]   EXP-016 xs_mom_126
-[AEM]   EXP-016 xs_mom_252_21
-[AEM]   EXP-017 vol_hold_ewma
-[AEM]   EXP-017 vol_hold_har
-[AEM]   EXP-017 vol_hold_gvz
-[AEM]   EXP-018 gvz_gate
-[AEM]   EXP-019 miner_gdx_tilt
 [AEM]   REF buy_hold
 [AEM]   REF vol_sized_hold
-[AEM] saved. 2 min elapsed, 1 ticker(s) left
+[AEM] saved. 0 min elapsed, 1 ticker(s) left
 [WPM] research ...
 [WPM]   BASE baseline
-[WPM]   EXP-014 vol_hold
-[WPM]   EXP-014 vol_hold_band0
-[WPM]   EXP-014 vol_hold_band10
-[WPM]   EXP-014 vol_hold_monthly
-[WPM]   EXP-014 vol_hold_tv20
-[WPM]   EXP-015 ml_tilt_h5
-[WPM]   EXP-015 ml_tilt_h21
-[WPM]   EXP-015 ml_tilt_h63
-[WPM]   EXP-016 xs_mom_126
-[WPM]   EXP-016 xs_mom_252_21
-[WPM]   EXP-017 vol_hold_ewma
-[WPM]   EXP-017 vol_hold_har
-[WPM]   EXP-017 vol_hold_gvz
-[WPM]   EXP-018 gvz_gate
-[WPM]   EXP-019 miner_gdx_tilt
 [WPM]   REF buy_hold
 [WPM]   REF vol_sized_hold
-[WPM] saved. 3 min elapsed, 0 ticker(s) left
+[WPM] saved. 0 min elapsed, 0 ticker(s) left
 
-Wrote /home/runner/work/aurum-/aurum-/research/experiments/results/2026-10-29-1248-real-vs-vol_hold
-=== python run_experiments.py  --baseline vol_hold --exps EXP-014,EXP-015,EXP-016,EXP-017,EXP-018,EXP-019 --fill close ===
-[GLD] research ...
-[GLD]   BASE baseline
-[GLD]   EXP-014 vol_hold
-[GLD]   EXP-014 vol_hold_band0
-[GLD]   EXP-014 vol_hold_band10
-[GLD]   EXP-014 vol_hold_monthly
-[GLD]   EXP-014 vol_hold_tv20
-[GLD]   EXP-015 ml_tilt_h5
-[GLD]   EXP-015 ml_tilt_h21
-[GLD]   EXP-015 ml_tilt_h63
-[GLD]   EXP-016 xs_mom_126
-[GLD]   EXP-016 xs_mom_252_21
-[GLD]   EXP-017 vol_hold_ewma
-[GLD]   EXP-017 vol_hold_har
-[GLD]   EXP-017 vol_hold_gvz
-[GLD]   EXP-018 gvz_gate
-[GLD]   EXP-019 miner_gdx_tilt
-[GLD]   REF buy_hold
-[GLD]   REF vol_sized_hold
-[GLD] saved. 0 min elapsed, 5 ticker(s) left
-[SLV] research ...
-[SLV]   BASE baseline
-[SLV]   EXP-014 vol_hold
-[SLV]   EXP-014 vol_hold_band0
-[SLV]   EXP-014 vol_hold_band10
-[SLV]   EXP-014 vol_hold_monthly
-[SLV]   EXP-014 vol_hold_tv20
-[SLV]   EXP-015 ml_tilt_h5
-[SLV]   EXP-015 ml_tilt_h21
-[SLV]   EXP-015 ml_tilt_h63
-[SLV]   EXP-016 xs_mom_126
-[SLV]   EXP-016 xs_mom_252_21
-[SLV]   EXP-017 vol_hold_ewma
-[SLV]   EXP-017 vol_hold_har
-[SLV]   EXP-017 vol_hold_gvz
-[SLV]   EXP-018 gvz_gate
-[SLV]   EXP-019 miner_gdx_tilt
-[SLV]   REF buy_hold
-[SLV]   REF vol_sized_hold
-[SLV] saved. 1 min elapsed, 4 ticker(s) left
-[GDX] research ...
-[GDX]   BASE baseline
-[GDX]   EXP-014 vol_hold
-[GDX]   EXP-014 vol_hold_band0
-[GDX]   EXP-014 vol_hold_band10
-[GDX]   EXP-014 vol_hold_monthly
-[GDX]   EXP-014 vol_hold_tv20
-[GDX]   EXP-015 ml_tilt_h5
-[GDX]   EXP-015 ml_tilt_h21
-[GDX]   EXP-015 ml_tilt_h63
-[GDX]   EXP-016 xs_mom_126
-[GDX]   EXP-016 xs_mom_252_21
-[GDX]   EXP-017 vol_hold_ewma
-[GDX]   EXP-017 vol_hold_har
-[GDX]   EXP-017 vol_hold_gvz
-[GDX]   EXP-018 gvz_gate
-[GDX]   EXP-019 miner_gdx_tilt
-[GDX]   REF buy_hold
-[GDX]   REF vol_sized_hold
-[GDX] saved. 1 min elapsed, 3 ticker(s) left
-[NEM] research ...
-[NEM]   BASE baseline
-[NEM]   EXP-014 vol_hold
-[NEM]   EXP-014 vol_hold_band0
-[NEM]   EXP-014 vol_hold_band10
-[NEM]   EXP-014 vol_hold_monthly
-[NEM]   EXP-014 vol_hold_tv20
-[NEM]   EXP-015 ml_tilt_h5
-[NEM]   EXP-015 ml_tilt_h21
-[NEM]   EXP-015 ml_tilt_h63
-[NEM]   EXP-016 xs_mom_126
-[NEM]   EXP-016 xs_mom_252_21
-[NEM]   EXP-017 vol_hold_ewma
-[NEM]   EXP-017 vol_hold_har
-[NEM]   EXP-017 vol_hold_gvz
-[NEM]   EXP-018 gvz_gate
-[NEM]   EXP-019 miner_gdx_tilt
-[NEM]   REF buy_hold
-[NEM]   REF vol_sized_hold
-[NEM] saved. 2 min elapsed, 2 ticker(s) left
-[AEM] research ...
-[AEM]   BASE baseline
-[AEM]   EXP-014 vol_hold
-[AEM]   EXP-014 vol_hold_band0
-[AEM]   EXP-014 vol_hold_band10
-[AEM]   EXP-014 vol_hold_monthly
-[AEM]   EXP-014 vol_hold_tv20
-[AEM]   EXP-015 ml_tilt_h5
-[AEM]   EXP-015 ml_tilt_h21
-[AEM]   EXP-015 ml_tilt_h63
-[AEM]   EXP-016 xs_mom_126
-[AEM]   EXP-016 xs_mom_252_21
-[AEM]   EXP-017 vol_hold_ewma
-[AEM]   EXP-017 vol_hold_har
-[AEM]   EXP-017 vol_hold_gvz
-[AEM]   EXP-018 gvz_gate
-[AEM]   EXP-019 miner_gdx_tilt
-[AEM]   REF buy_hold
-[AEM]   REF vol_sized_hold
-[AEM] saved. 2 min elapsed, 1 ticker(s) left
-[WPM] research ...
-[WPM]   BASE baseline
-[WPM]   EXP-014 vol_hold
-[WPM]   EXP-014 vol_hold_band0
-[WPM]   EXP-014 vol_hold_band10
-[WPM]   EXP-014 vol_hold_monthly
-[WPM]   EXP-014 vol_hold_tv20
-[WPM]   EXP-015 ml_tilt_h5
-[WPM]   EXP-015 ml_tilt_h21
-[WPM]   EXP-015 ml_tilt_h63
-[WPM]   EXP-016 xs_mom_126
-[WPM]   EXP-016 xs_mom_252_21
-[WPM]   EXP-017 vol_hold_ewma
-[WPM]   EXP-017 vol_hold_har
-[WPM]   EXP-017 vol_hold_gvz
-[WPM]   EXP-018 gvz_gate
-[WPM]   EXP-019 miner_gdx_tilt
-[WPM]   REF buy_hold
-[WPM]   REF vol_sized_hold
-[WPM] saved. 3 min elapsed, 0 ticker(s) left
-
-Wrote /home/runner/work/aurum-/aurum-/research/experiments/results/2026-10-29-1251-real-closefill-vs-vol_hold
+Wrote /home/runner/work/aurum-/aurum-/research/experiments/results/2026-10-29-1308-real

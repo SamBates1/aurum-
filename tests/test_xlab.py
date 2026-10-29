@@ -1,8 +1,8 @@
 """Cross-asset lab (EXP-037 onwards): look-ahead, statistics and accounting checks on hand-built data."""
 
 import numpy as np
-import pytest
 import pandas as pd
+import pytest
 from conftest import make_prices
 
 from aurum import xlab as X

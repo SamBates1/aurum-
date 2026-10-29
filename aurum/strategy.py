@@ -422,6 +422,7 @@ def simulate_weights(
     band: float = 0.05,
     fill: str = "open",
     initial: float = 1.0,
+    capital: float | None = None,
 ) -> SimResult:
     """Simulate one sleeve that holds a *fraction* of its value in the asset.
 
@@ -430,7 +431,12 @@ def simulate_weights(
     if the current weight differs from the target by more than `band` (a no-trade band that
     limits turnover), or when moving between zero and non-zero exposure. Costs are charged on
     the traded notional. Each rebalance is recorded in `trades` (entry_value = traded notional).
+
+    capital: if given, the sleeve's starting value in dollars, and positions are held in whole
+    shares only (buys rounded down, sells to the nearest share; EXP-022, brokers' open/close
+    auction orders do not accept fractional shares).
     """
+    unit = (capital / initial) if capital else None
     idx = prices.index
     opens, closes = prices["Open"].to_numpy(float), prices["Close"].to_numpy(float)
     tgt = target.reindex(idx).to_numpy(float)
@@ -455,20 +461,27 @@ def simulate_weights(
                 delta_value = (w - cur) * value
                 if delta_value > 0:  # buy: cost reduces what can be bought
                     delta_value = min(delta_value, cash) / (1 + c)
+                if unit:  # whole shares: real shares = model shares x unit
+                    real = delta_value / px * unit
+                    real = np.floor(real) if real > 0 else (-shares * unit if w == 0 else np.round(real))
+                    delta_value = real / unit * px
+                if abs(delta_value) < 1e-12:
+                    delta_value = 0.0
                 cost_today = abs(delta_value) * c
                 traded_today = abs(delta_value)
                 shares += delta_value / px
                 cash -= delta_value + cost_today
-                trades.append(
-                    {
-                        "date": idx[i],
-                        "price": px,
-                        "from_weight": cur,
-                        "to_weight": w,
-                        "notional": traded_today,
-                        "cost": cost_today,
-                    }
-                )
+                if delta_value != 0.0:
+                    trades.append(
+                        {
+                            "date": idx[i],
+                            "price": px,
+                            "from_weight": cur,
+                            "to_weight": w,
+                            "notional": traded_today,
+                            "cost": cost_today,
+                        }
+                    )
         pending = tgt[i] if np.isfinite(tgt[i]) else np.nan
         value = cash + shares * closes[i]
         exposure = shares * closes[i] / value if value > 0 else 0.0

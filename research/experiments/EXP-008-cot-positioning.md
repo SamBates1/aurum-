@@ -2,7 +2,7 @@
 
 | Field | |
 |---|---|
-| Status | Designed, not coded |
+| Status | Superseded by [EXP-025](EXP-025-cot-positioning.md) (same data, tested on the always-invested strategy) |
 | Origin | CFTC Commitments of Traders [S15]. |
 | Current Aurum equivalent | No positioning data in Aurum. |
 

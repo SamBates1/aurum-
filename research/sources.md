@@ -27,6 +27,12 @@ Cited by ID across the knowledge base. "Read" notes how deeply each was checked:
 | S22 | CBOE Gold Volatility Index (GVZ), volatility model pages | descriptive | [NYU V-Lab](https://vlab.stern.nyu.edu/volatility/VOL.GVZ:VIND-R.GJR-GARCH) |
 | S23 | *Temporal conformal prediction for financial returns* (arXiv 2507.05470) | abstract | [arXiv](https://arxiv.org/abs/2507.05470v1) |
 | S24 | Baur, gold seasonality (September and November effects), via CXO Advisory | summary | [CXO](https://cxoadvisory.com/calendar-effects/gold-seasonality-drivers) |
+| S25 | Alpaca docs, *Fractional Trading* (order types, day-only time in force, paper support), read 2026-10-29 | docs | [Alpaca](https://docs.alpaca.markets/docs/fractional-trading) |
+| S26 | Basu & Miffre (2013), *Capturing the risk premium of commodity futures: the role of hedging pressure*, Journal of Banking & Finance | known reference | – |
+| S27 | Baker, Bloom & Davis (2016), *Measuring Economic Policy Uncertainty*, QJE; daily index on FRED (`USEPUINDXD`) | known reference | [FRED](https://fred.stlouisfed.org/series/USEPUINDXD) |
+| S28 | Caldara & Iacoviello (2022), *Measuring Geopolitical Risk*, AER; daily GPR data | paper page | [GPR site](https://matteoiacoviello.com/gpr.htm) |
+| S29 | Baur & Smales (2020), *Hedging geopolitical risk with precious metals*, Journal of Banking & Finance | known reference | – |
+| S30 | CFTC historical Commitments of Traders files (disaggregated, futures only) | data page | [CFTC](https://cftc.gov/MarketReports/CommitmentsofTraders/HistoricalCompressed/index.htm) |
 | S16 | Politis & Romano (1994), *The Stationary Bootstrap*, Journal of the American Statistical Association | known reference | – |
 | S17 | López de Prado (2018), *Advances in Financial Machine Learning*, Wiley (triple-barrier labels, purging, meta-labelling) | known reference | – |
 | S18 | Bailey & López de Prado (2012), *The Sharpe Ratio Efficient Frontier*, Journal of Risk (Probabilistic Sharpe Ratio) | known reference | – |

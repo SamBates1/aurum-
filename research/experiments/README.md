@@ -37,6 +37,22 @@ stationary block-bootstrap resamples **and** ΔSharpe ≥ 0 at 2× costs.
 
 Also reported: **PBO** across all variants. If PBO ≥ 0.5, even "KEEP" results deserve scepticism.
 
+## Research lab (rules written 2026-10-29, before any lab result existed)
+The traded strategy does not need the ML model, so `run_lab.py` tests it, and every idea added on top of it, on more
+history and on new assets (EXP-020 onwards):
+- **Baseline:** `vol_hold_gvz`, exactly as traded (D-020, D-021). Every variant is a target weight per asset, run
+  through `strategy.simulate_weights` with the same costs, fills, cash interest and 5-point band.
+- **Periods:** `pre` = data start → 2013-10-17 (2006 for the core set; **never used by any earlier experiment**),
+  `dev` = 2013-10-18 → 2023-12-31, `holdout` = 2024-01-01 onwards. The holdout has now been looked at several times,
+  so it is no longer pristine; the pre-2013 period and the other assets are the fresh confirmation data.
+- **Verdict:** the standard development rules (signal or risk path, 2× costs, DSR ≥ 0.5 over the lab's trial
+  variants), then confirmation on **both** the holdout and the pre-2013 period. Adoption also needs the
+  out-of-asset check (EXP-021, criterion 2) where it applies.
+- **Tilts** are small by design: at most ±25% of the traded weight, never above full investment, parameters fixed
+  in each EXP file before running.
+- Descriptive rows (risk map, Alpaca checks) and references are not trials and get no verdict.
+- Run: `lab:` lines in `RUN` (e.g. `lab: --set core`), or `python run_lab.py --set core|other [--fill close]`.
+
 ## Running
 
 **Automated (no terminal needed):** `.github/workflows/experiments.yml` runs `run_research.py` and
@@ -61,7 +77,7 @@ AURUM_OFFLINE=1 python run_experiments.py --quick   # synthetic: checks the code
 | [EXP-005](EXP-005-risk-overlays.md) | Stops, trailing, breakers, vol targets | Kaminski–Lo; Harvey et al.; Freqtrade Protections; LEAN risk models | Run: chandelier stop promising, fails DSR → EXP-009 |
 | [EXP-006](EXP-006-mean-reversion.md) | Bollinger dips, miner vs GDX reversion | Mean-reversion literature; Tufano | Run: inconclusive, not adopted |
 | [EXP-007](EXP-007-triple-barrier.md) | Triple-barrier labels and exits (trade plan) | López de Prado (AFML ch. 3) | Run: inconclusive, not adopted |
-| [EXP-008](EXP-008-cot-positioning.md) | CFTC positioning signal | CFTC COT data | Designed, not coded |
+| [EXP-008](EXP-008-cot-positioning.md) | CFTC positioning signal | CFTC COT data | Superseded by EXP-025 |
 | [EXP-010](EXP-010-close-fills.md) | Fill at the next close instead of the next open (robustness check) | Quantpedia [S20] | Run: results robust to fill assumption (D-018) |
 | [EXP-013](EXP-013-invested-by-default.md) | Invested by default, protect when needed | First real results; profit goal | Run: goal not met; vol-sized holding proposed as new baseline (D-019) |
 | [EXP-014](EXP-014-vol-hold.md) | Always invested, sized by volatility (candidate new baseline) | stage 2 follow-up | Run: **adopted** as traded strategy (D-020) |
@@ -70,6 +86,15 @@ AURUM_OFFLINE=1 python run_experiments.py --quick   # synthetic: checks the code
 | [EXP-017](EXP-017-volatility-forecasts.md) | Better volatility forecasts for sizing | stage 4 | Run: GVZ sizing **adopted** (D-021) |
 | [EXP-018](EXP-018-gvz-gate.md) | Gold implied volatility as a risk gate | stage 4 | Run: rejected |
 | [EXP-019](EXP-019-miner-gdx-tilt.md) | Miner vs GDX relative value, rechecked | stage 3 | Run: consistent +0.09, just below bar; re-test next |
+| [EXP-020](EXP-020-long-history.md) | Longer history (2006–2013 stress test) | stage A | Pre-registered |
+| [EXP-021](EXP-021-other-assets.md) | Eight precious-metal assets never tested | stage A | Pre-registered |
+| [EXP-022](EXP-022-alpaca-realism.md) | Weekly orders, whole shares (Alpaca realism) | stage B | Pre-registered |
+| [EXP-023](EXP-023-near-misses.md) | Miner-vs-GDX tilt and chandelier stop on the traded strategy | stage B | Pre-registered |
+| [EXP-024](EXP-024-fair-value.md) | Gold fair value (real yields, dollar) | stage 5 | Pre-registered |
+| [EXP-025](EXP-025-cot-positioning.md) | Speculative positioning (CFTC) | stage 6 | Pre-registered |
+| [EXP-026](EXP-026-news-risk-indices.md) | News-based risk indices (EPU, GPR) | stage 7 | Pre-registered |
+| [EXP-027](EXP-027-combination.md) | Combine what passed | stage 8 | Pre-registered |
+| [EXP-028](EXP-028-risk-map.md) | Risk map: 10–30% volatility targets | owner's choice | Pre-registered |
 | EXP-009 (proposed) | Chandelier trailing stop, confirmatory | EXP-005 result | Not run: needs data not used in EXP-005 (new months via paper trading, or other assets) to be a fair test |
 
 Results of each run go in `results/<date>-<time>-real[-…]/summary.md`; conclusions are copied into each EXP file's

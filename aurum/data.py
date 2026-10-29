@@ -286,6 +286,124 @@ def cash_rate(index: pd.DatetimeIndex, cfg: dict = CFG) -> pd.Series:
 
 
 # ---------------------------------------------------------------------------
+# longer histories and alternative data (research lab, stages A-8)
+# ---------------------------------------------------------------------------
+def daily_prices_from(ticker: str, start: str, cfg: dict = CFG) -> pd.DataFrame:
+    """Daily prices from an earlier start than config's data.start, cached under a separate name
+    so the main pipeline's cache (and therefore its results) is never changed by a longer download."""
+    if _offline(cfg):
+        return synthetic.daily_prices(ticker, start)
+
+    def fetch():
+        return validate_ohlcv(_yf_download(ticker, start=start), ticker)
+
+    return validate_ohlcv(_cached(f"{ticker}@{start}", f"yahoo:{ticker}", fetch, cfg["data"]["cache_hours"]), ticker)
+
+
+def _http_bytes(url: str) -> bytes:
+    import urllib.request
+
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (aurum research; contact via GitHub)"})
+    with urllib.request.urlopen(req, timeout=120) as r:
+        return r.read()
+
+
+COT_BASE = "https://www.cftc.gov/files/dea/history/"
+COT_CODES = {"gold": "088691", "silver": "084691"}  # COMEX gold and silver futures
+
+
+def _cot_frame(year_files: list[str]) -> pd.DataFrame:
+    import io
+    import zipfile
+
+    frames = []
+    for f in year_files:
+        try:
+            raw = _retry(lambda f=f: _http_bytes(COT_BASE + f), f"cftc:{f}")
+        except Exception as exc:  # a missing year must be visible, not silently skipped
+            log_event("warning", "cftc", f"{f} unavailable ({exc})")
+            continue
+        with zipfile.ZipFile(io.BytesIO(raw)) as z:
+            for name in z.namelist():
+                frames.append(pd.read_csv(z.open(name), low_memory=False))
+    if not frames:
+        raise DataError("no CFTC files could be downloaded")
+    return pd.concat(frames, ignore_index=True)
+
+
+def cot_managed_money(market: str = "gold", cfg: dict = CFG) -> pd.DataFrame:
+    """CFTC disaggregated futures-only report: managed-money long, short and open interest for one
+    market, indexed by the date the data is conservatively known. Positions are as of Tuesday and
+    published Friday 15:30 ET; we use them from the following Monday (report date + 4 business days)."""
+    if _offline(cfg):
+        idx = pd.bdate_range("2010-01-05", pd.Timestamp.today(), freq="W-TUE")
+        rng = np.random.default_rng(7)
+        net = np.cumsum(rng.normal(0, 3000, len(idx)))
+        df = pd.DataFrame({"long": 150000 + net.clip(min=-100000), "short": 50000.0, "oi": 500000.0}, index=idx)
+        df.index = df.index + BDay(4)
+        return df
+
+    def fetch():
+        files = ["fut_disagg_txt_hist_2006_2016.zip"] + [
+            f"fut_disagg_txt_{y}.zip" for y in range(2017, pd.Timestamp.today().year + 1)
+        ]
+        raw = _cot_frame(files)
+        cols = {c.lower(): c for c in raw.columns}
+
+        def col(*needles):
+            for lc, c in cols.items():
+                if all(n in lc for n in needles):
+                    return c
+            raise DataError(f"CFTC column with {needles} not found")
+
+        code = raw[col("cftc_contract_market_code")].astype(str).str.strip().str.zfill(6)
+        sub = raw[code == COT_CODES[market]]
+        out = pd.DataFrame(
+            {
+                "long": pd.to_numeric(sub[col("m_money_positions_long_all")], errors="coerce").to_numpy(),
+                "short": pd.to_numeric(sub[col("m_money_positions_short_all")], errors="coerce").to_numpy(),
+                "oi": pd.to_numeric(sub[col("open_interest_all")], errors="coerce").to_numpy(),
+            },
+            index=pd.to_datetime(sub[col("report_date_as_yyyy")]).to_numpy(),
+        )
+        out = out[~out.index.duplicated(keep="last")].sort_index().dropna()
+        if out.empty:
+            raise DataError(f"CFTC: no rows for {market}")
+        return out
+
+    df = _cached(f"COT_{market}", "cftc:disaggregated", fetch, 24 * 3)
+    df.index = pd.DatetimeIndex(df.index) + BDay(4)
+    return df.astype(float)
+
+
+GPR_URL = "https://www.matteoiacoviello.com/gpr_files/data_gpr_daily_recent.xls"
+
+
+def gpr_daily(cfg: dict = CFG) -> pd.Series:
+    """Caldara-Iacoviello daily Geopolitical Risk index (share of newspaper articles about geopolitical
+    tension), known from the next business day."""
+    if _offline(cfg):
+        return synthetic.macro(["gpr"])["gpr"].abs() * 50 + 100
+
+    def fetch():
+        import io
+
+        raw = pd.read_excel(io.BytesIO(_retry(lambda: _http_bytes(GPR_URL), "gpr")))
+        cols = {c.lower(): c for c in raw.columns}
+        date_c = cols.get("date") or cols.get("day")
+        val_c = cols.get("gprd")
+        if date_c is None or val_c is None:
+            raise DataError(f"GPR columns not recognised: {list(raw.columns)[:10]}")
+        d = raw[date_c]
+        idx = pd.to_datetime(d.astype(str), format="%Y%m%d", errors="coerce") if d.dtype != "<M8[ns]" else d
+        s = pd.Series(pd.to_numeric(raw[val_c], errors="coerce").to_numpy(), index=idx).dropna()
+        return s[~s.index.isna()].sort_index().to_frame("gprd")
+
+    df = _cached("GPR_daily", "iacoviello:gpr_daily", fetch, 24 * 3)
+    return publication_lag(df.iloc[:, 0].astype(float), 1)
+
+
+# ---------------------------------------------------------------------------
 # live-only context (no point-in-time history: never used in backtests)
 # ---------------------------------------------------------------------------
 FUNDAMENTAL_KEYS = [

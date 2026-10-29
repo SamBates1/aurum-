@@ -41,7 +41,7 @@ jobs:
         run: python run_research.py 2>&1 | tee research-run.log
         shell: bash -o pipefail {0}
       - name: Experiments
-        # Each line of research/experiments/RUN starting with "run:" is one experiment run, e.g.
+        # Each line of research/experiments/RUN starting with "run:" is one experiment run ("lab:" = one run_lab.py run), e.g.
         #   run: --fill close
         # With no "run:" lines: one run, quick if the first word of RUN is "quick" or the button asked for it.
         run: |
@@ -52,11 +52,24 @@ jobs:
             default_args=""
           fi
           lines=$(grep '^run:' research/experiments/RUN 2>/dev/null | sed 's/^run://' || true)
-          if [ -z "$lines" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then lines="$default_args"; fi
-          while IFS= read -r args; do
-            echo "=== python run_experiments.py $args ===" | tee -a experiments-run.log
-            python run_experiments.py $args 2>&1 | tee -a experiments-run.log
-          done <<< "$lines"
+          labs=$(grep '^lab:' research/experiments/RUN 2>/dev/null | sed 's/^lab://' || true)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then lines="$default_args"; labs=""; fi
+          if [ -z "$lines" ] && [ -z "$labs" ]; then lines="$default_args"; fi
+          status=0
+          if [ -n "$lines" ]; then
+            while IFS= read -r args; do
+              echo "=== python run_experiments.py $args ===" | tee -a experiments-run.log
+              python run_experiments.py $args 2>&1 | tee -a experiments-run.log || status=1
+            done <<< "$lines"
+          fi
+          # "lab:" lines run the research lab (run_lab.py): longer history, new assets, stage 5-8 ideas
+          if [ -n "$labs" ]; then
+            while IFS= read -r args; do
+              echo "=== python run_lab.py $args ===" | tee -a experiments-run.log
+              python run_lab.py $args 2>&1 | tee -a experiments-run.log || status=1
+            done <<< "$labs"
+          fi
+          exit $status
         shell: bash -o pipefail {0}
       - name: Commit results (also on failure, with the logs)
         if: always()

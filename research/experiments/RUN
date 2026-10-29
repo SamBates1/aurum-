@@ -1,6 +1,9 @@
 full
-run: --exps NONE
+lab: --set core
+lab: --set core --fill close
+lab: --set other
 Edit this file and push to main to start an automated run on GitHub's machines (see
-.github/workflows/experiments.yml). Each "run:" line is one run_experiments.py run with those arguments.
-Requested: 2026-10-29 refresh of the research report after switching to the GVZ-sized vol_hold strategy
-(D-020, D-021); "--exps NONE" keeps the experiment step to the baseline and reference rows.
+.github/workflows/experiments.yml). Each "run:" line is one run_experiments.py run with those arguments;
+each "lab:" line is one run_lab.py run (research lab, EXP-020 onwards).
+Requested: 2026-10-29 stages A, B and 5-7 (EXP-020 ... EXP-026, EXP-028): longer history from 2006, open and
+close fills, and the out-of-asset set.

@@ -1,0 +1,28 @@
+name: SEC access probe
+
+# Diagnostic: which request format the SEC accepts from GitHub's machines. Commits research/universe/sec-probe.md.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: python scripts/sec_probe.py
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add research/universe/sec-probe.md
+          git diff --cached --quiet && exit 0
+          git commit -m "SEC access probe"
+          git pull --rebase origin main
+          git push origin HEAD:main

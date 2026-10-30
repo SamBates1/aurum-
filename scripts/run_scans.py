@@ -47,8 +47,12 @@ def atr_pct_last(p: FL.Panels) -> pd.Series:
 
 def add_fundamentals(p: FL.Panels, names: list[str]) -> int:
     """Latest point-in-time ROIC and FCF yield for `names` on the last day (other days NaN: rank uses the last day)."""
-    tmap = sec.ticker_map()
     d = p.close.index[-1]
+    try:
+        tmap = sec.ticker_map()
+    except Exception as exc:  # SEC unreachable: rank on prices only and say so
+        print(f"SEC accounts unavailable: {exc}")
+        tmap = {}
     roic = pd.DataFrame(np.nan, index=p.close.index, columns=p.close.columns)
     fcfy = roic.copy()
     n = 0
@@ -83,7 +87,9 @@ def run_one(name: str, snap: U.Snapshot, p: FL.Panels, atr: pd.Series, weights: 
         short = list(table.index[: cfg["shortlist"]])
         got = add_fundamentals(p, short)
         table, used, status = SC.rank(name, p, pd.Index(short), w, min_history=cfg["min_history"])
-        res.stages.append(("3b. company accounts", got, f"SEC accounts for the top {len(short)}"))
+        res.stages.append(
+            ("3b. company accounts", got, f"SEC accounts for the top {len(short)}" if got else "SEC unavailable today")
+        )
     res.stages.append(
         ("4. rank", len(table), "evidence-weighted" if status == "evidence" else "equal weights (untested)")
     )
@@ -152,6 +158,7 @@ if __name__ == "__main__":
     SC.FOLDER.mkdir(parents=True, exist_ok=True)
     try:
         main()
+        (SC.FOLDER / "scan-error.txt").unlink(missing_ok=True)
     except Exception:
         (SC.FOLDER / "scan-error.txt").write_text(traceback.format_exc()[-4000:])
         raise

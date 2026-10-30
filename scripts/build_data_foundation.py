@@ -128,6 +128,7 @@ if __name__ == "__main__":
     U.FOLDER.mkdir(parents=True, exist_ok=True)
     try:
         snap = build_universe()
+        (U.FOLDER / "build-error.txt").unlink(missing_ok=True)  # an old error no longer applies
     except Exception:  # keep the reason: GitHub logs are not readable from the build machine
         (U.FOLDER / "build-error.txt").write_text(traceback.format_exc()[-4000:])
         raise

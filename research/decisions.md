@@ -208,3 +208,10 @@ in the registry plus 100 earlier portfolio variants, so a new "winner" needs a l
 development period by default; each look at the 2024+ holdout is counted. An independent risk engine (config `risk:`)
 can only cut risk. A Fair Test pass is evidence, not permission: paper trading needs every gate and the owner's
 approval.
+
+**D-036 — Owner's end goal for the platform** (2026-10-30)
+The owner wants Aurum to tell him clearly **what to buy, how much, when, where (which fund / platform) and when to
+sell**: live charts with indicators across every ticker, checked against a tested strategy, ending in one plain
+"buy / hold / sell, amount, exit rule, reason" decision per ticker (planned: the Decision Board). Every decision will
+carry its evidence status (Fair Test verdict) and states what the strategy says, not personal financial advice; the
+owner makes the final call and places any real-money order himself. Aurum never trades real money.

@@ -21,11 +21,22 @@ def _dotenv() -> dict[str, str]:
     return out
 
 
+def _streamlit_secrets() -> dict[str, str]:
+    """Keys pasted into the hosting service's private Secrets box (Streamlit Community Cloud), if any."""
+    try:
+        import streamlit as st
+
+        return {k: str(st.secrets[k]) for k in ("ALPACA_API_KEY", "ALPACA_SECRET_KEY") if k in st.secrets}
+    except Exception:  # no secrets file, or not running under Streamlit
+        return {}
+
+
 def alpaca_keys() -> tuple[str, str] | None:
-    """(key id, secret) or None. Environment variables win over the .env file."""
+    """(key id, secret) or None. Environment variables win, then the .env file, then Streamlit secrets."""
     env = _dotenv()
-    key = os.environ.get("ALPACA_API_KEY") or env.get("ALPACA_API_KEY")
-    secret = os.environ.get("ALPACA_SECRET_KEY") or env.get("ALPACA_SECRET_KEY")
+    sec = {} if (os.environ.get("ALPACA_API_KEY") or env.get("ALPACA_API_KEY")) else _streamlit_secrets()
+    key = os.environ.get("ALPACA_API_KEY") or env.get("ALPACA_API_KEY") or sec.get("ALPACA_API_KEY")
+    secret = os.environ.get("ALPACA_SECRET_KEY") or env.get("ALPACA_SECRET_KEY") or sec.get("ALPACA_SECRET_KEY")
     return (key, secret) if key and secret else None
 
 

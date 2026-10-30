@@ -85,3 +85,27 @@ def test_get_provider_falls_back_without_keys(monkeypatch, cfg):
     assert providers.get_provider(cfg2).name.startswith("Yahoo")
     monkeypatch.setattr(providers, "alpaca_keys", lambda: ("k", "s"))
     assert providers.get_provider(cfg2).name == "Alpaca"
+
+
+def test_keys_from_hosting_secrets_when_no_env_or_dotenv(monkeypatch, tmp_path):
+    from aurum.providers import keys as K
+
+    monkeypatch.delenv("ALPACA_API_KEY", raising=False)
+    monkeypatch.delenv("ALPACA_SECRET_KEY", raising=False)
+    monkeypatch.setattr(K, "_dotenv", lambda: {})
+    monkeypatch.setattr(K, "_streamlit_secrets", lambda: {"ALPACA_API_KEY": "kid", "ALPACA_SECRET_KEY": "sec"})
+    assert K.alpaca_keys() == ("kid", "sec") and K.redact("x sec y") == "x *** y"
+    monkeypatch.setenv("ALPACA_API_KEY", "envk")
+    monkeypatch.setenv("ALPACA_SECRET_KEY", "envs")
+    assert K.alpaca_keys() == ("envk", "envs")
+
+
+def test_cloud_entry_point_opens_live_analysis():
+    from streamlit.testing.v1 import AppTest
+
+    from aurum.config import ROOT
+
+    at = AppTest.from_file(str(ROOT / "cloud_app.py"), default_timeout=300)
+    at.run()
+    assert not at.exception, [e.value for e in at.exception]
+    assert any("Paper trading only" in c.value for c in at.caption)

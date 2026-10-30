@@ -65,3 +65,16 @@ def test_market_regime():
     down = AS.market_regime(_daily(trend=-0.002), vix=35)
     assert up["state"] == "risk-on" and down["state"] == "risk-off"
     assert AS.market_regime(_daily(trend=0.002), vix=35)["state"] == "mixed"
+
+
+def test_pullback_setup_is_a_warning_after_exp051a():
+    a = AS.swing(
+        "Z",
+        _daily(trend=0.003, vol=0.008),
+        95,
+        "evidence",
+        "pullback in an uptrend (2-day RSI below 10, above the 200-day average)",
+        [],
+        ON,
+    )
+    assert a.verdict != "BUY" and any("harmful" in x for x in a.bearish)

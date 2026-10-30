@@ -181,7 +181,11 @@ def swing(
     t = _technicals(daily)
     a = Assessment(symbol, "swing", "", score, "", evidence_status)
     a.assumptions.append("Holding period 1 to 8 weeks; decided on daily closes, bought at the next open.")
-    if setup:
+    if setup and "pullback" in setup:
+        # EXP-051a: buying pullbacks in uptrends lost 9.6% a year against the market (t = -2.4)
+        a.bearish.append(f"Setup: {setup}, which tested as reliably harmful (EXP-051a: -9.6% a year)")
+        setup = None
+    elif setup:
         a.bullish.append(f"Setup: {setup}")
     else:
         a.bearish.append("No swing setup (breakout, pullback in an uptrend or strong trend) right now")

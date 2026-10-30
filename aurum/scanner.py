@@ -25,6 +25,7 @@ from .config import ROOT
 
 FOLDER = ROOT / "research" / "scanner"
 WEIGHTS_FILE = FOLDER / "weights.json"
+CASH_LIKE_VOL = 0.03  # yearly volatility below 3%: a cash-like fund (left out of long-term rankings)
 
 SCANNERS = {
     "long-term": {
@@ -172,6 +173,10 @@ def rank(
     d = p.close.index[-1] if asof is None else pd.Timestamp(asof)
     hist = p.close.loc[:d].notna().sum()
     names = [s for s in candidates if s in p.close.columns and hist.get(s, 0) >= min_history]
+    if scanner == "long-term" and names:
+        # cash-like funds (T-bill and ultra-short bond ETFs) barely move; they are cash, not investments to rank
+        vol = p.close[names].loc[:d].pct_change(fill_method=None).tail(252).std() * np.sqrt(252)
+        names = [s for s in names if not (vol.get(s, np.nan) < CASH_LIKE_VOL)]
     cols = [k for k in cfg["signals"] if k in sig]
     raw = pd.DataFrame({k: sig[k].loc[d, names] if names else pd.Series(dtype=float) for k in cols}, index=names)
     pct = raw.rank(pct=True)
@@ -181,7 +186,11 @@ def rank(
         avail = [k for k in cols if raw[k].notna().any()]
         used = {k: 1 / len(avail) for k in avail} if avail else {}
     num = sum(pct[k].fillna(0) * w for k, w in used.items()) if used else pd.Series(0.0, index=names)
-    den = sum(pct[k].notna() * w for k, w in used.items()) if used else pd.Series(1.0, index=names)
+    if scanner == "swing":
+        # setup signals are events: a missing value means "no setup", which counts as zero, not as unknown
+        den = pd.Series(float(sum(used.values())) if used else 1.0, index=names)
+    else:
+        den = sum(pct[k].notna() * w for k, w in used.items()) if used else pd.Series(1.0, index=names)
     score = (100 * num / den.replace(0, np.nan)).round(1)
     out = pd.concat([score.rename("score"), raw.add_prefix("value_"), pct.add_prefix("rank_").round(3)], axis=1)
     out["signals_known"] = raw.notna().sum(axis=1)

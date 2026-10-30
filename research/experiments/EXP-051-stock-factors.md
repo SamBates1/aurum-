@@ -2,7 +2,7 @@
 
 | Field | |
 |---|---|
-| Status | Pre-registered 2026-10-30; amended 2026-10-30 19:50 UTC before any run (split into 051a / 051b) |
+| Status | Pre-registered 2026-10-30; amended before any run (051a / 051b). **051a run 2026-10-30: all 7 price signals FAILED**; 051b waits for SEC access |
 | Origin | Market platform build plan (D-042), phase 2: scanner weights must come from evidence |
 
 ## Why this experiment, and why not EXP-050
@@ -69,5 +69,21 @@ after seeing results, the experiment is split now:
 - **EXP-051b (later):** quality, value and the combined signal, once SEC access works, with its own BH check across 3.
 Every other rule (universe, dates, costs, the 3%-a-year bar, t >= 2, both halves and 2024+) is unchanged.
 
-## Results
-_Not run yet._
+## Results: EXP-051a (real data, `results/2026-10-30-1945-factorlab-real/`)
+1,000 largest eligible US stocks, Alpaca daily prices 2016-2026, tests from 2017, against holding all 1,000 equally.
+
+| Signal | Family | Extra return / yr after costs | NW t | 2017-20 | 2021-26 | 2024+ | Verdict |
+|---|---|---|---|---|---|---|---|
+| Momentum | long-term | +6.4% | 1.98 | +11.4% | +2.9% | +11.0% | FAIL (t just under 2; BH) |
+| Low volatility | long-term | -4.2% | -0.74 | -11.3% | +0.7% | -15.8% | FAIL |
+| Near 52-week high | long-term | -0.5% | -0.09 | -7.1% | +4.2% | -3.9% | FAIL |
+| Short-term reversal | swing | +4.1% | 1.39 | +3.6% | +4.5% | +1.7% | FAIL |
+| Breakout | swing | +0.2% | 0.05 | -7.2% | +5.3% | +10.1% | FAIL |
+| Pullback in uptrend | swing | -9.6% | -2.42 | -11.2% | -8.5% | -9.2% | FAIL (reliably harmful) |
+| Trend strength | swing | +10.6% | 1.63 | +15.7% | +7.1% | +19.9% | FAIL |
+
+**Conclusion:** no price signal earned a weight. Momentum and trend strength were positive in every period but not
+strong enough to clear the pre-registered bar, which was raised to 3% a year and t >= 2 because the universe is
+today's survivors (that bias flatters them further). Buying pullbacks in uptrends lost money reliably (t = -2.4), so
+the swing scanner labels it as a warning, not a reason to buy. Scanner weights stay empty: every ranking is labelled
+"not supported by evidence" and no assessment can say BUY. EXP-051b (quality, value, combined) waits for SEC access.

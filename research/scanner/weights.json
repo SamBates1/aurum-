@@ -1,0 +1,15 @@
+{
+ "_source": "EXP-051a (2026-10-30): no signal passed; weights empty, rankings untested",
+ "long-term": {},
+ "swing": {},
+ "cross-asset": {},
+ "tested": {
+  "momentum": "FAIL (t 1.98)",
+  "low_volatility": "FAIL",
+  "near_52w_high": "FAIL",
+  "short_term_reversal": "FAIL",
+  "breakout": "FAIL",
+  "pullback_in_uptrend": "FAIL: reliably harmful (t -2.42)",
+  "trend_strength": "FAIL (t 1.63)"
+ }
+}

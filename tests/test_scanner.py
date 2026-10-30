@@ -85,3 +85,15 @@ def test_swing_risk_check_drops_earnings_inside_window():
     kept, dropped = SC.risk_check(t, "swing", ev)
     assert list(kept.index) == ["BBB"] and dropped == 1
     assert SC.risk_check(t, "long-term", ev)[1] == 0
+
+
+def test_swing_missing_setup_counts_as_no_setup_and_cash_like_funds_are_left_out():
+    p = _panels(n=20)
+    c = p.close.copy()
+    c["CASH"] = 100 * np.exp(np.cumsum(np.full(len(c), 0.0001)))  # a T-bill-like fund: barely moves
+    p2 = FL.Panels(c.shift(1).fillna(c), c * 1.001, c * 0.999, c, pd.DataFrame(1e6, index=c.index, columns=c.columns))
+    lt, _, _ = SC.rank("long-term", p2, pd.Index(c.columns), None, min_history=252)
+    assert "CASH" not in lt.index
+    sw, used, _ = SC.rank("swing", p, pd.Index(p.close.columns), None, min_history=200)
+    one_signal = sw[sw["signals_known"] == 1]
+    assert len(one_signal) and (one_signal["score"] <= 100 / len(used) + 1e-6).all()

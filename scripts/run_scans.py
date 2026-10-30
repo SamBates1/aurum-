@@ -34,6 +34,11 @@ def panels(symbols: list[str]) -> FL.Panels:
         df = pd.DataFrame({s: b[k] for s, b in bars.items() if len(b)})
         df.index = pd.DatetimeIndex(df.index.tz_convert("America/New_York").date)
         fr[k] = df.sort_index()
+    # completed days only: during the session today's bar is a partial day, never treated as a close
+    now = pd.Timestamp.now(tz="America/New_York")
+    last = fr["Close"].index[-1] if len(fr["Close"]) else None
+    if last is not None and last.date() >= now.date() and now.hour < 16:
+        fr = {k: v.iloc[:-1] for k, v in fr.items()}
     return FL.Panels(fr["Open"], fr["High"], fr["Low"], fr["Close"], fr["Volume"])
 
 
@@ -127,7 +132,7 @@ def main():
     lines = [
         "# Scanner results",
         "",
-        f"Close of {p.close.index[-1]}. Alpaca SIP daily prices, {p.close.shape[1]:,} "
+        f"Close of {p.close.index[-1]:%Y-%m-%d}. Alpaca SIP daily prices, {p.close.shape[1]:,} "
         "instruments analysed. What the rules rank highest, not advice; nothing places an order.",
         "",
     ]

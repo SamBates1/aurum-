@@ -259,3 +259,12 @@ inconclusive (it only ever triggered in 2008). Strategy A is unchanged. The trad
 targets so the owner can see the risk of a position, labelled as not part of the tested strategy. The Live Analysis
 page now also has a plain-English summary with a rule-based devil's advocate, Alpaca news, dashboard alerts (the
 owner's own price alerts are kept locally in alerts.yaml) and links from the Decision Board.
+
+**D-042 — Market platform build approved (full version)** (2026-10-30)
+The owner approved the "Aurum Market Platform Build Plan": US stocks and ETFs first (UK later, prices and technicals
+only), three scanners, separate long-term and swing ratings, portfolio-aware allocation, full plans in pounds, and
+Alpaca paper orders built but switched off until the owner has reviewed everything. The experiment will split the
+Alpaca paper account's $100,000 into a $50,000 long-term pot and a $50,000 swing pot, with pre-registered rules for
+moving money between them (review every 3 months; 10 points at a time; never beyond 70/30; owner approval).
+Phase 1 (data foundation): universe from Alpaca's asset list with liquidity rules, SEC point-in-time accounts,
+pound/dollar rate, Fed meeting dates (from the Federal Reserve's calendar) and expected earnings dates.

@@ -100,4 +100,4 @@ Close of 2026-10-30. Alpaca SIP daily prices, 3,072 instruments analysed. What t
 | 14 | PRF | 82 | 90% | 82% | 73% |
 | 15 | MGV | 82 | 91% | 81% | 73% |
 
-Run time 189s.
+Run time 128s.

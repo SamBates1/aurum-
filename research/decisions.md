@@ -279,3 +279,11 @@ only, off, approval per order, independent checks, duplicate prevention, emergen
 reconciliation); Market Overview and Portfolio pages; Fundamental Analyst and Portfolio Manager on the AI desk with a
 synthesis that cannot change the rule verdict; position alerts, 1/5/20/60-day grading and paper-vs-backtest drift
 alarms. Paper orders stay off until the owner has reviewed everything (config `paper_orders.enabled: false`).
+
+**D-044 — No stock signal has earned a weight yet (EXP-051a)** (2026-10-30)
+All 7 price-based signals failed the pre-registered test on 1,000 US stocks, 2017-2026. Momentum (+6.4% a year,
+t = 1.98) and trend strength (+10.6%, t = 1.63) were positive in every period but below the bar; buying pullbacks in
+uptrends lost money reliably (-9.6% a year, t = -2.4) and is now shown as a warning. Scanner weights stay empty, all
+rankings are labelled "not supported by evidence", and no assessment can say BUY. Company-account signals (EXP-051b)
+wait for SEC access (the SEC refuses requests from GitHub's machines). The owner must decide what the experiment pots
+do while no signal is supported (see the open question in the build plan).

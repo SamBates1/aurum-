@@ -1,29 +1,78 @@
 {
-  "cash": 10000.0,
-  "positions": {},
-  "trades": [],
+  "cash": 0.0,
+  "positions": {
+    "GLD": {
+      "qty": 8.297321891208222,
+      "entry_price": 361.4540100097656,
+      "entry_fee": 0.8997300809757073,
+      "last_price": 355.7799987792969,
+      "stop": 0.0,
+      "opened": "2026-10-30T22:55:53"
+    },
+    "SPY": {
+      "qty": 9.191993794243649,
+      "entry_price": 761.3800048828125,
+      "entry_fee": 1.3997200559888023,
+      "last_price": 755.719970703125,
+      "stop": 0.0,
+      "opened": "2026-10-30T22:55:53"
+    }
+  },
+  "trades": [
+    {
+      "time": "2026-10-30 (official open)",
+      "ticker": "GLD",
+      "side": "BUY",
+      "qty": 8.297322,
+      "price": 361.454,
+      "fee": 0.8997,
+      "pnl": null,
+      "reason": "spy-gld-70-30-risk-cap rebalance 0% -> 30% (decided 2026-10-29)"
+    },
+    {
+      "time": "2026-10-30 (official open)",
+      "ticker": "SPY",
+      "side": "BUY",
+      "qty": 9.191994,
+      "price": 761.38,
+      "fee": 1.3997,
+      "pnl": null,
+      "reason": "spy-gld-70-30-risk-cap rebalance 0% -> 70% (decided 2026-10-29)"
+    }
+  ],
   "history": [
     {
       "time": "2026-10-29",
       "equity": 10000.0
+    },
+    {
+      "time": "2026-10-30",
+      "equity": 9898.59
     }
   ],
   "stopped_out": {},
-  "fees": 0.0,
+  "fees": 2.2994501369645097,
   "realised_pnl": 0.0,
   "spec_hash": "6cd979072a5f",
   "strategy_id": "spy-gld-70-30-risk-cap",
   "role": "shadow",
   "pending": {
-    "decided": "2026-10-29",
+    "decided": "2026-10-30",
     "targets": {
       "SPY": 0.7,
-      "GLD": 0.3
+      "GLD": 0.2906629280835212
     },
     "signals": []
   },
-  "last_decided": "2026-10-29",
+  "last_decided": "2026-10-30",
   "peak_equity": 10000.0,
-  "last_processed": "2026-10-29",
-  "started": "2026-10-29"
+  "last_processed": "2026-10-30",
+  "started": "2026-10-29",
+  "orders_by_day": {
+    "2026-10-30": {
+      "GLD": "BUY 0%->30%",
+      "SPY": "BUY 0%->70%"
+    }
+  },
+  "last_executed": "2026-10-30T22:55:53"
 }

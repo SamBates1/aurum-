@@ -224,3 +224,10 @@ far better worst decade, but **fell more than the S&P in 1980-82**, when gold cr
 10-year periods. EXP-048: for £1,000 + £100 a month, the cautious (1972-2026) view gives a 21% chance of being below
 what was paid in after 1 year, 6% after 5 years. No change to the strategies; the owner's decision to invest is his.
 Daily paper trading now runs on GitHub (first orders fill at the 2026-10-30 open).
+
+**D-038 — A third paper account that trades every day** (2026-10-30)
+The owner wanted the paper trading to show daily activity and chose to add a third account rather than change the
+main strategy: `strategies/spy-gld-70-30-daily.yaml`, the same 70/30 rebalanced back to target after every close (no
+band), approved as a shadow (evidence only). Orders down to $5 are allowed for this paper account only (the $25 risk
+minimum would skip most daily drift); all other limits are unchanged. EXP-045 found rebalancing frequency made little
+difference, so it is expected to track the main account closely with more, smaller trades and slightly higher costs.

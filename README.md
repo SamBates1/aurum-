@@ -113,7 +113,8 @@ advice: you place any trade yourself (D-036).
 
 ## Paper trading on GitHub
 
-The official paper accounts (simulated money) run on GitHub after every US close
+Three paper accounts (simulated money, $10,000 each): **A** 70/30 monthly (main), **B** 70/30 with the 20% risk cap
+(shadow), **C** 70/30 rebalanced every day (shadow, so trades show daily; D-038). They run on GitHub after every US close
 (`.github/workflows/paper-trading.yml`, `run_paper_daily.py`): yesterday's decisions fill at today's official open,
 today's close decides, and `research/paper/` gets the ledgers, a journal, `status.md` and, on Fridays, a weekly report
 comparing each account with SPY bought on the same day and with the backtest of the same strategy. Do not also run

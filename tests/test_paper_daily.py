@@ -56,3 +56,14 @@ def test_status_and_weekly_reports(setup, monkeypatch):
     assert "SHADOW" in s and "Equity" in s
     w = RPD.weekly_md([tr], part, 0.0)
     assert "SPY bought and held" in w and "backtest of the same strategy" in w
+
+
+def test_daily_account_trades_most_days_with_a_small_minimum(setup):
+    daily, lib, tmp, cfg = setup
+    spec = lib["spy-gld-70-30-daily"]
+    tr = SPP.SpecPaperTrader(spec, "shadow", tmp / "d.json", cfg, min_order=5)
+    RPD.process(tr, {t: p.loc[:"2024-03-01"] for t, p in daily.items()})
+    RPD.process(tr, {t: p.loc[:"2024-05-31"] for t, p in daily.items()})
+    days = {x["time"][:10] for x in tr.book.state["trades"]}
+    sessions = daily["SPY"].loc["2024-03-04":"2024-05-31"].index
+    assert len(days) >= 0.8 * len(sessions)  # trades on most days

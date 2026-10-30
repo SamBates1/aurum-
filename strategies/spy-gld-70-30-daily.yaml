@@ -1,0 +1,19 @@
+id: spy-gld-70-30-daily
+name: "C: 70/30 SPY/GLD, rebalanced every day"
+version: 1
+description: >-
+  The same 70/30 mix, traded back to target after every close (no band), so the paper account trades almost every
+  day. Added on the owner's request (2026-10-30, D-038) to see daily activity. EXP-045 found rebalancing frequency made
+  little difference to 70/30, so this should behave like the main strategy with more, smaller trades and slightly
+  higher costs. Paper only, evidence only.
+universe: [SPY, GLD]
+base_weights: {SPY: 0.70, GLD: 0.30}
+benchmark: spy-gld-70-30-monthly
+schedule: {rebalance: daily, band: 0.0}
+sizing: {method: fixed}
+signals: []
+exits: {}
+execution:
+  fill: open
+  costs_bps: {SPY: 2, GLD: 3}
+start: "2006-06-01"

@@ -44,7 +44,8 @@ def session_open_after(decided: str, now: datetime | None = None) -> bool:
 
 
 class SpecPaperTrader:
-    def __init__(self, spec: dict, role: str, ledger: str | Path, cfg: dict = CFG):
+    def __init__(self, spec: dict, role: str, ledger: str | Path, cfg: dict = CFG, min_order: float | None = None):
+        self.min_order = min_order  # paper-account override of the smallest order (dollars); None = risk limit
         self.spec = SP.validate(spec)
         self.hash = SP.spec_hash(self.spec)
         self.role = role
@@ -135,7 +136,7 @@ class SpecPaperTrader:
             if abs(w - c) > band or ((w == 0) != (c == 0) and abs(w - c) > 1e-9):
                 orders.append((t, w, c))
         out, blocked = [], False
-        min_val = risk.limits(self.cfg)["min_order_value"]
+        min_val = self.min_order if self.min_order is not None else risk.limits(self.cfg)["min_order_value"]
         for t, w, c in sorted(orders, key=lambda x: x[1] - x[2]):  # sells first
             price = live.get(t)
             side = "BUY" if w > c else "SELL"
@@ -270,5 +271,12 @@ def configured(cfg: dict = CFG) -> list[dict]:
     out = []
     for item in (cfg.get("paper", {}) or {}).get("strategies", []) or []:
         s = SP.load(ROOT / item["file"])
-        out.append({"spec": s, "role": item.get("role", "shadow"), "ledger": item["ledger"]})
+        out.append(
+            {
+                "spec": s,
+                "role": item.get("role", "shadow"),
+                "ledger": item["ledger"],
+                "min_order": item.get("min_order"),
+            }
+        )
     return out

@@ -234,6 +234,17 @@ def perturbations(spec: dict, limit: int = 12) -> list[tuple[str, dict]]:
                 f"trailing stop x{f}",
                 lambda v, f=f: v["exits"]["trailing_stop"].update(pct=round(v["exits"]["trailing_stop"]["pct"] * f, 4)),
             )
+    stg = s["exits"].get("stop_target")
+    if stg:
+        for k in ("stop", "target"):
+            if stg.get(k) is not None:
+                for f in (0.8, 1.2):
+                    add(
+                        f"{k} x{f}",
+                        lambda v, f=f, k=k: v["exits"]["stop_target"].update(
+                            {k: round(v["exits"]["stop_target"][k] * f, 4)}
+                        ),
+                    )
     return out[:limit]
 
 

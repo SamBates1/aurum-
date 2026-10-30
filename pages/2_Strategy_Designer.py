@@ -457,6 +457,40 @@ with tabs[0]:
         }
     else:
         s["exits"].pop("account_drawdown", None)
+    sl_on = st.checkbox("Stop-loss / take-profit per asset (fixed when bought)", "stop_target" in s["exits"])
+    if sl_on:
+        stg = s["exits"].get(
+            "stop_target", {"unit": "atr", "stop": 2.0, "target": 4.0, "atr_window": 14, "cooldown_days": 10}
+        )
+        c1, c2, c3, c4 = st.columns(4)
+        unit = c1.selectbox(
+            "Measured in",
+            ["atr", "pct"],
+            index=["atr", "pct"].index(stg.get("unit", "atr")),
+            format_func=lambda u: "ATR multiples" if u == "atr" else "% of the buy price",
+        )
+        scale = 1.0 if unit == "atr" else 100.0
+        top = 10.0 if unit == "atr" else 90.0
+        stop_v = (
+            float(stg.get("stop") or 0) * scale if stg.get("unit", "atr") == unit else (2.0 if unit == "atr" else 10.0)
+        )
+        tgt_v = (
+            float(stg.get("target") or 0) * scale
+            if stg.get("unit", "atr") == unit
+            else (4.0 if unit == "atr" else 20.0)
+        )
+        stop_in = c2.number_input("Stop below buy (0 = none)", 0.0, top, round(stop_v, 4), 0.5)
+        tgt_in = c3.number_input("Target above buy (0 = none)", 0.0, top, round(tgt_v, 4), 0.5)
+        cool = int(c4.number_input("Days out after an exit", 0, 252, int(stg.get("cooldown_days", 10))))
+        s["exits"]["stop_target"] = {
+            "unit": unit,
+            "stop": round(stop_in / scale, 6) if stop_in > 0 else None,
+            "target": round(tgt_in / scale, 6) if tgt_in > 0 else None,
+            "atr_window": int(stg.get("atr_window", 14)),
+            "cooldown_days": cool,
+        }
+    else:
+        s["exits"].pop("stop_target", None)
 
     st.markdown("#### Execution and benchmark")
     c1, c2, c3 = st.columns(3)

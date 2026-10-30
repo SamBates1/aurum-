@@ -83,6 +83,21 @@ def exit_rule(spec: dict, ticker: str) -> str:
             parts.append(f"cut to {g['when_false']:.0%} of normal when '{g['label']}' stops being met")
     if "trailing_stop" in s["exits"]:
         parts.append(f"sell after a {float(s['exits']['trailing_stop']['pct']):.0%} fall from its peak")
+    stg = s["exits"].get("stop_target")
+    if stg:
+        u = stg.get("unit", "atr")
+        if stg.get("stop") is not None:
+            parts.append(
+                f"sell if it closes {stg['stop']:g} ATR below the buy price"
+                if u == "atr"
+                else f"sell if it closes {float(stg['stop']):.0%} below the buy price"
+            )
+        if stg.get("target") is not None:
+            parts.append(
+                f"take profit if it closes {stg['target']:g} ATR above the buy price"
+                if u == "atr"
+                else f"take profit if it closes {float(stg['target']):.0%} above the buy price"
+            )
     if sch["rebalance"] != "once":
         drift = f"more than {sch['band']:.0%} of the account above target" if sch["band"] > 0 else "above target"
         parts.append(f"trim back to target at each {sch['rebalance']} check if it has grown {drift}")

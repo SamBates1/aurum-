@@ -20,7 +20,7 @@ import pandas as pd
 
 from . import engine as E
 from . import spec as SP
-from .indicators import INDICATORS, compute
+from .indicators import INDICATORS, compute, pivot_levels, session_vwap
 from .livechart.payload import esc
 
 NY = "America/New_York"
@@ -55,7 +55,12 @@ EXTRA = {
     "RSI 14": ("rsi", {"n": 14}, "panel"),
     "MACD 12/26/9": ("macd", {"fast": 12, "slow": 26, "signal": 9}, "panel"),
     "ATR 14 (% of price)": ("atr_pct", {"n": 14}, "panel"),
+    "VWAP (session)": ("vwap", {}, "price"),
+    "Stochastic 14, 3": ("stoch", {"n": 14, "smooth": 3}, "panel"),
+    "ADX 14": ("adx", {"n": 14}, "panel"),
+    "Support / resistance": ("levels", {"k": 5}, "price"),
 }
+PANEL_LEVELS = {"rsi": [30, 70], "macd": [0], "stoch": [20, 80], "adx": [25]}
 
 
 def regular_hours(bars: pd.DataFrame, timeframe: str) -> pd.DataFrame:
@@ -69,11 +74,18 @@ def regular_hours(bars: pd.DataFrame, timeframe: str) -> pd.DataFrame:
     return bars[(ny.day_of_week < 5) & (mins >= first) & (mins < 960)]
 
 
-def daily_frame(bars: pd.DataFrame) -> pd.DataFrame:
-    """Provider daily bars -> the engine's convention (one row per New York trading date, no time zone)."""
+def daily_frame(bars: pd.DataFrame, now: pd.Timestamp | None = None) -> pd.DataFrame:
+    """Provider daily bars -> the engine's convention (one row per New York trading date, no time zone).
+
+    Only completed days are kept: while today's session is still running (before 16:00 New York) today's bar is a
+    partial day, and a strategy deciding "at the close" must not treat it as a close."""
     d = bars.copy()
-    d.index = pd.DatetimeIndex(d.index.tz_convert(NY).date)
+    d.index = pd.DatetimeIndex((d.index.tz_convert(NY) + pd.Timedelta(hours=12)).date)
     d.index.name = None
+    t = pd.Timestamp(now) if now is not None else pd.Timestamp.now(tz="UTC")
+    t = (t.tz_localize("UTC") if t.tzinfo is None else t).tz_convert(NY)
+    if len(d) and d.index[-1].date() >= t.date() and t.hour < 16:
+        d = d.iloc[:-1]
     return d[["Open", "High", "Low", "Close", "Volume"]]
 
 
@@ -161,6 +173,24 @@ def extra_indicator(label: str, bars: pd.DataFrame) -> list[dict]:
                 "dashed": True,
             },
         ]
+    if key == "vwap":
+        if (
+            not getattr(bars.index, "tz", None)
+            or len(bars) < 2
+            or (bars.index[1] - bars.index[0]) >= pd.Timedelta(days=1)
+        ):
+            return []  # VWAP restarts each session: only meaningful on intraday charts
+        src = sorted(set(bars["source"].dropna())) if "source" in bars else []
+        note = " (IEX volume only)" if src == ["IEX"] else (" (latest bars: IEX volume only)" if "IEX" in src else "")
+        return [{"name": f"VWAP (session){note}", "series": session_vwap(p), "where": "price", "kind": "line"}]
+    if key == "levels":
+        lv = pivot_levels(p, params["k"])
+        return [
+            {"name": "Resistance (swing high)", "series": lv["resistance"], "where": "price", "dashed": True},
+            {"name": "Support (swing low)", "series": lv["support"], "where": "price", "dashed": True},
+        ]
+    if key == "stoch":
+        return [{"name": label, "series": compute("stoch_k", p, params), "where": "panel", "kind": "line"}]
     if key == "macd":
         c = p["Close"]
         line = (
@@ -261,7 +291,13 @@ def strategy_layers(sv: StrategyView, bars: pd.DataFrame, timeframe: str, capita
         if timeframe in ("1d", "1w"):
             when = fill.tz_localize(NY).tz_convert("UTC") + pd.Timedelta(hours=12)
         pct = r["pct_of_account"]
-        markers.append({"time": when, "side": r["side"], "text": f"{r['side']} {pct:.0%}"})
+        markers.append(
+            {
+                "time": when,
+                "side": r["side"],
+                "text": f"{r['side']} {pct:.1%}" if pct < 0.01 else f"{r['side']} {pct:.0%}",
+            }
+        )
         ex = E.explain_day(run, r["decided"])
         lines = [
             f"<div class='head {'buy' if r['side'] == 'BUY' else 'sell'}'>{esc(r['side'])} {esc(sym)}: "

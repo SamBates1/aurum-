@@ -231,3 +231,15 @@ main strategy: `strategies/spy-gld-70-30-daily.yaml`, the same 70/30 rebalanced 
 band), approved as a shadow (evidence only). Orders down to $5 are allowed for this paper account only (the $25 risk
 minimum would skip most daily drift); all other limits are unchanged. EXP-045 found rebalancing frequency made little
 difference, so it is expected to track the main account closely with more, smaller trades and slightly higher costs.
+
+**D-039 — Live charts and trade plans (live-charts stages 1-3)** (2026-10-30)
+The owner approved the live-charts build plan. Prices come from Alpaca's free plan (IEX real-time, always labelled
+as one exchange; consolidated history older than 15 minutes); charts use TradingView Lightweight Charts inside Aurum
+(Live Analysis page). Strategy indicators on intraday charts use the previous close's value, and the strategy and
+trade plan only use completed daily closes (today's unfinished bar is never treated as a close). The trade plan shows
+a stop (the strategy's own, or 2 x ATR by default), 2R/3R targets, size in pounds (1% of a £10,000 paper account at
+risk, never above the strategy's weight or the risk engine's 85% cap; tickers outside the risk engine's allowed list
+get no size) and a rule-based confidence assessment (not a probability). A new engine exit, `stop_target`, is being
+tested in EXP-049 before any strategy may use it. Engine fix: exits (trailing stop and the new stop/target) are now
+acted on at the close that triggers them instead of waiting for the next scheduled rebalance; no saved strategy used a
+trailing stop, so no approved strategy or paper account changes.

@@ -17,7 +17,9 @@ CONTACT = "SamBates1@users.noreply.github.com"
 AGENTS = {
     "name + contact": f"Aurum research project {CONTACT}",
     "short": f"SamBates1 {CONTACT}",
-    "browser-style + contact": f"Mozilla/5.0 (compatible; AurumResearch/1.0; +https://github.com/SamBates1/aurum-) {CONTACT}",
+    "browser-style + contact": (
+        f"Mozilla/5.0 (compatible; AurumResearch/1.0; +https://github.com/SamBates1/aurum-) {CONTACT}"
+    ),
 }
 URLS = {
     "ticker list (www.sec.gov)": "https://www.sec.gov/files/company_tickers.json",

@@ -1,0 +1,52 @@
+{
+ "scanner": "long-term",
+ "asof": "2026-10-30 00:00:00",
+ "stages": [
+  [
+   "1. validate",
+   3924,
+   "eligible in the universe snapshot"
+  ],
+  [
+   "2. filter: kind",
+   3924,
+   "kinds: stock, etf, commodity etf"
+  ],
+  [
+   "2. filter: price",
+   3639,
+   "price at least $10"
+  ],
+  [
+   "2. filter: volume",
+   2493,
+   "at least $20M traded a day"
+  ],
+  [
+   "3. analyse",
+   2430,
+   "252+ days of history, signals computed"
+  ],
+  [
+   "3b. company accounts",
+   0,
+   "SEC unavailable today"
+  ],
+  [
+   "4. rank",
+   300,
+   "equal weights (untested)"
+  ],
+  [
+   "5. risk check",
+   300,
+   "portfolio checks added in phase 5"
+  ]
+ ],
+ "weights": {
+  "momentum": 0.3333333333333333,
+  "low_volatility": 0.3333333333333333,
+  "near_52w_high": 0.3333333333333333
+ },
+ "evidence": "untested"
+}

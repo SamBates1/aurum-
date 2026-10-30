@@ -202,6 +202,8 @@ def reproduce(rec: dict, spec: dict, daily: dict[str, pd.DataFrame], rf=0.0) -> 
     fp = data_fingerprint({t: cut[t] for t in SP.assets_needed(sv.spec)}, rec["as_of"])
     if fp != rec["data_fingerprint"]:
         return False, "the price data differs from what was recorded (revised or different source)"
+    if rec.get("research_only"):
+        return sv.research_only, "not covered by the strategy, same data and strategy"
     w = float(sv.run.compiled.raw_target[rec["symbol"]].iloc[-1])
     ok = abs(w - float(rec["recommendation"]["target_weight"])) < 1e-4
     return ok, f"target weight {w:.4f} vs recorded {rec['recommendation']['target_weight']:.4f}"

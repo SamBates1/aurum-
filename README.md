@@ -101,6 +101,16 @@ No API keys are needed: Yahoo Finance and FRED are used without credentials. `.e
 Configuration is in [`config.yaml`](config.yaml): universe, macro series, model settings, strategy weights and
 thresholds, risk limits, cost assumptions and the holdout date.
 
+## Decision Board (v0.8)
+
+The first page in the list. Choose the strategy to follow, enter your money (or what you already hold), press
+**Check now** at any time and get one clear answer per asset: BUY / SELL / HOLD, the amount in pounds, when to act,
+which UK-listed fund to use (e.g. VUSA for the S&P 500, SGLN for gold), when to sell, why, and the evidence behind
+the strategy. The decision uses the last completed daily close, exactly as tested; while the US market is open a
+live preview shows whether today's (delayed) prices would change it. Small live charts show the indicators the
+strategy uses, and a watchlist scan covers the other tickers. It is what the strategy says, not personal financial
+advice: you place any trade yourself (D-036).
+
 ## Strategy Designer (v0.7)
 
 Open the dashboard (`python -m streamlit run app.py`) and choose **Strategy Designer** in the page list.

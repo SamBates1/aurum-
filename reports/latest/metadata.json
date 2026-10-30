@@ -1,7 +1,7 @@
 {
-  "run_at": "2026-10-30T11:56:36+00:00",
-  "git_commit": "f6cea5b",
-  "config_hash": "cc68131bf771",
+  "run_at": "2026-10-30T15:11:12+00:00",
+  "git_commit": "abbe644",
+  "config_hash": "44b1b488763f",
   "offline": false,
   "tickers": [
     "GLD",
@@ -12,7 +12,7 @@
     "WPM"
   ],
   "eval_start": "2013-10-18",
-  "data_end": "2026-10-29",
+  "data_end": "2026-10-30",
   "model_params": {
     "max_depth": 3,
     "learning_rate": 0.05,
@@ -28,55 +28,55 @@
     "GLD": {
       "name": "GLD",
       "source": "yahoo:GLD",
-      "retrieved_at": "2026-10-30T11:56:40+00:00",
-      "rows": 4232,
+      "retrieved_at": "2026-10-30T15:11:17+00:00",
+      "rows": 4233,
       "first": "2010-01-04",
-      "last": "2026-10-29"
+      "last": "2026-10-30"
     },
     "SLV": {
       "name": "SLV",
       "source": "yahoo:SLV",
-      "retrieved_at": "2026-10-30T11:56:51+00:00",
-      "rows": 4232,
+      "retrieved_at": "2026-10-30T15:11:29+00:00",
+      "rows": 4233,
       "first": "2010-01-04",
-      "last": "2026-10-29"
+      "last": "2026-10-30"
     },
     "GDX": {
       "name": "GDX",
       "source": "yahoo:GDX",
-      "retrieved_at": "2026-10-30T11:56:40+00:00",
-      "rows": 4232,
+      "retrieved_at": "2026-10-30T15:11:17+00:00",
+      "rows": 4233,
       "first": "2010-01-04",
-      "last": "2026-10-29"
+      "last": "2026-10-30"
     },
     "NEM": {
       "name": "NEM",
       "source": "yahoo:NEM",
-      "retrieved_at": "2026-10-30T11:57:12+00:00",
-      "rows": 4232,
+      "retrieved_at": "2026-10-30T15:11:52+00:00",
+      "rows": 4233,
       "first": "2010-01-04",
-      "last": "2026-10-29"
+      "last": "2026-10-30"
     },
     "AEM": {
       "name": "AEM",
       "source": "yahoo:AEM",
-      "retrieved_at": "2026-10-30T11:57:22+00:00",
-      "rows": 4232,
+      "retrieved_at": "2026-10-30T15:12:03+00:00",
+      "rows": 4233,
       "first": "2010-01-04",
-      "last": "2026-10-29"
+      "last": "2026-10-30"
     },
     "WPM": {
       "name": "WPM",
       "source": "yahoo:WPM",
-      "retrieved_at": "2026-10-30T11:57:32+00:00",
-      "rows": 4232,
+      "retrieved_at": "2026-10-30T15:12:14+00:00",
+      "rows": 4233,
       "first": "2010-01-04",
-      "last": "2026-10-29"
+      "last": "2026-10-30"
     }
   },
   "data_events": [
     {
-      "time": "2026-10-30T11:56:39+00:00",
+      "time": "2026-10-30T15:11:16+00:00",
       "level": "warning",
       "source": "CL=F",
       "message": "dropped 1 rows with missing/non-positive close"

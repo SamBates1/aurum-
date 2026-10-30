@@ -1,0 +1,127 @@
+{
+ "run_at": "2026-10-30T15:12:29.890964+00:00",
+ "data_label": "Yahoo Finance adjusted daily data (EOD), completed bars to 2026-10-30; historical backtest, net of costs",
+ "code": "7aaf0b313979",
+ "commit": "abbe644",
+ "data": {
+  "GLD": {
+   "rows": 5137,
+   "first": "2006-06-01",
+   "last": "2026-10-30",
+   "sha256_close": "a5c6d379a5f67b08"
+  },
+  "SPY": {
+   "rows": 5137,
+   "first": "2006-06-01",
+   "last": "2026-10-30",
+   "sha256_close": "1ec371f8c8daa38c"
+  }
+ },
+ "strategies": {
+  "exp049-atr-2-4": {
+   "spec_hash": "088ab8c10857",
+   "summary": {
+    "start": "2006-06-01",
+    "end": "2026-10-30",
+    "years": "20.384920634920636",
+    "final_value": "41443.48880301082",
+    "total_return": "3.1443488803010817",
+    "cagr": "0.07223469502753077",
+    "volatility": "0.11603259248137729",
+    "sharpe": "0.5158633495458053",
+    "sortino": "0.7197578583971647",
+    "max_drawdown": "-0.32323724759719696",
+    "max_drawdown_peak": "2007-10-31",
+    "max_drawdown_trough": "2008-11-20",
+    "recovered_on": "2009-10-08",
+    "calmar": "0.2234726831901076",
+    "avg_exposure": "0.7118397901246415",
+    "turnover_per_year": "13.836998495522199",
+    "costs_per_year": "0.003234524944778397",
+    "costs_paid": "1392.0173957961438",
+    "orders": "1231",
+    "orders_per_year": "60.38777496593342",
+    "best_year": "0.40300262401621967",
+    "worst_year": "-0.25475066792462653",
+    "worst_day": "-0.07884581328166462",
+    "var_95_daily": "-0.01101259444808089",
+    "excess_mean_ann": "0.05985922742630201"
+   },
+   "fair_test": {
+    "status": "failed",
+    "explanation": "Worse than the benchmark in development: lower Sharpe ratio and no meaningful reduction in falls.",
+    "report": "research/fairtests/2026-10-30-exp049-atr-2-4-088ab8c10857.md"
+   }
+  },
+  "exp049-atr-3-6": {
+   "spec_hash": "7b9fdc57f822",
+   "summary": {
+    "start": "2006-06-01",
+    "end": "2026-10-30",
+    "years": "20.384920634920636",
+    "final_value": "49910.79191540313",
+    "total_return": "3.9910791915403134",
+    "cagr": "0.08205798971521139",
+    "volatility": "0.12893617684628386",
+    "sharpe": "0.5472188188944825",
+    "sortino": "0.7696178440140279",
+    "max_drawdown": "-0.4282180121885101",
+    "max_drawdown_peak": "2007-10-31",
+    "max_drawdown_trough": "2008-11-20",
+    "recovered_on": "2010-10-18",
+    "calmar": "0.19162666534234396",
+    "avg_exposure": "0.8606644759975446",
+    "turnover_per_year": "6.733949831826912",
+    "costs_per_year": "0.0015711570675100628",
+    "costs_paid": "710.9745212193934",
+    "orders": "897",
+    "orders_per_year": "44.00311465836091",
+    "best_year": "0.512550985646931",
+    "worst_year": "-0.30317169037017144",
+    "worst_day": "-0.07859730236373885",
+    "var_95_daily": "-0.012803468096989888",
+    "excess_mean_ann": "0.0705606380392728"
+   },
+   "fair_test": {
+    "status": "failed",
+    "explanation": "Worse than the benchmark in development: lower Sharpe ratio and no meaningful reduction in falls.",
+    "report": "research/fairtests/2026-10-30-exp049-atr-3-6-7b9fdc57f822.md"
+   }
+  },
+  "exp049-pct-10-stop": {
+   "spec_hash": "d28c59464d87",
+   "summary": {
+    "start": "2006-06-01",
+    "end": "2026-10-30",
+    "years": "20.384920634920636",
+    "final_value": "86387.88385493547",
+    "total_return": "7.638788385493546",
+    "cagr": "0.11157432720886384",
+    "volatility": "0.136615914962528",
+    "sharpe": "0.721105976990033",
+    "sortino": "1.0101308511311828",
+    "max_drawdown": "-0.2919528849016243",
+    "max_drawdown_peak": "2007-10-31",
+    "max_drawdown_trough": "2009-01-20",
+    "recovered_on": "2009-12-01",
+    "calmar": "0.38216552388738906",
+    "avg_exposure": "0.9882182058699801",
+    "turnover_per_year": "0.34638916734307523",
+    "costs_per_year": "8.414999360643383e-05",
+    "costs_paid": "50.94527170821477",
+    "orders": "505",
+    "orders_per_year": "24.773213938096163",
+    "best_year": "0.30331332479224415",
+    "worst_year": "-0.21384190246360057",
+    "worst_day": "-0.0781963108660072",
+    "var_95_daily": "-0.013592133656440918",
+    "excess_mean_ann": "0.09851066630098532"
+   },
+   "fair_test": {
+    "status": "inconclusive",
+    "explanation": "Neither clearly better nor clearly worse than the benchmark in development.",
+    "report": "research/fairtests/2026-10-30-exp049-pct-10-stop-d28c59464d87.md"
+   }
+  }
+ }
+}

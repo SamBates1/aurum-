@@ -1,0 +1,250 @@
+{
+ "strategy_id": "exp049-atr-3-6",
+ "name": "EXP-049: 70/30 with ATR(14) stop 3, target 6",
+ "version": 1,
+ "spec_hash": "7b9fdc57f822",
+ "status": "failed",
+ "explanation": "Worse than the benchmark in development: lower Sharpe ratio and no meaningful reduction in falls.",
+ "checks": [
+  {
+   "name": "Valid definition",
+   "passed": true,
+   "detail": "exp049-atr-3-6 v1, hash 7b9fdc57f822",
+   "kind": "check"
+  },
+  {
+   "name": "Enough clean data",
+   "passed": true,
+   "detail": "20.4 years of common daily data (2006-06-01 to 2026-10-30); longest gap 5.0 days",
+   "kind": "check"
+  },
+  {
+   "name": "No look-ahead",
+   "passed": true,
+   "detail": "targets identical when data after 3 cut dates were removed",
+   "kind": "check"
+  },
+  {
+   "name": "Accounting",
+   "passed": true,
+   "detail": "no borrowing, no negative cash, costs charged on every order",
+   "kind": "check"
+  },
+  {
+   "name": "Execution: next-close fills and 1 day late",
+   "passed": false,
+   "detail": "development Sharpe 0.69; next-close fills 0.58; one day late 0.51",
+   "kind": "check"
+  },
+  {
+   "name": "Not fragile (+-20% on every number)",
+   "passed": false,
+   "detail": "6 nudged versions: development Sharpe from 0.47 to 0.87 (as defined 0.69)",
+   "kind": "check"
+  },
+  {
+   "name": "Deflated Sharpe ratio",
+   "passed": false,
+   "detail": "DSR 0.35 allowing for 101 versions tried (needs >= 0.50)",
+   "kind": "evidence"
+  }
+ ],
+ "numbers": {
+  "periods": {
+   "pre": [
+    "2006-06-01",
+    "2013-10-17"
+   ],
+   "dev": [
+    "2013-10-18",
+    "2023-12-31"
+   ],
+   "holdout": [
+    "2024-01-01",
+    null
+   ]
+  },
+  "comparison": {
+   "pre": {
+    "sharpe": 0.4051267739663259,
+    "bench_sharpe": 0.46908249021157883,
+    "cagr": 0.06574234285485425,
+    "bench_cagr": 0.08211264981205257,
+    "max_drawdown": -0.4282180121885101,
+    "bench_max_drawdown": -0.3847432440061235,
+    "d_sharpe": -0.06395571624525292,
+    "share_better": 0.246,
+    "diff_p05": -0.26143572366516576,
+    "diff_p95": 0.09844486672672594,
+    "dd_rel": -0.23399646398542906
+   },
+   "dev": {
+    "sharpe": 0.6879812033771915,
+    "bench_sharpe": 0.7331850414771691,
+    "cagr": 0.08409972974154734,
+    "bench_cagr": 0.10326259569704122,
+    "max_drawdown": -0.20459764676894143,
+    "bench_max_drawdown": -0.2509270658249234,
+    "d_sharpe": -0.04520383809997763,
+    "share_better": 0.382,
+    "diff_p05": -0.3968046773905007,
+    "diff_p95": 0.2777768649443253,
+    "dd_rel": 0.02840318679180931
+   },
+   "holdout": {
+    "sharpe": 0.648191280420684,
+    "bench_sharpe": 1.1879985296824507,
+    "cagr": 0.11805109750894949,
+    "bench_cagr": 0.21709019751888903,
+    "max_drawdown": -0.13897519177086537,
+    "bench_max_drawdown": -0.12938507800532206,
+    "d_sharpe": -0.5398072492617667,
+    "share_better": 0.006,
+    "diff_p05": -0.9404490328813255,
+    "diff_p95": -0.14511357233540736,
+    "dd_rel": -0.2635153522275764
+   },
+   "full": {
+    "sharpe": 0.5472188188944825,
+    "bench_sharpe": 0.6707002851794088,
+    "cagr": 0.08205798971521139,
+    "bench_cagr": 0.11048404339806384,
+    "max_drawdown": -0.4282180121885101,
+    "bench_max_drawdown": -0.3847432440061235,
+    "d_sharpe": -0.12348146628492629,
+    "share_better": 0.109,
+    "diff_p05": -0.2945559605188712,
+    "diff_p95": 0.043130930136504125,
+    "dd_rel": -0.2755878243796457
+   }
+  },
+  "dev_2x_costs": {
+   "sharpe": 0.6721403205791662,
+   "bench_sharpe": 0.7327237407975105,
+   "cagr": 0.08224172089473014,
+   "bench_cagr": 0.1031968362249851,
+   "max_drawdown": -0.20585723796551947,
+   "bench_max_drawdown": -0.25093323674897694,
+   "d_sharpe": -0.060583420218344286,
+   "share_better": 0.363,
+   "diff_p05": -0.41234374006107855,
+   "diff_p95": 0.26464948568500996,
+   "dd_rel": 0.022278105766421197
+  },
+  "execution": {
+   "dev_sharpe": 0.6879812033771915,
+   "next_close": 0.5787436600981974,
+   "one_day_late": 0.5053093656824819
+  },
+  "sensitivity": [
+   {
+    "change": "SPY weight -10%",
+    "dev_sharpe": 0.6648911847903465
+   },
+   {
+    "change": "SPY weight +10%",
+    "dev_sharpe": 0.6927270445580876
+   },
+   {
+    "change": "stop x0.8",
+    "dev_sharpe": 0.761495642533295
+   },
+   {
+    "change": "stop x1.2",
+    "dev_sharpe": 0.8715966316817761
+   },
+   {
+    "change": "target x0.8",
+    "dev_sharpe": 0.5580972739431441
+   },
+   {
+    "change": "target x1.2",
+    "dev_sharpe": 0.4679648935827791
+   }
+  ],
+  "pbo": {
+   "pbo": 0.13822843822843822,
+   "n_splits": 12870,
+   "median_logit": 1.9459101490553132
+  },
+  "dsr": 0.3483564293623497,
+  "n_trials": 101,
+  "benchmark": "A: 70/30 SPY/GLD, monthly rebalance",
+  "summary_full": {
+   "start": "2006-06-01",
+   "end": "2026-10-30",
+   "years": 20.384920634920636,
+   "final_value": 49910.79191540313,
+   "total_return": 3.9910791915403134,
+   "cagr": 0.08205798971521139,
+   "volatility": 0.12893617684628386,
+   "sharpe": 0.5472188188944825,
+   "sortino": 0.7696178440140279,
+   "max_drawdown": -0.4282180121885101,
+   "max_drawdown_peak": "2007-10-31",
+   "max_drawdown_trough": "2008-11-20",
+   "recovered_on": "2010-10-18",
+   "calmar": 0.19162666534234396,
+   "avg_exposure": 0.8606644759975446,
+   "turnover_per_year": 6.733949831826912,
+   "costs_per_year": 0.0015711570675100628,
+   "costs_paid": 710.9745212193934,
+   "orders": 897,
+   "orders_per_year": 44.00311465836091,
+   "best_year": 0.512550985646931,
+   "worst_year": -0.30317169037017144,
+   "worst_day": -0.07859730236373885,
+   "var_95_daily": -0.012803468096989888,
+   "excess_mean_ann": 0.0705606380392728
+  }
+ },
+ "data_label": "Yahoo Finance adjusted daily data (EOD), completed bars to 2026-10-30; historical backtest, net of costs",
+ "code_fingerprint": "7aaf0b313979",
+ "git_commit": "abbe644",
+ "run_at": "2026-10-30T15:12:41+00:00",
+ "spec": {
+  "id": "exp049-atr-3-6",
+  "name": "EXP-049: 70/30 with ATR(14) stop 3, target 6",
+  "version": 1,
+  "description": "Research only (EXP-049, pre-registered 2026-10-30). Strategy A (70/30 SPY/GLD, monthly) plus a per-asset stop-loss / take-profit fixed at the entry close: ATR(14) stop 3, target 6, 10 days out after an exit. Not a paper account.",
+  "universe": [
+   "SPY",
+   "GLD"
+  ],
+  "base_weights": {
+   "SPY": 0.7,
+   "GLD": 0.3
+  },
+  "benchmark": "spy-gld-70-30-monthly",
+  "schedule": {
+   "rebalance": "monthly",
+   "band": 0.0,
+   "act_on_signal_change": false
+  },
+  "sizing": {
+   "method": "fixed",
+   "target_vol": 0.2,
+   "vol_window": 21,
+   "max_weight": 1.0
+  },
+  "signals": [],
+  "exits": {
+   "stop_target": {
+    "unit": "atr",
+    "stop": 3.0,
+    "target": 6.0,
+    "atr_window": 14,
+    "cooldown_days": 10
+   }
+  },
+  "execution": {
+   "fill": "open",
+   "costs_bps": {
+    "SPY": 2.0,
+    "GLD": 3.0
+   },
+   "cost_mult": 1.0
+  },
+  "start": "2006-06-01"
+ }
+}

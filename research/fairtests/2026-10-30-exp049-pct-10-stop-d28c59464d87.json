@@ -1,0 +1,242 @@
+{
+ "strategy_id": "exp049-pct-10-stop",
+ "name": "EXP-049: 70/30 with 10% stop, no target",
+ "version": 1,
+ "spec_hash": "d28c59464d87",
+ "status": "inconclusive",
+ "explanation": "Neither clearly better nor clearly worse than the benchmark in development.",
+ "checks": [
+  {
+   "name": "Valid definition",
+   "passed": true,
+   "detail": "exp049-pct-10-stop v1, hash d28c59464d87",
+   "kind": "check"
+  },
+  {
+   "name": "Enough clean data",
+   "passed": true,
+   "detail": "20.4 years of common daily data (2006-06-01 to 2026-10-30); longest gap 5.0 days",
+   "kind": "check"
+  },
+  {
+   "name": "No look-ahead",
+   "passed": true,
+   "detail": "targets identical when data after 3 cut dates were removed",
+   "kind": "check"
+  },
+  {
+   "name": "Accounting",
+   "passed": true,
+   "detail": "no borrowing, no negative cash, costs charged on every order",
+   "kind": "check"
+  },
+  {
+   "name": "Execution: next-close fills and 1 day late",
+   "passed": true,
+   "detail": "development Sharpe 0.73; next-close fills 0.73; one day late 0.73",
+   "kind": "check"
+  },
+  {
+   "name": "Not fragile (+-20% on every number)",
+   "passed": true,
+   "detail": "4 nudged versions: development Sharpe from 0.72 to 0.73 (as defined 0.73)",
+   "kind": "check"
+  },
+  {
+   "name": "Deflated Sharpe ratio",
+   "passed": false,
+   "detail": "DSR 0.40 allowing for 102 versions tried (needs >= 0.50)",
+   "kind": "evidence"
+  }
+ ],
+ "numbers": {
+  "periods": {
+   "pre": [
+    "2006-06-01",
+    "2013-10-17"
+   ],
+   "dev": [
+    "2013-10-18",
+    "2023-12-31"
+   ],
+   "holdout": [
+    "2024-01-01",
+    null
+   ]
+  },
+  "comparison": {
+   "pre": {
+    "sharpe": 0.5448292847212285,
+    "bench_sharpe": 0.46908249021157883,
+    "cagr": 0.08505101490197986,
+    "bench_cagr": 0.08211264981205257,
+    "max_drawdown": -0.2919528849016243,
+    "bench_max_drawdown": -0.3847432440061235,
+    "d_sharpe": 0.07574679450964966,
+    "share_better": 0.688,
+    "diff_p05": -0.11610592708066146,
+    "diff_p95": 0.2506778768595908,
+    "dd_rel": 0.10049954982895759
+   },
+   "dev": {
+    "sharpe": 0.7331850414771696,
+    "bench_sharpe": 0.7331850414771691,
+    "cagr": 0.10326259569704122,
+    "bench_cagr": 0.10326259569704122,
+    "max_drawdown": -0.2509270658249234,
+    "bench_max_drawdown": -0.2509270658249234,
+    "d_sharpe": 4.440892098500626e-16,
+    "share_better": 0.581,
+    "diff_p05": -4.335420911161236e-15,
+    "diff_p95": 5.773159728050814e-15,
+    "dd_rel": -6.661338147750939e-16
+   },
+   "holdout": {
+    "sharpe": 1.1879985296824476,
+    "bench_sharpe": 1.1879985296824507,
+    "cagr": 0.21709019751888792,
+    "bench_cagr": 0.21709019751888903,
+    "max_drawdown": -0.12938507800532228,
+    "bench_max_drawdown": -0.12938507800532206,
+    "d_sharpe": -3.1086244689504383e-15,
+    "share_better": 0.309,
+    "diff_p05": -1.3894441153183833e-14,
+    "diff_p95": 7.327471962526033e-15,
+    "dd_rel": -1.3322676295501878e-15
+   },
+   "full": {
+    "sharpe": 0.721105976990033,
+    "bench_sharpe": 0.6707002851794088,
+    "cagr": 0.11157432720886384,
+    "bench_cagr": 0.11048404339806384,
+    "max_drawdown": -0.2919528849016243,
+    "bench_max_drawdown": -0.3847432440061235,
+    "d_sharpe": 0.050405691810624154,
+    "share_better": 0.813,
+    "diff_p05": -0.02951120185262275,
+    "diff_p95": 0.14254602307512276,
+    "dd_rel": 0.17921067661943113
+   }
+  },
+  "dev_2x_costs": {
+   "sharpe": 0.7327237407975105,
+   "bench_sharpe": 0.7327237407975105,
+   "cagr": 0.10319683622498488,
+   "bench_cagr": 0.1031968362249851,
+   "max_drawdown": -0.25093323674897683,
+   "bench_max_drawdown": -0.25093323674897694,
+   "d_sharpe": 0.0,
+   "share_better": 0.508,
+   "diff_p05": -5.995204332975845e-15,
+   "diff_p95": 5.329070518200751e-15,
+   "dd_rel": 6.661338147750939e-16
+  },
+  "execution": {
+   "dev_sharpe": 0.7331850414771696,
+   "next_close": 0.729951860680706,
+   "one_day_late": 0.7289816942315055
+  },
+  "sensitivity": [
+   {
+    "change": "SPY weight -10%",
+    "dev_sharpe": 0.7255601118229179
+   },
+   {
+    "change": "SPY weight +10%",
+    "dev_sharpe": 0.7245437946507773
+   },
+   {
+    "change": "stop x0.8",
+    "dev_sharpe": 0.7331850414771666
+   },
+   {
+    "change": "stop x1.2",
+    "dev_sharpe": 0.733185041477169
+   }
+  ],
+  "pbo": {
+   "pbo": 0.9653457653457653,
+   "n_splits": 12870,
+   "median_logit": -1.6094379124341005
+  },
+  "dsr": 0.4022023091784651,
+  "n_trials": 102,
+  "benchmark": "A: 70/30 SPY/GLD, monthly rebalance",
+  "summary_full": {
+   "start": "2006-06-01",
+   "end": "2026-10-30",
+   "years": 20.384920634920636,
+   "final_value": 86387.88385493547,
+   "total_return": 7.638788385493546,
+   "cagr": 0.11157432720886384,
+   "volatility": 0.136615914962528,
+   "sharpe": 0.721105976990033,
+   "sortino": 1.0101308511311828,
+   "max_drawdown": -0.2919528849016243,
+   "max_drawdown_peak": "2007-10-31",
+   "max_drawdown_trough": "2009-01-20",
+   "recovered_on": "2009-12-01",
+   "calmar": 0.38216552388738906,
+   "avg_exposure": 0.9882182058699801,
+   "turnover_per_year": 0.34638916734307523,
+   "costs_per_year": 8.414999360643383e-05,
+   "costs_paid": 50.94527170821477,
+   "orders": 505,
+   "orders_per_year": 24.773213938096163,
+   "best_year": 0.30331332479224415,
+   "worst_year": -0.21384190246360057,
+   "worst_day": -0.0781963108660072,
+   "var_95_daily": -0.013592133656440918,
+   "excess_mean_ann": 0.09851066630098532
+  }
+ },
+ "data_label": "Yahoo Finance adjusted daily data (EOD), completed bars to 2026-10-30; historical backtest, net of costs",
+ "code_fingerprint": "7aaf0b313979",
+ "git_commit": "abbe644",
+ "run_at": "2026-10-30T15:12:45+00:00",
+ "spec": {
+  "id": "exp049-pct-10-stop",
+  "name": "EXP-049: 70/30 with 10% stop, no target",
+  "version": 1,
+  "description": "Research only (EXP-049, pre-registered 2026-10-30). Strategy A (70/30 SPY/GLD, monthly) plus a per-asset stop-loss / take-profit fixed at the entry close: 10% stop, no target, 21 days out after an exit. Not a paper account.",
+  "universe": [
+   "SPY",
+   "GLD"
+  ],
+  "base_weights": {
+   "SPY": 0.7,
+   "GLD": 0.3
+  },
+  "benchmark": "spy-gld-70-30-monthly",
+  "schedule": {
+   "rebalance": "monthly",
+   "band": 0.0,
+   "act_on_signal_change": false
+  },
+  "sizing": {
+   "method": "fixed",
+   "target_vol": 0.2,
+   "vol_window": 21,
+   "max_weight": 1.0
+  },
+  "signals": [],
+  "exits": {
+   "stop_target": {
+    "unit": "pct",
+    "stop": 0.1,
+    "target": null,
+    "atr_window": 14,
+    "cooldown_days": 21
+   }
+  },
+  "execution": {
+   "fill": "open",
+   "costs_bps": {
+    "SPY": 2.0,
+    "GLD": 3.0
+   },
+   "cost_mult": 1.0
+  },
+  "start": "2006-06-01"
+ }
+}

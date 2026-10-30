@@ -1,4 +1,4 @@
-=== python run_designer.py  --ids spy-gld-70-30-daily ===
+=== python run_designer.py  --ids exp049-atr-2-4,exp049-atr-3-6,exp049-pct-10-stop ===
 /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/yfinance/utils.py:568: Pandas4Warning: The inplace keyword in DataFrame.sort_index is deprecated and will be removed in a future version (PDEP-8).
 See https://pandas.pydata.org/docs/dev/whatsnew/v3.1.0.html#deprecation-inplace for more details.
   quotes.sort_index(inplace=True)
@@ -35,9 +35,11 @@ See https://pandas.pydata.org/docs/dev/whatsnew/v3.1.0.html#deprecation-inplace 
 /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/yfinance/multi.py:224: Pandas4Warning: The inplace keyword in DataFrame.sort_index is deprecated and will be removed in a future version (PDEP-8).
 See https://pandas.pydata.org/docs/dev/whatsnew/v3.1.0.html#deprecation-inplace for more details.
   data.sort_index(level=0, axis=1, inplace=True)
-Yahoo Finance adjusted daily data (EOD), completed bars to 2026-10-29; historical backtest, net of costs
+Yahoo Finance adjusted daily data (EOD), completed bars to 2026-10-30; historical backtest, net of costs
 reproduction spy-gld-70-30-monthly: max difference 0.00e+00 -> IDENTICAL
 reproduction spy-gld-70-30-risk-cap: max difference 0.00e+00 -> IDENTICAL
 reproduction example-70-30-spy-trend-filter: max difference 0.00e+00 -> IDENTICAL
-Fair Test spy-gld-70-30-daily: FAILED (Worse than the benchmark in development: lower Sharpe ratio and no meaningful reduction in falls.) -> /home/runner/work/aurum-/aurum-/research/fairtests/2026-10-30-spy-gld-70-30-daily-9245b2081d68.md
-Wrote /home/runner/work/aurum-/aurum-/research/designer/2026-10-30-1157-real/summary.md
+Fair Test exp049-atr-2-4: FAILED (Worse than the benchmark in development: lower Sharpe ratio and no meaningful reduction in falls.) -> /home/runner/work/aurum-/aurum-/research/fairtests/2026-10-30-exp049-atr-2-4-088ab8c10857.md
+Fair Test exp049-atr-3-6: FAILED (Worse than the benchmark in development: lower Sharpe ratio and no meaningful reduction in falls.) -> /home/runner/work/aurum-/aurum-/research/fairtests/2026-10-30-exp049-atr-3-6-7b9fdc57f822.md
+Fair Test exp049-pct-10-stop: INCONCLUSIVE (Neither clearly better nor clearly worse than the benchmark in development.) -> /home/runner/work/aurum-/aurum-/research/fairtests/2026-10-30-exp049-pct-10-stop-d28c59464d87.md
+Wrote /home/runner/work/aurum-/aurum-/research/designer/2026-10-30-1512-real/summary.md

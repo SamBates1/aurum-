@@ -69,6 +69,7 @@ def test_tickers_outside_the_strategy_are_not_covered(daily):
     rec = RC.make_record("QQQ", spec, daily, None, now=NOW)
     m = rec["recommendation"]
     assert rec["research_only"] and m["action"] == "NOT COVERED" and m["target_weight"] == 0 and m["size_gbp"] == 0
+    assert RC.reproduce(rec, spec, daily)[0]
 
 
 def test_outcomes_use_only_known_future_closes(daily):

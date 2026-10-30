@@ -113,7 +113,11 @@ def strategy_context(max_chars: int = 3500) -> str:
 
     lines = ["\n--- STRATEGY DESIGNER: SAVED STRATEGIES (historical backtests; paper trading only) ---"]
     fts = ft.latest_results()
-    for sid, s in sp.library().items():
+    lib = sp.library()
+    # approved (paper) strategies first, so the length limit never cuts them off
+    order = sorted(lib, key=lambda k: (gates.approval_for(sp.spec_hash(lib[k])) is None, k))
+    for sid in order:
+        s = lib[sid]
         h = sp.spec_hash(s)
         r = fts.get(h)
         appr = gates.approval_for(h)

@@ -251,3 +251,11 @@ code version and a fingerprint of the prices used, so any record can be reproduc
 are not reported as changes. Tickers outside the main strategy are recorded as NOT COVERED (no size): applying the
 70/30 rules to a single ticker is not a recommendation. `outcomes.md` tracks how past recommendations did after
 costs vs SPY; small samples are noise.
+
+**D-041 — Stops and profit targets stay out of the strategy (EXP-049)** (2026-10-30)
+Three stop-loss / take-profit versions of the 70/30 strategy were tested as pre-registered: two failed (profit
+targets sell the winners; a 3-ATR stop whipsawed in 2008 and made the worst fall larger) and the 10% stop was
+inconclusive (it only ever triggered in 2008). Strategy A is unchanged. The trade plan still shows a stop and
+targets so the owner can see the risk of a position, labelled as not part of the tested strategy. The Live Analysis
+page now also has a plain-English summary with a rule-based devil's advocate, Alpaca news, dashboard alerts (the
+owner's own price alerts are kept locally in alerts.yaml) and links from the Decision Board.

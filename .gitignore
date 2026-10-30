@@ -22,3 +22,4 @@ research/experiments/results/.checkpoints/
 # decision records and the off-switch file are local to each machine
 /logs/
 /STOP_TRADING
+alerts.yaml

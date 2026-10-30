@@ -9,6 +9,7 @@ from __future__ import annotations
 from datetime import datetime
 
 import streamlit as st
+from streamlit.errors import StreamlitAPIException
 
 from aurum import data, gates
 from aurum import decision_board as DB
@@ -125,6 +126,11 @@ def board_view():
             st.markdown(
                 f"**Why:** {r['reason']}.  \n**When to sell:** {r['exit_rule']}.  \n**Evidence:** {r['evidence']}."
             )
+            label = f"Open the {r['asset']} chart, trade plan and summary"
+            try:
+                st.page_link("pages/1_Live_Analysis.py", label=label, icon="📈", query_params={"symbol": r["asset"]})
+            except StreamlitAPIException:  # page opened on its own (not through app.py): plain link instead
+                st.markdown(f"[📈 {label}](Live_Analysis?symbol={r['asset']})")
     if b.cash_after > 0.5:
         st.caption(f"Cash left after these trades: about £{b.cash_after:,.0f} (the strategy keeps it in cash).")
 

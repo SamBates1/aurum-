@@ -170,3 +170,35 @@ def test_daily_frame_drops_todays_unfinished_bar():
     after = AN.daily_frame(b, now=pd.Timestamp("2026-10-30 20:30", tz="UTC"))  # 16:30 New York
     assert list(during["Close"]) == [1.0, 2.0] and list(after["Close"]) == [1.0, 2.0, 3.0]
     assert str(after.index[-1].date()) == "2026-10-30"
+
+
+def test_summary_argues_both_sides_and_alerts_fire(daily, tmp_path):
+    from aurum import summary as SM
+    from aurum import tradeplan as TP
+
+    lib = SP.library()
+    sv = AN.strategy_view(lib["spy-gld-70-30-monthly"], "SPY", daily)
+    plan = TP.build("SPY", daily["SPY"], sv.run, holdings_returns=TP.holdings_returns(daily, {"SPY": 0.7, "GLD": 0.3}))
+    mt = {"rows": [], "verdict": "Timeframes conflict: some up, some down"}
+    s = SM.build(plan, mt, [], "inconclusive (DSR 0.40)")
+    assert s.wrong and any("gap" in x for x in s.wrong) and any("not a clear pass" in x for x in s.wrong)
+    assert any("disagree" in x for x in s.wrong) and any("not advice" in x for x in s.do)
+    hist = [{"as_of": "2026-10-29", "changed": ["action HOLD -> SELL"]}]
+    al = SM.check_alerts("SPY", plan.stop - 1, plan, hist, custom=[{"symbol": "SPY", "when": "below", "price": 1e9}])
+    assert any("stop" in a for a in al) and any("HOLD -> SELL" in a for a in al) and any("alert level" in a for a in al)
+    f = tmp_path / "alerts.yaml"
+    SM.save_alerts([{"symbol": "SPY", "when": "above", "price": 1.0}], f)
+    assert SM.load_alerts(f) == [{"symbol": "SPY", "when": "above", "price": 1.0}]
+
+
+def test_board_link_opens_the_ticker():
+    from streamlit.testing.v1 import AppTest
+
+    from aurum.config import ROOT
+
+    at = AppTest.from_file(str(ROOT / "pages/1_Live_Analysis.py"), default_timeout=300)
+    at.query_params["symbol"] = "GLD"
+    at.run()
+    assert not at.exception, [e.value for e in at.exception]
+    assert at.sidebar.selectbox[0].value == "GLD"
+    assert any("Why we might be wrong" in m.value for m in at.markdown)

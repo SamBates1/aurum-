@@ -1,9 +1,9 @@
 full
-uk:
+designer: --ids spy-gld-70-30-daily
 Edit this file and push to main to start an automated run on GitHub's machines (see
 .github/workflows/experiments.yml). Each "run:" line is one run_experiments.py run with those arguments;
 each "lab:" line is one run_lab.py run (EXP-020 onwards); each "plab:" line one run_plab.py run (EXP-032 onwards);
 "audit:" runs run_data_audit.py; "report:" saves a daily report to research/monitoring; each "xlab:" line one run_xlab.py run (EXP-037 onwards);
 each "designer:" line one run_designer.py run (every saved strategy: backtest, Fair Test, charts, reproduction check);
 "uk:" runs run_uk.py (EXP-046..048).
-Requested: 2026-10-30 final re-run of EXP-046..048 with the bad-print filter in the UK fund check (EXP-046 second correction).
+Requested: 2026-10-30 Fair Test of the new daily 70/30 paper account (D-038).

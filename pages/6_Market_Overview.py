@@ -12,6 +12,7 @@ from datetime import datetime
 import pandas as pd
 import plotly.express as px
 import streamlit as st
+from streamlit.errors import StreamlitAPIException
 
 from aurum import assessment as AS
 from aurum import scanner as SC
@@ -159,12 +160,15 @@ for tab, name in zip(tabs, SC.SCANNERS):
             },
         )
         pick = st.selectbox("Open in Live Analysis", list(df.index[:30]), key=f"open-{name}")
-        st.page_link(
-            "pages/1_Live_Analysis.py",
-            label=f"Open {pick}: chart, plan and summary",
-            icon="📈",
-            query_params={"symbol": pick},
-        )
+        try:
+            st.page_link(
+                "pages/1_Live_Analysis.py",
+                label=f"Open {pick}: chart, plan and summary",
+                icon="📈",
+                query_params={"symbol": pick},
+            )
+        except StreamlitAPIException:  # page opened on its own (not through the app): plain link
+            st.markdown(f"[📈 Open {pick}: chart, plan and summary](Live_Analysis?symbol={pick})")
 
 # coverage
 st.subheader("What the scanners cover")

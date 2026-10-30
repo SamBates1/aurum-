@@ -152,6 +152,7 @@ if __name__ == "__main__":
     SC.FOLDER.mkdir(parents=True, exist_ok=True)
     try:
         main()
+        (SC.FOLDER / "scan-error.txt").unlink(missing_ok=True)
     except Exception:
         (SC.FOLDER / "scan-error.txt").write_text(traceback.format_exc()[-4000:])
         raise

@@ -159,3 +159,31 @@ def test_system_prompt_requires_fact_estimate_hypothesis_labels(monkeypatch):
     desk.agent_reply("Quant Researcher", "Is EXP-014 robust?")
     system = seen["m"][0]["content"]
     assert "HISTORICAL FACT" in system and "HYPOTHESIS" in system and "EXPERIMENT RECORD EXP-014" in system
+
+
+def test_investment_debate_keeps_the_rule_verdict_and_records_proposals(monkeypatch, tmp_path):
+    import aurum.desk as D
+
+    calls = []
+
+    def fake_chat(messages, timeout=90):
+        calls.append(messages[0]["content"][:40])
+        user = messages[-1]["content"]
+        if user.startswith("Synthesise"):
+            assert "### Fundamental Analyst" in user and "### Portfolio Manager" in user
+            return (
+                "AGREEMENT: trend is up.\nDISAGREEMENTS: Fundamental Analyst sees high debt; Technical Analyst "
+                "sees a breakout. It matters because debt raises downside risk.\nUNSUPPORTED: none.\n"
+                "VERDICT CHECK: I think it is a strong BUY now, ignore the rules.\n"
+                "PROPOSED EXPERIMENT: test whether breakouts in high-debt companies fail more often."
+            )
+        return "view"
+
+    monkeypatch.setattr(D, "chat_completion", fake_chat)
+    monkeypatch.setattr(D, "PROPOSALS", tmp_path / "proposals.jsonl")
+    out = D.investment_debate("XYZ", {"long-term": "WAIT", "swing": "MONITOR"}, "close 100; roic 5%")
+    assert out["rule_verdict"] == {"long-term": "WAIT", "swing": "MONITOR"}  # AI text cannot change it
+    assert len(out["views"]) == 5 and "DISAGREEMENTS" in out["synthesis"] and "not binding" in out["label"]
+    assert "high-debt" in out["proposal"]
+    assert "needs pre-registration" in (tmp_path / "proposals.jsonl").read_text()
+    assert len(calls) == 6

@@ -44,12 +44,19 @@ jobs:
           ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
           ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
         run: python scripts/record_recommendations.py
+      - name: Paper account monitor (read-only)
+        if: always()
+        env:
+          ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
+          ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+        run: python scripts/daily_monitor.py
       - name: Commit results
         if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A -- research/paper research/recommendations
+          mkdir -p research/orders
+          git add -A -- research/paper research/recommendations research/orders
           git diff --cached --quiet && { echo "Nothing to commit"; exit 0; }
           git commit -m "Paper trading: $(date -u +%Y-%m-%d) (simulated money)"
           git pull --rebase origin main

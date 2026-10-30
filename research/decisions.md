@@ -268,3 +268,14 @@ Alpaca paper account's $100,000 into a $50,000 long-term pot and a $50,000 swing
 moving money between them (review every 3 months; 10 points at a time; never beyond 70/30; owner approval).
 Phase 1 (data foundation): universe from Alpaca's asset list with liquidity rules, SEC point-in-time accounts,
 pound/dollar rate, Fed meeting dates (from the Federal Reserve's calendar) and expected earnings dates.
+
+**D-043 — Market platform phases 1-10 built; paper orders still off** (2026-10-30)
+Built and tested: universe manager (Alpaca asset list, liquidity rules), SEC point-in-time accounts, pound/dollar
+rate, Fed and earnings calendar; the factor lab and EXP-051 (pre-registered; EXP-050 not re-run because EXP-034/037/038
+already answered it); long-term, swing and cross-asset scanners in five recorded stages; long-term and swing
+assessments (an untested signal can never produce a BUY); portfolio view, candidate checks and four allocation
+methods; complete plans in dollars and pounds with UK costs and tax notes; the Alpaca paper broker (paper address
+only, off, approval per order, independent checks, duplicate prevention, emergency stop, pot ledgers,
+reconciliation); Market Overview and Portfolio pages; Fundamental Analyst and Portfolio Manager on the AI desk with a
+synthesis that cannot change the rule verdict; position alerts, 1/5/20/60-day grading and paper-vs-backtest drift
+alarms. Paper orders stay off until the owner has reviewed everything (config `paper_orders.enabled: false`).

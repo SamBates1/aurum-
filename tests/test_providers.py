@@ -124,3 +124,30 @@ def test_daily_many_skips_a_rejected_symbol(monkeypatch):
     p = A.AlpacaProvider()
     got = p.daily_many(["AAA", "BAD", "CCC", "DDD"], chunk=4)
     assert sorted(got) == ["AAA", "CCC", "DDD"] and p.skipped == ["BAD"]
+
+
+def test_alpaca_get_retries_a_timeout(monkeypatch):
+    from aurum.providers import alpaca as A
+
+    calls = {"n": 0}
+
+    class R:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def read(self):
+            return b'{"ok": true}'
+
+    def fake_urlopen(req, timeout=30):
+        calls["n"] += 1
+        if calls["n"] < 3:
+            raise TimeoutError("The read operation timed out")
+        return R()
+
+    monkeypatch.setattr(A, "alpaca_keys", lambda: ("k", "s"))
+    monkeypatch.setattr(A.urllib.request, "urlopen", fake_urlopen)
+    monkeypatch.setattr(A.time, "sleep", lambda s: None)
+    assert A._get("https://example.invalid/x") == {"ok": True} and calls["n"] == 3

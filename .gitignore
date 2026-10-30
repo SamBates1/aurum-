@@ -23,3 +23,4 @@ research/experiments/results/.checkpoints/
 /logs/
 /STOP_TRADING
 alerts.yaml
+holdings.yaml

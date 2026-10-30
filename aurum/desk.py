@@ -35,6 +35,16 @@ AGENTS: dict[str, str] = {
         "validation, calibration, regime shifts and whether ML adds value beyond simple trend/momentum "
         "baselines. Do not recommend complexity without measured incremental benefit."
     ),
+    "Fundamental Analyst": (
+        "You are Aurum's fundamental analyst. Judge company quality, growth, margins, return on capital, cash "
+        "flow, debt and valuation using only the point-in-time figures supplied (SEC filings with their filing "
+        "dates). Compare with the sector where the data allows. Say plainly when figures are missing."
+    ),
+    "Portfolio Manager": (
+        "You are Aurum's portfolio manager. Decide whether an idea suits the whole portfolio: diversification, "
+        "duplication of existing exposures, concentration, correlation, the risk it adds and whether cash or another "
+        "opportunity is better. You may not change position limits or the rule verdict."
+    ),
     "Risk Manager": (
         "You are Aurum's independent risk manager. Challenge drawdowns, concentration, correlations, turnover, "
         "liquidity, transaction costs, sizing and operational risks. Prioritise capital preservation. Do not "
@@ -326,3 +336,73 @@ def log_answer(record: dict, path: Path | None = None) -> Path:
     with open(path, "a", encoding="utf-8") as fh:
         fh.write(json.dumps(record) + "\n")
     return path
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# investment debate (platform phase 9): AI explains and challenges; the rules decide
+# ---------------------------------------------------------------------------------------------------------------
+DEBATE_TEAM = ("Technical Analyst", "Fundamental Analyst", "Macro Analyst", "Portfolio Manager", "Risk Manager")
+PROPOSALS = ROOT / "research" / "desk" / "proposals.jsonl"
+
+
+def investment_debate(symbol: str, rule_verdict: dict, facts: str) -> dict:
+    """Each specialist assesses `facts` (numbers computed by Aurum, never by the model) independently; the
+    Independent Reviewer then writes one synthesis that names agreements, disagreements and why they matter, unsupported
+    claims and proposed experiments. The rule verdict is returned unchanged: AI text can never alter it, approve an
+    order or change a limit."""
+    shared = (
+        f"FACTS COMPUTED BY AURUM FOR {symbol} (use only these numbers):\n{facts[:8000]}\n\n"
+        f"RULE VERDICTS (binding, decided by fixed rules): {json.dumps(rule_verdict)}"
+    )
+    views = []
+    for name in DEBATE_TEAM:
+        q = (
+            f"Assess {symbol} for both long-term investing and swing trading from your specialism. Give: (1) your view "
+            "in two sentences, (2) the strongest evidence for and against from the facts, (3) what is missing. "
+            "Do not repeat the other specialists; do not assume they agree."
+        )
+        views.append((name, agent_reply(name, q, context=shared)))
+    notes = "\n\n".join(f"### {n}\n{v}" for n, v in views)
+    synthesis = agent_reply(
+        "Independent Reviewer",
+        f"Synthesise these assessments of {symbol} into ONE answer with these headings exactly:\n"
+        "AGREEMENT: where the specialists agree.\n"
+        "DISAGREEMENTS: each disagreement, who holds which side, and why it matters for the decision.\n"
+        "UNSUPPORTED: claims not backed by the facts.\n"
+        "VERDICT CHECK: does the evidence support the rule verdicts? You cannot change them.\n"
+        "PROPOSED EXPERIMENT: at most one testable idea (it will need pre-registration and the owner's approval).\n\n"
+        + notes,
+        context=shared,
+    )
+    proposal = _proposal(synthesis)
+    if proposal:
+        PROPOSALS.parent.mkdir(parents=True, exist_ok=True)
+        with open(PROPOSALS, "a", encoding="utf-8") as fh:
+            fh.write(
+                json.dumps(
+                    {
+                        "symbol": symbol,
+                        "proposal": proposal,
+                        "status": "proposed: needs pre-registration and owner approval",
+                    }
+                )
+                + "\n"
+            )
+    return {
+        "symbol": symbol,
+        "rule_verdict": dict(rule_verdict),  # unchanged, whatever the text says
+        "views": views,
+        "synthesis": synthesis,
+        "proposal": proposal,
+        "label": "AI opinion: explains and challenges; not binding, places no orders, changes no limits",
+    }
+
+
+def _proposal(text: str) -> str | None:
+    import re
+
+    m = re.search(r"PROPOSED EXPERIMENT:\s*(.+?)(?:\n[A-Z ]{4,}:|\Z)", text, re.S)
+    if not m:
+        return None
+    p = m.group(1).strip()
+    return None if not p or p.lower().startswith(("none", "n/a", "no ")) else p[:1000]

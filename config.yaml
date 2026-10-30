@@ -115,3 +115,18 @@ live:
   decision_log: logs/decisions.jsonl   # one structured record per planned or blocked order (git-ignored)
 
 offline: false                  # true = clearly-labelled synthetic data, no internet needed
+
+paper_orders:                   # Alpaca PAPER account only (aurum/broker.py). OFF until the owner says OK (D-042)
+  enabled: false
+  mode: manual                  # every order needs the owner's approval; "auto" only if the owner enables it later
+  max_order_usd: 10000
+  max_position_pct: 0.25
+  max_data_age_minutes: 30
+
+experiment:                     # 50/50 long-term vs swing (D-042); starts only once paper orders are switched on
+  start_cash_usd: 100000
+  pots: {long-term: 50000, swing: 50000}
+  review_every_months: 3
+  shift_step: 0.10
+  max_split: 0.70
+  min_swing_trades: 30

@@ -48,11 +48,11 @@ def _get(url: str, params: dict | None = None, timeout: float = 30) -> dict:
                 time.sleep(2 * (attempt + 1))
                 continue
             raise AlpacaError(redact(f"HTTP {e.code} from {url}: {body}")) from None
-        except urllib.error.URLError as e:
-            if attempt < 3:
-                time.sleep(1 + attempt)
+        except (urllib.error.URLError, TimeoutError, ConnectionError, OSError) as e:
+            if attempt < 3:  # network hiccup or slow reply: wait and retry
+                time.sleep(2 * (attempt + 1))
                 continue
-            raise AlpacaError(redact(f"cannot reach {url}: {e.reason}")) from None
+            raise AlpacaError(redact(f"cannot reach {url}: {getattr(e, 'reason', e)}")) from None
     raise AlpacaError("unreachable")
 
 
@@ -120,7 +120,7 @@ class AlpacaProvider(Provider):
         d = _get(f"{TRADING}/v2/assets", {"status": "active", "asset_class": "us_equity"}, timeout=60)
         return d if isinstance(d, list) else []
 
-    def daily_many(self, symbols: list[str], days: int = 90, chunk: int = 200, start=None) -> dict[str, pd.DataFrame]:
+    def daily_many(self, symbols: list[str], days: int = 90, chunk: int = 100, start=None) -> dict[str, pd.DataFrame]:
         """Daily consolidated (SIP) bars for many symbols at once, up to 16 minutes ago (free-plan rule).
         `start` (a date) overrides `days`."""
         end = pd.Timestamp(datetime.now(timezone.utc)) - pd.Timedelta(minutes=16)
@@ -148,6 +148,7 @@ class AlpacaProvider(Provider):
                             "feed": "sip",
                             "page_token": token,
                         },
+                        timeout=90,
                     )
                 except AlpacaError as e:
                     if "HTTP 4" not in str(e) or token is not None:

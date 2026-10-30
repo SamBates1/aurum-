@@ -42,7 +42,54 @@ with st.sidebar:
     if st.session_state.get("show_desk_context"):
         st.code(research_context()[:12000], language="markdown")
 
-mode = st.radio("Conversation mode", ["Chat with one specialist", "Whole-team debate"], horizontal=True)
+mode = st.radio(
+    "Conversation mode",
+    ["Chat with one specialist", "Whole-team debate", "Investment debate on a ticker"],
+    horizontal=True,
+)
+if mode == "Investment debate on a ticker":
+    import pandas as pd
+
+    from aurum import assessment as AS
+    from aurum.desk import investment_debate
+    from aurum.providers import get_provider
+
+    st.info(
+        "Five specialists (technical, fundamental, macro, portfolio, risk) assess the ticker separately from numbers "
+        "Aurum computed; the reviewer names where they disagree and why it matters. The rule verdicts stay as they "
+        "are: AI opinion is never binding, places no orders and changes no limits."
+    )
+    tick = st.text_input("Ticker", "SPY").upper().strip()
+    if st.button("Run the investment debate", type="primary") and tick:
+        try:
+            d = get_provider().bars(tick, "1d", start=pd.Timestamp.now(tz="UTC") - pd.Timedelta(days=420))
+            d.index = pd.DatetimeIndex(d.index.tz_convert("America/New_York").date)
+            lt = AS.long_term(tick, d, None, "untested")
+            sw = AS.swing(tick, d, None, "untested", AS.detect_setup(d))
+            facts = "\n".join(
+                [
+                    f"{a.horizon}: verdict {a.verdict}; {a.why}; for: {'; '.join(a.bullish)}; against: "
+                    f"{'; '.join(a.bearish)}; risks: {'; '.join(a.risks)}; missing: {'; '.join(a.missing)}"
+                    for a in (lt, sw)
+                ]
+            )
+            with st.spinner("The team is assessing the ticker…"):
+                out = investment_debate(tick, {"long-term": lt.verdict, "swing": sw.verdict}, facts)
+            st.markdown(f"**Rule verdicts (binding):** long-term {lt.verdict}, swing {sw.verdict}")
+            st.caption(out["label"])
+            for name, v in out["views"]:
+                with st.expander(name):
+                    st.markdown(v)
+            st.markdown("### Reviewer synthesis")
+            st.markdown(out["synthesis"])
+            if out["proposal"]:
+                st.caption(f"Proposed experiment saved for review (not run): {out['proposal']}")
+            log_answer(audit_record("investment debate", "Independent Reviewer", tick, out["synthesis"]))
+        except RuntimeError as exc:
+            st.error(str(exc))
+        except Exception as exc:
+            st.error(f"Could not prepare the facts for {tick}: {exc}")
+    st.stop()
 if mode == "Chat with one specialist":
     agent = st.selectbox("Choose your research partner", list(AGENTS))
     st.caption(AGENTS[agent])

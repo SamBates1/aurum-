@@ -112,6 +112,24 @@ repository Secrets. Aurum never places real orders.
 Configuration is in [`config.yaml`](config.yaml): universe, macro series, model settings, strategy weights and
 thresholds, risk limits, cost assumptions and the holdout date.
 
+## Market platform (v1.0, built 30 Oct 2026; paper orders off)
+
+Approved plan: D-042; what was built: D-043. US stocks and ETFs first.
+
+| Part | What it does | Where |
+|---|---|---|
+| Universe | Every US stock/ETF Alpaca lists, with liquidity rules and exclusion reasons | `aurum/universe.py`, `research/universe/` (weekly) |
+| Company accounts | SEC filings as known on each date (no hindsight) | `aurum/sec.py` |
+| Scanners | Long-term, swing, cross-asset; five recorded stages; evidence weights from EXP-051 | `aurum/scanner.py`, `research/scanner/` (daily) |
+| Assessments | Long-term and swing verdicts with evidence for/against, risks, invalidation | `aurum/assessment.py` |
+| Portfolio | Exposures, risk contribution, duplicates, four allocation methods, cash allowed | `aurum/portfolio_opt.py`, Portfolio page |
+| Plans | Entry zone, stop, targets, shares, max loss, costs in $ and £, UK tax notes | `aurum/investplan.py` |
+| Paper broker | Alpaca **paper** only, **off** until the owner says OK, approval per order, emergency stop | `aurum/broker.py`, `paper_orders:` in config |
+| Monitoring | Position alerts, 1/5/20/60-day grading, paper-vs-backtest drift | `aurum/monitoring.py`, `research/orders/monitor.md` |
+
+The 50/50 experiment (long-term vs swing, $50,000 each of the Alpaca paper account's $100,000) starts only once
+paper orders are switched on; its rules are in config `experiment:` and D-042.
+
 ## Live Analysis (v0.9)
 
 Second page in the list (also opened from each Decision Board row). A TradingView-style chart (Lightweight Charts)

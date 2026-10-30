@@ -212,7 +212,7 @@ def reproduce(rec: dict, spec: dict, daily: dict[str, pd.DataFrame], rf=0.0) -> 
 def outcomes(
     records: list[dict],
     closes: dict[str, pd.Series],
-    horizons=(5, 21),
+    horizons=(1, 5, 20, 60),
     benchmark: str = "SPY",
     cost_bps: float = 5.0,
 ) -> pd.DataFrame:

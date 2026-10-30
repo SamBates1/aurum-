@@ -88,7 +88,9 @@ def write_reports(allrec, written, errors, closes, folder: Path, provider: str):
     if summ.empty:
         txt.append("Not enough history yet: outcomes appear once a recommendation is 5 trading days old.")
     else:
-        txt.append("Return of the ticker over the next 5 / 21 trading days after a round-trip cost of 10 bps, vs SPY.")
+        txt.append(
+            "Return of the ticker over the next 1 / 5 / 20 / 60 trading days after a round-trip cost of 10 bps, vs SPY."
+        )
         txt.append("")
         txt.append("| | Days | Recommendations | Avg return | Avg vs SPY | Share positive |")
         txt.append("|---|---|---|---|---|---|")

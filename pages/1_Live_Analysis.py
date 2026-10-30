@@ -395,8 +395,111 @@ def news_and_alert_settings():
         st.caption("Alerts show on this page (saved on your computer in alerts.yaml). Email alerts can be added later.")
 
 
+def verdicts_block():
+    """Long-term and swing verdicts with complete plans (platform phases 4 and 6)."""
+    if sv is None or symbol not in daily:
+        return
+    from aurum import assessment as AS
+    from aurum import fx
+    from aurum import investplan as IP
+    from aurum import scanner as SC
+
+    st.subheader("Long-term vs swing")
+    d = daily[symbol]
+    scores = {}
+    for name in ("long-term", "swing"):
+        f = SC.FOLDER / f"{name}-latest.csv"
+        meta = SC.FOLDER / f"{name}-latest.json"
+        if f.is_file():
+            t = pd.read_csv(f, index_col="symbol")
+            if symbol in t.index:
+                ev = (
+                    __import__("json").loads(meta.read_text()).get("evidence", "untested")
+                    if meta.is_file()
+                    else "untested"
+                )
+                scores[name] = (float(t.at[symbol, "score"]), ev)
+    fund = None
+    if st.toggle("Load company accounts (SEC)", value=False, key=f"sec-{symbol}"):
+        try:
+            from aurum import sec
+
+            fund = sec.fundamentals(symbol, pd.Timestamp.now().normalize(), float(d["Close"].iloc[-1]))
+        except Exception as exc:
+            st.caption(f"No SEC accounts for {symbol}: {exc}")
+    try:
+        spy = daily_for(("SPY",), int(datetime.now().timestamp() // 900))["SPY"]
+        regime = AS.market_regime(spy)
+    except Exception:
+        regime = None
+    try:
+        rate = fx.rate()
+    except Exception:
+        rate = fx.Rate(fx.SYNTHETIC_RATE, "-", "assumed")
+    pot = float(CFG.get("experiment", {}).get("pots", {}).get("long-term", 50_000))
+    cols = st.columns(2)
+    for col, horizon in zip(cols, ("long-term", "swing")):
+        sc, ev = scores.get(horizon, (None, "untested"))
+        if horizon == "long-term":
+            a = AS.long_term(symbol, d, sc, ev, fund, regime)
+            setup = None
+        else:
+            setup = AS.detect_setup(d)
+            a = AS.swing(symbol, d, sc, ev, setup, [], regime)
+        pl = IP.build(
+            symbol,
+            d,
+            horizon,
+            a.verdict,
+            pot,
+            rate.usd_per_gbp,
+            setup=setup,
+            is_stock=symbol not in CFG.get("watchlist", {}).get("etfs", []),
+        )
+        with col:
+            st.markdown(f"#### {horizon.title()}: **{a.verdict}**")
+            st.caption(md(a.why) + " · " + md(a.confidence))
+            if ev != "evidence":
+                st.caption("Scanner signals not yet supported by evidence (EXP-051): BUY is capped to WAIT.")
+            for title, items in (
+                ("For", a.bullish),
+                ("Against", a.bearish),
+                ("Conflicting", a.conflicts),
+                ("Risks", a.risks),
+                ("Missing", a.missing),
+                ("Proves it wrong", a.invalidation),
+            ):
+                if items:
+                    st.markdown(f"**{title}:** " + md("; ".join(items)))
+            if pl.action in ("BUY", "WAIT") and pl.stop:
+                rows = [
+                    ("Action", pl.action),
+                    ("Entry zone", f"${pl.entry_zone[0]:,.2f} to ${pl.entry_zone[1]:,.2f}"),
+                    ("Stop", f"${pl.stop:,.2f} ({pl.reasons.get('stop', '')})"),
+                    ("Shares", f"{pl.shares:g} = ${pl.allocation_usd:,.0f} (£{rate.to_gbp(pl.allocation_usd):,.0f})"),
+                    ("Max planned loss", f"${pl.max_loss_usd:,.0f} (£{rate.to_gbp(pl.max_loss_usd):,.0f})"),
+                    ("Targets", "; ".join(f"{lab} ${p:,.2f} ({rr:.1f}R)" for lab, p, rr in pl.targets)),
+                    ("Holding period", pl.holding_period),
+                    (
+                        "Costs",
+                        f"paper account ${pl.costs['paper_account_usd']:,.2f}; UK platform "
+                        f"£{pl.costs['uk_platform_gbp']:,.2f} ({pl.costs['uk_platform_pct']:.2%})",
+                    ),
+                    ("Size reason", pl.reasons.get("size", "")),
+                ]
+                if pl.tranches:
+                    rows.append(("Staged buys", "; ".join(f"{q:g} {w}" for w, _, q in pl.tranches)))
+                st.table(pd.DataFrame([(k, md(v)) for k, v in rows], columns=["", "Plan"]).set_index(""))
+                for n in pl.notes:
+                    st.caption(md(n))
+            else:
+                st.caption(md(f"Plan: {pl.action}. " + pl.reasons.get("action", "")))
+    st.caption(f"Sized for a ${pot:,.0f} experiment pot. {rate.label}. Paper trading only; not advice.")
+
+
 summary_and_alerts()
 plan_block()
+verdicts_block()
 c_left, c_right = st.columns([2, 3])
 with c_left:
     timeframes_block()

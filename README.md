@@ -111,6 +111,14 @@ live preview shows whether today's (delayed) prices would change it. Small live 
 strategy uses, and a watchlist scan covers the other tickers. It is what the strategy says, not personal financial
 advice: you place any trade yourself (D-036).
 
+## Paper trading on GitHub
+
+The official paper accounts (simulated money) run on GitHub after every US close
+(`.github/workflows/paper-trading.yml`, `run_paper_daily.py`): yesterday's decisions fill at today's official open,
+today's close decides, and `research/paper/` gets the ledgers, a journal, `status.md` and, on Fridays, a weekly report
+comparing each account with SPY bought on the same day and with the backtest of the same strategy. Do not also run
+`python run_bot.py --paper` on your computer: both would write the same ledgers.
+
 ## Strategy Designer (v0.7)
 
 Open the dashboard (`python -m streamlit run app.py`) and choose **Strategy Designer** in the page list.

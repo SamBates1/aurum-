@@ -1,0 +1,50 @@
+name: Paper trading
+
+# Simulated money only. After every US close: fill yesterday's decisions at today's official open, decide on today's
+# close, value the accounts, and commit research/paper/ (ledgers, journal, status; a weekly report on Fridays).
+on:
+  schedule:
+    - cron: "23 22 * * 1-5"   # 22:23 UTC, after the US close in both summer and winter time
+  workflow_dispatch:
+    inputs:
+      weekly:
+        description: "Also write the weekly report"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: paper-trading
+  cancel-in-progress: false
+
+jobs:
+  paper:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install
+        run: pip install -r requirements.txt
+      - name: Paper trading day
+        run: |
+          if [ "$(date -u +%u)" = "5" ] || [ "${{ inputs.weekly }}" = "true" ]; then
+            python run_paper_daily.py --weekly
+          else
+            python run_paper_daily.py
+          fi
+      - name: Commit results
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A -- research/paper
+          git diff --cached --quiet && { echo "Nothing to commit"; exit 0; }
+          git commit -m "Paper trading: $(date -u +%Y-%m-%d) (simulated money)"
+          git pull --rebase origin main
+          git push origin HEAD:main

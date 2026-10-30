@@ -1,0 +1,64 @@
+# EXP-051: Which stock signals have earned a place in the scanners?
+
+| Field | |
+|---|---|
+| Status | Pre-registered 2026-10-30, before any run on real data |
+| Origin | Market platform build plan (D-042), phase 2: scanner weights must come from evidence |
+
+## Why this experiment, and why not EXP-050
+The plan proposed EXP-050 (multi-asset mixes across the 10 ETFs). Those questions were **already answered** and are
+not re-run, because re-testing them would only add trials and weaken every later Deflated Sharpe check:
+risk parity in EXP-037 (Sharpe 0.59, lower return than SPY), trend filters and cross-sectional ETF momentum in EXP-038
+(none adopted), inverse-volatility allocation in EXP-034 (no change), and the 70/30 mix in EXP-045 to EXP-048. The
+cross-asset scanner will show those signals as context, labelled with these results.
+
+EXP-051 tests what has never been tested here: **signals across individual US stocks**, for the long-term and swing
+scanners.
+
+## Data (fixed)
+- Universe: the 1,000 largest eligible US common stocks by 20-day dollar volume in the phase 1 universe snapshot
+  (ETFs excluded), daily consolidated prices from Alpaca, January 2016 to October 2026, split- and dividend-adjusted.
+- Company accounts: SEC filings as known on each rebalance date (filing date on or before it).
+- **Survivorship bias (stated in every result):** the universe is today's survivors. Companies that went bust or were
+  taken over since 2016 are missing, which flatters every long-only result, most of all for cheap and weak companies.
+  A signal must therefore clear a higher bar than usual (below).
+
+## Long-term signals (monthly, 12-month view)
+Ranked on the last trading day of each month; the top fifth held equal-weighted for one month from the next open.
+
+| Signal | Definition |
+|---|---|
+| Momentum | 12-month return skipping the latest month |
+| Low volatility | lowest 252-day volatility |
+| Quality | return on invested capital (SEC, point-in-time) |
+| Value | free-cash-flow yield (SEC free cash flow / market value) |
+| Near 52-week high | close / 252-day high |
+| Combined | average rank of momentum, quality and value |
+
+## Swing signals (weekly, 4-week view)
+Ranked each Friday close; the top fifth held equal-weighted for 4 weeks from the next open (overlapping cohorts).
+
+| Signal | Definition |
+|---|---|
+| Short-term reversal | lowest 1-month return |
+| Breakout | close at a 20-day high with volume above its 50-day average |
+| Pullback in uptrend | above the 200-day average and 2-day RSI below 10 |
+| Trend strength | ADX(14) above 25 and close above the 50-day average, ranked by 3-month return |
+
+## Pass rule (all must hold)
+Compared with holding **all 1,000 stocks equally** (same dates, same costs):
+1. Extra return of at least **3% a year after costs** (one-way cost 10 bps for long-term, 15 bps for swing, on the
+   actual turnover). The bar is 3%, not 2%, because of the survivorship bias above.
+2. Newey-West t-statistic of the monthly extra return of at least **2.0**.
+3. Extra return **positive in both halves** (2016-2020 and 2021-2026) and in 2024 onwards.
+4. Survives the Benjamini-Hochberg false-discovery check at 10% across all 10 signals tested here.
+
+## What the results decide
+- A signal that passes gets a weight in its scanner, proportional to its t-statistic (signals that move together share
+  their weight, so nothing is counted twice).
+- A signal that fails is still shown on charts, labelled "tested: no evidence it helps (EXP-051)", with weight zero.
+- If nothing passes, the scanners rank by the strongest signal for information only, every result says "not yet
+  supported by evidence", and the experiment pots will mostly hold the benchmark or cash. That is a valid result.
+
+## Results
+_Not run yet._

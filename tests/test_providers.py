@@ -109,3 +109,18 @@ def test_cloud_entry_point_opens_live_analysis():
     at.run()
     assert not at.exception, [e.value for e in at.exception]
     assert any("Paper trading only" in c.value for c in at.caption)
+
+
+def test_daily_many_skips_a_rejected_symbol(monkeypatch):
+    from aurum.providers import alpaca as A
+
+    def fake_get(url, params=None, timeout=30):
+        syms = params["symbols"].split(",")
+        if "BAD" in syms:
+            raise A.AlpacaError("HTTP 400 from x: invalid symbol")
+        return {"bars": {s: [{"t": "2026-10-29T04:00:00Z", "o": 1, "h": 1, "l": 1, "c": 1, "v": 1}] for s in syms}}
+
+    monkeypatch.setattr(A, "_get", fake_get)
+    p = A.AlpacaProvider()
+    got = p.daily_many(["AAA", "BAD", "CCC", "DDD"], chunk=4)
+    assert sorted(got) == ["AAA", "CCC", "DDD"] and p.skipped == ["BAD"]

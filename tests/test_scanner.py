@@ -97,3 +97,13 @@ def test_swing_missing_setup_counts_as_no_setup_and_cash_like_funds_are_left_out
     sw, used, _ = SC.rank("swing", p, pd.Index(p.close.columns), None, min_history=200)
     one_signal = sw[sw["signals_known"] == 1]
     assert len(one_signal) and (one_signal["score"] <= 100 / len(used) + 1e-6).all()
+
+
+def test_signals_tested_as_harmful_get_no_weight(tmp_path, monkeypatch):
+    import json
+
+    (tmp_path / "weights.json").write_text(json.dumps({"tested": {"momentum": "FAIL: reliably harmful"}}))
+    monkeypatch.setattr(SC, "FOLDER", tmp_path)
+    p = _panels()
+    _, used, status = SC.rank("cross-asset", p, pd.Index(p.close.columns), None)
+    assert status == "untested" and "momentum" not in used and set(used) == {"trend", "low_volatility"}

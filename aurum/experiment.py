@@ -154,7 +154,9 @@ def propose(
         if plan.action != "BUY" or plan.shares <= 0:
             continue
         qty = plan.tranches[0][2] if (pot == "long-term" and plan.tranches) else plan.shares
-        qty = round(qty, 4) if s in (fractionable or set()) else float(int(qty))
+        # Alpaca accepts bracket orders (swing: stop + target attached) only for whole shares
+        whole = pot == "swing" or s not in (fractionable or set())
+        qty = float(int(qty)) if whole else round(qty, 4)
         cost = qty * plan.price
         if qty <= 0 or cost > cash:
             continue

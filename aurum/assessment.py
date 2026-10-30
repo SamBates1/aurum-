@@ -145,7 +145,7 @@ def long_term(
 
     stretched = np.isfinite(t["sma50"]) and t["close"] > 1.15 * t["sma50"]
     s = score if score is not None else 50.0
-    untested = evidence_status != "evidence"
+    untested = evidence_status not in ("evidence", "live-test")
     if held:
         a.verdict = "SELL" if s < 20 and len(a.bearish) > len(a.bullish) else ("REDUCE" if s < 35 else "HOLD")
     elif s >= 80 and len(a.bullish) > len(a.bearish):
@@ -164,7 +164,9 @@ def long_term(
     a.why = f"Score {s:.0f}/100; {len(a.bullish)} points for, {len(a.bearish)} against" + (
         "; " + "; ".join(reasons) if reasons else ""
     )
-    a.confidence = _confidence(len(a.bullish), len(a.bearish), untested)
+    a.confidence = _confidence(len(a.bullish), len(a.bearish), untested or evidence_status == "live-test")
+    if evidence_status == "live-test":
+        a.why += "; LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money"
     return a
 
 
@@ -223,7 +225,7 @@ def swing(
     a.invalidation.append("No progress within 4 weeks (the setup has failed)")
 
     s = score if score is not None else 50.0
-    untested = evidence_status != "evidence"
+    untested = evidence_status not in ("evidence", "live-test")
     stretched = np.isfinite(t["rsi14"]) and t["rsi14"] > 75
     if held:
         a.verdict = "SELL" if (not setup and np.isfinite(t["sma50"]) and t["close"] < t["sma50"]) else "HOLD"
@@ -238,7 +240,9 @@ def swing(
         + (f"setup: {setup}" if setup else "no setup")
         + ("; signals not yet supported by evidence" if untested else "")
     )
-    a.confidence = _confidence(len(a.bullish), len(a.bearish), untested)
+    a.confidence = _confidence(len(a.bullish), len(a.bearish), untested or evidence_status == "live-test")
+    if evidence_status == "live-test":
+        a.why += "; LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money"
     return a
 
 

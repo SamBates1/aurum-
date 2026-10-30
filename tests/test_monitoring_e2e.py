@@ -162,4 +162,8 @@ def test_daily_monitor_records_pots_and_reconciles(tmp_path, monkeypatch):
     eq = pd.read_csv(tmp_path / "equity.csv", index_col=0)
     assert eq["swing"].iloc[-1] == pytest.approx(50_000 - 1400 + 2 * 0)  # no current price in the fake: valued at 0
     report = (tmp_path / "monitor.md").read_text()
-    assert "PAPER TRADING" in report and "match Alpaca" in report and "Paper orders OFF" in report
+    assert (
+        "PAPER TRADING" in report
+        and "match Alpaca" in report
+        and ("Paper orders ON" in report or "Paper orders OFF" in report)
+    )

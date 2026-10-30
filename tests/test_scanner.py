@@ -107,3 +107,15 @@ def test_signals_tested_as_harmful_get_no_weight(tmp_path, monkeypatch):
     p = _panels()
     _, used, status = SC.rank("cross-asset", p, pd.Index(p.close.columns), None)
     assert status == "untested" and "momentum" not in used and set(used) == {"trend", "low_volatility"}
+
+
+def test_live_test_ranks_by_one_named_signal_and_is_labelled():
+    p = _panels()
+    t, used, status = SC.rank("cross-asset", p, pd.Index(p.close.columns), None, live_test={"cross-asset": "momentum"})
+    assert status == "live-test" and used == {"momentum": 1.0}
+    r = SC.ScanResult("cross-asset", "2026-10-29", [], t, used, status)
+    assert "LIVE TEST" in r.summary().upper() and "did not pass" in r.summary().lower()
+    _, used2, status2 = SC.rank(
+        "cross-asset", p, pd.Index(p.close.columns), {"trend": 1.0}, live_test={"cross-asset": "momentum"}
+    )
+    assert status2 == "evidence" and used2 == {"trend": 1.0}  # evidence always wins over a live test

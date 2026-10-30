@@ -21,6 +21,7 @@ from aurum import factorlab as FL  # noqa: E402
 from aurum import scanner as SC  # noqa: E402
 from aurum import sec  # noqa: E402
 from aurum import universe as U  # noqa: E402
+from aurum.config import CFG  # noqa: E402
 from aurum.indicators import compute  # noqa: E402
 from aurum.providers import get_provider  # noqa: E402
 
@@ -86,12 +87,13 @@ def run_one(name: str, snap: U.Snapshot, p: FL.Panels, atr: pd.Series, weights: 
     for stage, n, note in notes:
         res.stages.append((f"2. filter: {stage}", n, note))
     w = weights.get(name, {})
-    table, used, status = SC.rank(name, p, keep, w, min_history=cfg["min_history"])
+    live = CFG.get("experiment", {}).get("live_test_signals")
+    table, used, status = SC.rank(name, p, keep, w, min_history=cfg["min_history"], live_test=live)
     res.stages.append(("3. analyse", len(table), f"{cfg['min_history']}+ days of history, signals computed"))
     if name == "long-term":
         short = list(table.index[: cfg["shortlist"]])
         got = add_fundamentals(p, short)
-        table, used, status = SC.rank(name, p, pd.Index(short), w, min_history=cfg["min_history"])
+        table, used, status = SC.rank(name, p, pd.Index(short), w, min_history=cfg["min_history"], live_test=live)
         res.stages.append(
             ("3b. company accounts", got, f"SEC accounts for the top {len(short)}" if got else "SEC unavailable today")
         )

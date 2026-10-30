@@ -287,3 +287,20 @@ uptrends lost money reliably (-9.6% a year, t = -2.4) and is now shown as a warn
 rankings are labelled "not supported by evidence", and no assessment can say BUY. Company-account signals (EXP-051b)
 wait for SEC access (the SEC refuses requests from GitHub's machines). The owner must decide what the experiment pots
 do while no signal is supported (see the open question in the build plan).
+
+**D-045 — Owner decisions after EXP-051a: SEC contact and a labelled live test** (2026-10-30)
+1. The owner allowed his email as the contact address the SEC requires. It is kept in a private repository secret
+   (SEC_USER_AGENT), never in the public code or reports.
+2. While no signal has passed its test, the experiment ranks by the two closest signals as a clearly labelled LIVE
+   TEST with paper money: momentum for the long-term pot (+6.4% a year, t 1.98) and trend strength for the swing pot
+   (+10.6%, t 1.63), both of which FAILED EXP-051a. Every ranking and verdict says so; confidence is never "High";
+   evidence-backed weights replace the live test as soon as a signal passes. Paper orders stay off until the owner
+   says OK. Remove `experiment.live_test_signals` from config.yaml to stop the test.
+
+**D-046 — Paper trading switched on, with the owner approving each order** (2026-10-30)
+The owner gave Aurum access to place trades in the Alpaca PAPER account (simulated money). Paper orders are now on
+(`paper_orders.enabled: true`) in manual mode: each weekday evening the experiment runner proposes orders for the two
+$50,000 pots from the scans (exits first, then entries; long-term buys a third of each planned position; swing buys
+carry a stop and target at Alpaca), and nothing is sent until the owner taps Approve on the Portfolio page. Every
+independent check still applies, an emergency stop cancels all open orders, and only Alpaca's paper address exists in
+the code. Rankings are the labelled live test of D-045. First orders can fill at the Monday 2 November 2026 open.

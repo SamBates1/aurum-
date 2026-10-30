@@ -186,7 +186,9 @@ class PaperBroker:
         (self.folder / "PAUSE").unlink(missing_ok=True)
         self._audit({"event": "resume"})
 
-    def check(self, req: OrderRequest, price: float, price_time, approved: bool) -> CheckResult:
+    def check(
+        self, req: OrderRequest, price: float, price_time, approved: bool, market_open: bool | None = None
+    ) -> CheckResult:
         r = []
         if self.paused():
             r.append("emergency pause is on")
@@ -195,8 +197,14 @@ class PaperBroker:
         if self.cfg["mode"] == "manual" and not approved:
             r.append("needs the owner's approval")
         age = (pd.Timestamp.now(tz="UTC") - pd.Timestamp(price_time).tz_convert("UTC")).total_seconds() / 60
-        if age > self.cfg["max_data_age_minutes"]:
-            r.append(f"price is {age:.0f} minutes old (limit {self.cfg['max_data_age_minutes']})")
+        if market_open is None:
+            try:
+                market_open = bool(self.t("GET", "/v2/clock", None).get("is_open"))
+            except Exception:
+                market_open = True  # unknown: apply the strict intraday rule
+        limit = self.cfg["max_data_age_minutes"] if market_open else 4 * 24 * 60  # closed: the last completed close
+        if age > limit:
+            r.append(f"price is {age:.0f} minutes old (limit {limit:.0f})")
         value = req.qty * price
         if value > self.cfg["max_order_usd"]:
             r.append(f"order value ${value:,.0f} above the ${self.cfg['max_order_usd']:,.0f} limit")
@@ -228,8 +236,10 @@ class PaperBroker:
         return CheckResult(not r, r)
 
     # ---- orders ---------------------------------------------------------------------------------------------
-    def submit(self, req: OrderRequest, price: float, price_time, approved: bool) -> dict:
-        chk = self.check(req, price, price_time, approved)
+    def submit(
+        self, req: OrderRequest, price: float, price_time, approved: bool, market_open: bool | None = None
+    ) -> dict:
+        chk = self.check(req, price, price_time, approved, market_open)
         self._audit(
             {
                 "event": "check",
@@ -277,7 +287,12 @@ def pot_of(client_order_id: str | None) -> str | None:
 def ledgers_from_orders(orders: list[dict], start_cash: dict[str, float]) -> dict[str, dict]:
     """Rebuild each pot from the broker's FILLED quantities and prices (partial fills count for what filled)."""
     pots = {p: {"cash": float(c), "positions": {}, "fills": 0, "realised": 0.0} for p, c in start_cash.items()}
-    for o in sorted(orders, key=lambda x: x.get("filled_at") or x.get("submitted_at") or ""):
+    flat = []
+    for o in orders:  # bracket orders: the stop and target legs belong to the parent's pot
+        flat.append(o)
+        for leg in o.get("legs") or []:
+            flat.append(dict(leg, client_order_id=o.get("client_order_id")))
+    for o in sorted(flat, key=lambda x: x.get("filled_at") or x.get("submitted_at") or ""):
         pot = pot_of(o.get("client_order_id"))
         q = float(o.get("filled_qty") or 0)
         if pot not in pots or q <= 0:

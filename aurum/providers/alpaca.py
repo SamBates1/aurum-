@@ -177,6 +177,12 @@ class AlpacaProvider(Provider):
             ]
         return frames
 
+    def latest_trade(self, symbol: str) -> dict:
+        """Latest IEX trade: {price, time} (one exchange; labelled as such wherever shown)."""
+        d = _get(f"{DATA}/v2/stocks/{symbol}/trades/latest", {"feed": "iex"})
+        t = d.get("trade") or {}
+        return {"price": float(t.get("p", "nan")), "time": t.get("t"), "feed": "IEX"}
+
     def news(self, symbols, limit=20) -> list[dict]:
         d = _get(f"{DATA}/v1beta1/news", {"symbols": ",".join(symbols), "limit": limit, "sort": "desc"})
         return [

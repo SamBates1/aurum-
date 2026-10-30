@@ -36,14 +36,22 @@ jobs:
         env:
           ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
           ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
         run: python scripts/run_scans.py
+      - name: Experiment proposals (PAPER account, read + propose; orders only if auto mode)
+        if: success()
+        env:
+          ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
+          ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+        run: python scripts/run_experiment.py
       - name: Commit results
         if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           mkdir -p research/scanner
-          git add -A -- research/scanner
+          mkdir -p research/orders
+          git add -A -- research/scanner research/orders
           git diff --cached --quiet && { echo "Nothing to commit"; exit 0; }
           git commit -m "Scanners: $(date -u +%Y-%m-%d)"
           git pull --rebase origin main

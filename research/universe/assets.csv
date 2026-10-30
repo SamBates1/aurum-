@@ -1,4 +1,0 @@
-symbol,name,exchange,status,tradable,fractionable,shortable,kind,price,dollar_volume_20d,bars,stale_days,last_bar,reason,eligible
-AAPL,Apple Inc. Common Stock,NASDAQ,active,True,True,True,stock,100.0,100000000.0,100.0,10.0,2026-10-16,no trade for 10 business days,False
-SPY,SPDR S&P 500 ETF Trust,ARCA,active,True,True,False,etf,100.0,100000000.0,100.0,10.0,2026-10-16,no trade for 10 business days,False
-ZZZZ,Z,OTC,active,False,False,False,stock,,,,,,not tradable at Alpaca,False

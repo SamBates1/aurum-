@@ -1,0 +1,50 @@
+name: Scanners
+
+# Long-term, swing and cross-asset scans on real data after each US close (Alpaca prices read-only, SEC accounts,
+# Yahoo earnings dates). Commits research/scanner/. No orders of any kind.
+on:
+  schedule:
+    - cron: "53 22 * * 1-5"   # 22:53 UTC weekdays, after the paper-trading run
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: scanners
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install
+        run: pip install -r requirements.txt
+      - name: SEC cache
+        uses: actions/cache@v4
+        with:
+          path: data/sec
+          key: sec-${{ github.run_id }}
+          restore-keys: sec-
+      - name: Scan
+        env:
+          ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
+          ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+        run: python scripts/run_scans.py
+      - name: Commit results
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          mkdir -p research/scanner
+          git add -A -- research/scanner
+          git diff --cached --quiet && { echo "Nothing to commit"; exit 0; }
+          git commit -m "Scanners: $(date -u +%Y-%m-%d)"
+          git pull --rebase origin main
+          git push origin HEAD:main

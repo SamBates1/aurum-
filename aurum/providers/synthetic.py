@@ -33,13 +33,20 @@ class SyntheticProvider(Provider):
                 )
             return finish(d, "SYNTHETIC")
         lookback = TIMEFRAMES[timeframe][1]
-        idx = pd.date_range(self.now - lookback, self.now, freq=STEP[timeframe], tz="UTC")
+        idx = pd.date_range((self.now - lookback).floor(STEP[timeframe]), self.now, freq=STEP[timeframe], tz="UTC")
         ny = idx.tz_convert("America/New_York")
         mins = ny.hour * 60 + ny.minute
         idx = idx[(ny.day_of_week < 5) & (mins >= 570) & (mins < 960)]
         rng = np.random.default_rng(zlib.crc32(f"{symbol}{timeframe}".encode()))
         r = rng.normal(0, 0.002, len(idx))
-        c = 100 * np.exp(np.cumsum(r))
+        # end at the synthetic daily close so intraday and daily charts (and strategy lines) share one price level
+        from .. import synthetic
+
+        dd = synthetic.daily_prices(symbol)["Close"]
+        dd = dd[dd.index <= self.now.tz_localize(None)]
+        level = float(dd.iloc[-1]) if len(dd) else 100.0
+        walk = np.cumsum(r)
+        c = level * np.exp(walk - (walk[-1] if len(walk) else 0.0))
         o = np.r_[c[0], c[:-1]]
         hi = np.maximum(o, c) * (1 + np.abs(rng.normal(0, 0.001, len(idx))))
         lo = np.minimum(o, c) * (1 - np.abs(rng.normal(0, 0.001, len(idx))))

@@ -97,6 +97,10 @@ risk:                           # independent risk engine (aurum/risk.py); it ca
   max_data_age_days: 4
   min_order_value: 25
 
+watchlist:                      # Live Analysis tickers (US; up to 30 stream live from IEX on Alpaca's free plan)
+  etfs: [SPY, QQQ, IWM, EFA, TLT, IEF, GLD, SLV, GDX, DBC]
+  stocks: [AAPL, MSFT, NVDA, AMZN, GOOGL, META]
+
 registry:                       # experiment registry (aurum/registry.py), local and git-ignored
   path: logs/registry.sqlite
   prior_trials: 100             # portfolio variants already tested in EXP-020..045, counted when deflating Sharpe

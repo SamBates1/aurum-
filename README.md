@@ -84,6 +84,17 @@ pip install -r requirements-dev.txt
 
 No API keys are needed: Yahoo Finance and FRED are used without credentials. `.env.example` lists optional settings.
 
+**Live prices (optional, recommended):** for real-time charts, put your Alpaca *paper* keys in a file called `.env`
+in the project folder (it is git-ignored, never committed and never shown on screen):
+
+```
+ALPACA_API_KEY=your-key-id
+ALPACA_SECRET_KEY=your-secret
+```
+
+Without it the dashboard falls back to Yahoo (delayed) prices, always labelled. GitHub uses the same keys from the
+repository Secrets. Aurum never places real orders.
+
 ## Running it
 
 | Command | What it does |
@@ -100,6 +111,24 @@ No API keys are needed: Yahoo Finance and FRED are used without credentials. `.e
 
 Configuration is in [`config.yaml`](config.yaml): universe, macro series, model settings, strategy weights and
 thresholds, risk limits, cost assumptions and the holdout date.
+
+## Live Analysis (v0.9)
+
+Second page in the list (also opened from each Decision Board row). A TradingView-style chart (Lightweight Charts)
+for any US ticker on 5-minute to weekly bars, updating every 2 seconds from Alpaca's IEX feed while the market is
+open (labelled: IEX is one exchange; history is consolidated). It shows the strategy's own indicators as the strategy
+knew them, its BUY/SELL orders with the full reason on hover, a held/cash band, extra indicators (moving averages,
+Bollinger, RSI, MACD, ATR, VWAP, stochastic, ADX, support/resistance) and below it:
+
+- **Summary**: why we might be interested, why we might be wrong (a rule-based devil's advocate), what to do.
+- **Trade plan**: what the strategy says, stop, 2R/3R targets, size in pounds within the risk limits, the UK fund,
+  what would prove it wrong and confidence checks (an assessment, not a probability).
+- **Do the timeframes agree?**, **Decisions over time** (the recorded history and how it turned out), **News** and
+  **alerts** (automatic, plus your own price alerts).
+
+Everything uses completed daily closes for decisions. Every evening GitHub records what the main strategy says about
+each watchlist ticker in `research/recommendations/` (hash-chained, reproducible; `latest.md`, `outcomes.md`).
+Tickers outside the strategy are shown for research only and recorded as NOT COVERED.
 
 ## Decision Board (v0.8)
 

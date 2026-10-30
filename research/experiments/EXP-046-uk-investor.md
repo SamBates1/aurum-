@@ -37,3 +37,6 @@ are now measured on month-end values, with the daily figures kept for reference;
 returns across different closing times and could not handle Yahoo's pence/pound switches (SGLN.L showed an impossible
 −21.9% a year); it now uses month-end prices and corrects 10x jumps, reporting how many. The model's assumptions are
 unchanged.
+Second correction (11:40 UK): the re-run showed SGLN.L's first month on Yahoo (April 2011) at about 1.65x its level
+in every later month relative to the model (a bad print), which alone moved the comparison by several points a year.
+Months more than 25% away from the fund's usual price relative to the model are now dropped and counted.

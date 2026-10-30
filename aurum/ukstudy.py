@@ -280,6 +280,10 @@ def tracking_check(model: pd.Series, actual: pd.Series) -> dict:
     jumps = lr.diff()
     fix = (-jumps.where(jumps.abs() > 1).round().fillna(0)).cumsum()
     am = am * 10**fix
+    # isolated bad prints: months where actual/model is more than 25% away from its median level are dropped
+    ratio = am / mm
+    bad = (ratio / ratio.median() - 1).abs() > 0.25
+    am, mm = am[~bad], mm[~bad]
     ra, rm = am.pct_change().dropna(), mm.pct_change().dropna()
     years = len(ra) / 12
     ga = float((am.iloc[-1] / am.iloc[0]) ** (1 / years) - 1)
@@ -292,6 +296,7 @@ def tracking_check(model: pd.Series, actual: pd.Series) -> dict:
         "model_cagr": gm,
         "diff": gm - ga,
         "unit_fixes": int((jumps.abs() > 1).sum()),
+        "bad_months_dropped": int(bad.sum()),
         "correlation": float(ra.corr(rm)),
         "monthly": pd.DataFrame({"actual": am, "model": mm}),
     }

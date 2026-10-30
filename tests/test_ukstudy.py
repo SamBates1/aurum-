@@ -70,3 +70,12 @@ def test_outcomes_with_zero_returns_and_contributions():
     row = t.iloc[0]
     assert row["paid_in"] == 1000 + 11 * 100 and row["median"] == pytest.approx(row["paid_in"])
     assert row["chance_fall_20pct"] == 0
+
+
+def test_tracking_check_drops_isolated_bad_prints():
+    idx = pd.bdate_range("2020-01-01", periods=600)
+    model = pd.Series(np.exp(np.linspace(0, 0.2, 600)), index=idx) * 5
+    actual = model * 20
+    actual.loc["2020-01"] *= 1.6  # a bad first month, like SGLN.L in April 2011
+    c = U.tracking_check(model, actual)
+    assert c["bad_months_dropped"] == 1 and abs(c["diff"]) < 1e-3

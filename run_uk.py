@@ -128,19 +128,20 @@ def exp046(cfg, out, L):
         "",
         "Model check (modelled UK fund vs the real fund's price, month-end, annual return):",
         "",
-        "| Fund | Months | Real | Model | Difference | Correlation of monthly returns | Pence/pound fixes |",
-        "|---|---|---|---|---|---|---|",
+        "| Fund | Months | Real | Model | Difference | Correlation of monthly returns | "
+        "Pence/pound fixes | Bad months dropped |",
+        "|---|---|---|---|---|---|---|---|",
     ]
     for t, c in checks.items():
         if "error" in c:
-            L.append(f"| {U.UK_FUNDS_YAHOO[t]} | – | – | – | unavailable: {c['error']} | – | – |")
+            L.append(f"| {U.UK_FUNDS_YAHOO[t]} | – | – | – | unavailable: {c['error']} | – | – | – |")
         elif "start" not in c:
-            L.append(f"| {U.UK_FUNDS_YAHOO[t]} | too little data | – | – | – | – | – |")
+            L.append(f"| {U.UK_FUNDS_YAHOO[t]} | too little data | – | – | – | – | – | – |")
         else:
             L.append(
                 f"| {U.UK_FUNDS_YAHOO[t]} | {c.get('start')} to {c.get('end')} | "
                 f"{pct(c.get('actual_cagr'))} | {pct(c.get('model_cagr'))} | {pct(c['diff'], True)} | "
-                f"{num(c.get('correlation'))} | {c.get('unit_fixes', 0)} |"
+                f"{num(c.get('correlation'))} | {c.get('unit_fixes', 0)} | {c.get('bad_months_dropped', 0)} |"
             )
     L += [
         "",

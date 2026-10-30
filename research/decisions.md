@@ -243,3 +243,11 @@ get no size) and a rule-based confidence assessment (not a probability). A new e
 tested in EXP-049 before any strategy may use it. Engine fix: exits (trailing stop and the new stop/target) are now
 acted on at the close that triggers them instead of waiting for the next scheduled rebalance; no saved strategy used a
 trailing stop, so no approved strategy or paper account changes.
+
+**D-040 — Recommendations are recorded every day and can't be quietly rewritten** (2026-10-30)
+After each US close the paper-trading workflow records what the main strategy says about every watchlist ticker in
+`research/recommendations/` (append-only, each record chained to the one before by a hash, with the strategy hash,
+code version and a fingerprint of the prices used, so any record can be reproduced). Small weight moves (< 2 points)
+are not reported as changes. Tickers outside the main strategy are recorded as NOT COVERED (no size): applying the
+70/30 rules to a single ticker is not a recommendation. `outcomes.md` tracks how past recommendations did after
+costs vs SPY; small samples are noise.

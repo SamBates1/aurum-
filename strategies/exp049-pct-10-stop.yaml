@@ -1,0 +1,18 @@
+id: exp049-pct-10-stop
+name: "EXP-049: 70/30 with 10% stop, no target"
+version: 1
+description: >-
+  Research only (EXP-049, pre-registered 2026-10-30). Strategy A (70/30 SPY/GLD, monthly) plus a per-asset
+  stop-loss / take-profit fixed at the entry close: 10% stop, no target, 21 days out after an exit. Not a paper account.
+universe: [SPY, GLD]
+base_weights: {SPY: 0.70, GLD: 0.30}
+benchmark: spy-gld-70-30-monthly
+schedule: {rebalance: monthly, band: 0.0}
+sizing: {method: fixed}
+signals: []
+exits:
+  stop_target: {unit: pct, stop: 0.10, target: null, atr_window: 14, cooldown_days: 21}
+execution:
+  fill: open
+  costs_bps: {SPY: 2, GLD: 3}
+start: "2006-06-01"

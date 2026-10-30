@@ -43,6 +43,8 @@ class Compiled:
     operands: dict[str, pd.Series]  # operand label -> values used by the conditions
     exit_mult: pd.DataFrame  # trailing-stop multiplier per asset
     vol: pd.DataFrame  # volatility used by sizing (NaN for fixed sizing)
+    exit_levels: dict[str, pd.DataFrame] = field(default_factory=dict)  # asset -> entry/stop/target per day
+    exit_events: pd.DataFrame | None = None  # asset -> "stop" / "target" on the close that triggered it
 
 
 @dataclass
@@ -152,6 +154,65 @@ def trailing_stop_mult(close: pd.Series, pct: float, cooldown: int) -> pd.Series
     return pd.Series(out, index=close.index)
 
 
+def stop_target_mult(
+    close: pd.Series,
+    want: pd.Series,
+    atr_pct: pd.Series | None,
+    stop: float | None,
+    target: float | None,
+    unit: str,
+    cooldown: int,
+) -> tuple[pd.Series, pd.DataFrame, pd.Series]:
+    """Stop-loss / take-profit exits measured from the entry close, decided on closes (orders fill at the next open).
+
+    `want` is the weight the other rules want for the asset (before this exit). A position starts at the close on
+    which `want` turns positive; its stop and target are fixed then: entry x (1 - stop) and entry x (1 + target), where
+    stop/target are fractions (unit "pct") or multiples of that day's ATR % (unit "atr"). When a close reaches either
+    level the asset is sold and kept out for `cooldown` days; after that it is bought again if the rules still want it
+    (a fresh entry with fresh levels). Uses closes up to each day only.
+    Returns (multiplier 1/0, levels [entry, stop, target], event "stop"/"target")."""
+    c = close.to_numpy(float)
+    w = want.reindex(close.index).fillna(0.0).to_numpy(float)
+    a = atr_pct.reindex(close.index).to_numpy(float) if atr_pct is not None else np.full(len(c), np.nan)
+    n = len(c)
+    mult = np.ones(n)
+    lv = np.full((n, 3), np.nan)
+    ev = np.array([None] * n, dtype=object)
+    entry = s_lv = t_lv = np.nan
+    wait = 0
+    for i in range(n):
+        x = c[i]
+        if wait:
+            wait -= 1
+            mult[i] = 0.0
+            continue
+        if w[i] <= 0 or not np.isfinite(x):
+            entry = s_lv = t_lv = np.nan  # not held: nothing to protect
+            continue
+        if not np.isfinite(entry):
+            scale = a[i] if unit == "atr" else 1.0
+            if unit == "atr" and not np.isfinite(scale):
+                continue  # ATR not known yet: hold without levels until it is
+            entry = x
+            s_lv = x * (1 - stop * scale) if stop else np.nan
+            t_lv = x * (1 + target * scale) if target else np.nan
+            lv[i] = (entry, s_lv, t_lv)
+            continue
+        lv[i] = (entry, s_lv, t_lv)
+        hit = "stop" if (np.isfinite(s_lv) and x <= s_lv) else ("target" if (np.isfinite(t_lv) and x >= t_lv) else None)
+        if hit:
+            ev[i] = hit
+            mult[i] = 0.0
+            wait = int(cooldown)
+            entry = s_lv = t_lv = np.nan
+    idx = close.index
+    return (
+        pd.Series(mult, index=idx),
+        pd.DataFrame(lv, index=idx, columns=["entry", "stop", "target"]),
+        pd.Series(ev, index=idx),
+    )
+
+
 def compile_targets(spec: dict, prices: dict[str, pd.DataFrame], index: pd.DatetimeIndex | None = None) -> Compiled:
     s = SP.validate(spec)
     uni = s["universe"]
@@ -216,6 +277,27 @@ def compile_targets(spec: dict, prices: dict[str, pd.DataFrame], index: pd.Datet
     raw = sizing.mul(base, axis=1)
     for m in sig_mult.values():
         raw = raw * m
+    levels, events = {}, pd.DataFrame(index=index, columns=uni, dtype=object)
+    stg = s["exits"].get("stop_target")
+    if stg:
+        unit = stg.get("unit", "atr")
+        for t in uni:
+            atr = (
+                compute("atr_pct", prices[t], {"n": int(stg.get("atr_window", 14))}).reindex(index)
+                if unit == "atr"
+                else None
+            )
+            m, lv, ev = stop_target_mult(
+                close[t],
+                raw[t] * exit_mult[t],
+                atr,
+                stg.get("stop"),
+                stg.get("target"),
+                unit,
+                int(stg.get("cooldown_days", 10)),
+            )
+            exit_mult[t] = exit_mult[t] * m
+            levels[t], events[t] = lv, ev
     raw = (raw * exit_mult).clip(lower=0.0, upper=sz["max_weight"])
     gross = raw.sum(axis=1)
     raw = raw.div(gross.where(gross > 1.0, 1.0), axis=0)  # never borrow
@@ -224,6 +306,9 @@ def compile_targets(spec: dict, prices: dict[str, pd.DataFrame], index: pd.Datet
     if s["schedule"]["act_on_signal_change"] and sig_state:
         flips = pd.concat([v.fillna(-1) for v in sig_state.values()], axis=1).diff().abs().sum(axis=1) > 0
         reb = reb | flips
+    if s["exits"].get("stop_target") or s["exits"].get("trailing_stop"):
+        # an exit (or the re-entry after it) is acted on at that close, not at the next scheduled rebalance
+        reb = reb | (exit_mult.diff().abs().sum(axis=1) > 0)
     target = raw.where(reb, np.nan)
     return Compiled(
         index=index,
@@ -238,6 +323,8 @@ def compile_targets(spec: dict, prices: dict[str, pd.DataFrame], index: pd.Datet
         operands=operands,
         exit_mult=exit_mult,
         vol=vol,
+        exit_levels=levels,
+        exit_events=events,
     )
 
 
@@ -317,8 +404,13 @@ def explain_trade(s: dict, comp: Compiled, d, ticker: str, side: str) -> str:
             st = comp.signal_state.at[d, g["id"]]
             word = "unknown" if not np.isfinite(st) else ("met" if st == 1 else "not met")
             reasons.append(f"{g['label']}: {word}")
-    if comp.exit_mult.at[d, ticker] == 0:
-        reasons.append("trailing stop: out")
+    ev = comp.exit_events.at[d, ticker] if comp.exit_events is not None and ticker in comp.exit_events else None
+    if ev == "stop":
+        reasons.append("stop-loss hit")
+    elif ev == "target":
+        reasons.append("take-profit target reached")
+    elif comp.exit_mult.at[d, ticker] == 0:
+        reasons.append("waiting after an exit" if s["exits"].get("stop_target") else "trailing stop: out")
     if s["schedule"]["band"] > 0:
         reasons.append(f"more than {s['schedule']['band']:.0%} away from target")
     return parts[0] + (" (" + "; ".join(reasons) + ")" if reasons else "")

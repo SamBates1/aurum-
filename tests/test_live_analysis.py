@@ -19,7 +19,7 @@ def prov():
 
 @pytest.fixture(scope="module")
 def daily(prov):
-    return {s: AN.daily_frame(prov.bars(s, "1d")) for s in ("SPY", "GLD", "AAPL")}
+    return {s: AN.daily_frame(prov.bars(s, "1d"), now=NOW) for s in ("SPY", "GLD", "AAPL")}
 
 
 def test_chart_times_are_new_york_wall_clock_and_dates():
@@ -129,3 +129,44 @@ def test_live_analysis_page_renders_offline(monkeypatch):
     assert not at.exception, [e.value for e in at.exception]
     at.sidebar.text_input[0].set_value("AAPL").run()
     assert not at.exception and any("research only" in w.value for w in at.warning)
+
+
+def test_trade_plan_sizes_within_limits_and_never_beyond_the_strategy(daily):
+    from aurum import tradeplan as TP
+
+    lib = SP.library()
+    sv = AN.strategy_view(lib["spy-gld-70-30-monthly"], "SPY", daily)
+    hold = TP.holdings_returns(daily, {"SPY": 0.7, "GLD": 0.3})
+    p = TP.build("SPY", daily["SPY"], sv.run, holdings_returns=hold)
+    st = TP.settings()
+    assert p.stop < p.entry and all(px > p.entry for _, px, _ in p.targets)
+    assert p.size_weight <= min(p.target_weight, 0.85) + 1e-9
+    assert p.risk_gbp <= st["risk_per_trade"] * st["account_gbp"] + 1e-6
+    assert p.correlation is not None and p.correlation > 0.5  # SPY overlaps a 70% SPY account
+    assert "VUSA" in p.uk_fund and "not a probability" in p.summary_rows()[-2][0]
+    # a stock outside the risk engine's allowed list gets no size and a research note
+    sv2 = AN.strategy_view(lib["spy-gld-70-30-monthly"], "AAPL", daily)
+    p2 = TP.build("AAPL", daily["AAPL"], sv2.run, research_only=True)
+    assert p2.size_gbp == 0 and not p2.allowed and p2.notes and "research only" in p2.action_text
+
+
+def test_trade_plan_uses_the_strategys_own_stop(daily):
+    from aurum import tradeplan as TP
+
+    spec = SP.normalise(SP.library()["spy-gld-70-30-monthly"])
+    spec["exits"] = {"stop_target": {"unit": "pct", "stop": 0.08, "target": 0.2, "cooldown_days": 5}}
+    sv = AN.strategy_view(spec, "SPY", daily)
+    p = TP.build("SPY", daily["SPY"], sv.run)
+    lv = sv.run.compiled.exit_levels["SPY"].iloc[-1]
+    if np.isfinite(lv["stop"]):
+        assert p.stop == pytest.approx(lv["stop"]) and "own stop" in p.stop_source
+    assert any("take-profit" in lab for lab, _, _ in p.targets)
+
+
+def test_daily_frame_drops_todays_unfinished_bar():
+    idx = pd.DatetimeIndex(["2026-10-28 04:00", "2026-10-29 04:00", "2026-10-30 04:00"], tz="UTC")
+    b = pd.DataFrame({"Open": 1.0, "High": 1.0, "Low": 1.0, "Close": [1.0, 2.0, 3.0], "Volume": 1.0}, index=idx)
+    during = AN.daily_frame(b, now=pd.Timestamp("2026-10-30 15:00", tz="UTC"))  # 11:00 New York
+    after = AN.daily_frame(b, now=pd.Timestamp("2026-10-30 20:30", tz="UTC"))  # 16:30 New York
+    assert list(during["Close"]) == [1.0, 2.0] and list(after["Close"]) == [1.0, 2.0, 3.0]
+    assert str(after.index[-1].date()) == "2026-10-30"

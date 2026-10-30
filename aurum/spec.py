@@ -22,6 +22,9 @@ A strategy is a plain dictionary (stored as YAML in strategies/) with these part
                  when_true: 1.0, when_false: 0.0     multipliers on the base weight
                  assume_when_unknown: false          state used before an indicator has enough history
     exits:     trailing_stop: {pct: 0.15, cooldown_days: 21}          per asset, on closes
+               stop_target: {unit: atr | pct, stop: 2.0, target: 4.0, atr_window: 14, cooldown_days: 10}
+                   stop-loss / take-profit per asset, fixed at the entry close (ATR multiples or fractions);
+                   either may be left out; acted on at the close that reaches it (fills at the next open)
                account_drawdown: {trigger: 0.20, release: 0.10, scale: 0.5}
     execution: fill: open | close, costs_bps: {SPY: 2, GLD: 3}, cost_mult: 1.0
     start: "2006-06-01"                     first date of data
@@ -181,6 +184,24 @@ def validate(spec: dict) -> dict:
         ts = ex["trailing_stop"]
         if not 0 < float(ts.get("pct", 0)) < 1:
             errs.append("trailing stop must be between 0% and 100%")
+    if "stop_target" in ex:
+        stg = ex["stop_target"] or {}
+        unit = stg.get("unit", "atr")
+        if unit not in ("atr", "pct"):
+            errs.append("stop/target unit must be 'atr' or 'pct'")
+        if stg.get("stop") is None and stg.get("target") is None:
+            errs.append("stop/target exit needs a stop, a target or both")
+        hi = 10.0 if unit == "atr" else 0.9
+        for k in ("stop", "target"):
+            v = stg.get(k)
+            if v is not None and not 0 < float(v) <= hi:
+                errs.append(
+                    f"{k} must be above 0 and at most {hi:g} ({'ATR multiples' if unit == 'atr' else 'fraction'})"
+                )
+        if not 2 <= int(stg.get("atr_window", 14)) <= 100:
+            errs.append("ATR window must be between 2 and 100 days")
+        if not 0 <= int(stg.get("cooldown_days", 10)) <= 252:
+            errs.append("cooldown must be between 0 and 252 days")
     if "account_drawdown" in ex:
         ad = ex["account_drawdown"]
         if not 0 < float(ad.get("release", 0)) <= float(ad.get("trigger", 0)) < 1:

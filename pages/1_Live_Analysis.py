@@ -15,6 +15,7 @@ from aurum import analysis as AN
 from aurum import data
 from aurum import spec as SP
 from aurum import spec_paper as SPP
+from aurum import tradeplan as TP
 from aurum.config import CFG
 from aurum.livechart import build_payload, live_chart
 from aurum.providers import TIMEFRAMES, data_label, get_provider
@@ -104,6 +105,54 @@ if sv and sv.notes:
     for n in sv.notes:
         st.warning(n)
 
+plan = None
+show_plan = st.sidebar.toggle("Show trade plan lines on the chart", value=True)
+if sv is not None and symbol in daily:
+    try:
+        main_spec = lib[main_ids[0]] if main_ids else None
+        hold = None
+        if main_spec:
+            mw = main_spec["base_weights"]
+            hold = TP.holdings_returns(daily_for(tuple(mw), int(datetime.now().timestamp() // 900)), mw)
+        plan = TP.build(symbol, daily[symbol], sv.run, research_only=sv.research_only, holdings_returns=hold)
+    except Exception as exc:
+        st.caption(f"Trade plan not available: {exc}")
+
+
+def plan_lines() -> list[dict]:
+    if plan is None or not show_plan:
+        return []
+    out = [{"price": plan.stop, "title": "stop", "color": "#d1495b"}]
+    for lab, px, _ in plan.targets[:3]:
+        short = "resistance" if "resistance" in lab else lab.replace("Target ", "target ").split(" (")[0]
+        out.append({"price": px, "title": short, "color": "#199e70"})
+    if plan.support:
+        out.append({"price": plan.support, "title": "support", "color": "#8a8984", "style": 1})
+    return out
+
+
+def plan_block():
+    if plan is None:
+        return
+    st.subheader("Trade plan")
+    badge = {"BUY": "🟢", "HOLD": "🔵", "SELL": "🔴", "STAY OUT": "⚪"}[plan.action]
+    st.markdown(f"**{badge} {plan.action}** · as of the close of {plan.as_of:%a %d %b %Y}")
+    for n in plan.notes:
+        st.warning(n)
+    left, right = st.columns([3, 2])
+    rows = [(k, v.replace("$", "\\$")) for k, v in plan.summary_rows()]  # "$" would start maths formatting
+    left.table(pd.DataFrame(rows, columns=["", "Plan"]).set_index(""))
+    with right:
+        st.markdown("**What would prove it wrong**")
+        st.markdown("\n".join(f"- {x}" for x in plan.invalidation))
+        st.markdown("**Confidence checks**")
+        st.markdown("\n".join(f"- {'✅' if ok else '⚠️'} {t}" for ok, t in plan.confidence_points))
+    st.caption(
+        "The plan is what the strategy says plus standard stop and size arithmetic, from completed daily closes. "
+        "Confidence is an assessment from the checks shown, not a probability of profit. Paper trading only: "
+        "you place any real trade yourself, and nothing here is financial advice."
+    )
+
 
 def chart_block():
     try:
@@ -142,6 +191,8 @@ def chart_block():
     overlays, panels = list(layers["overlays"]), list(layers["panels"])
     for lab in extras:
         parts = AN.extra_indicator(lab, bars)
+        if not parts:
+            st.caption(f"{lab}: shown on intraday charts only (it restarts every session).")
         pr = [x for x in parts if x["where"] == "price"]
         pn = [x for x in parts if x["where"] == "panel"]
         for x in pr:
@@ -154,7 +205,7 @@ def chart_block():
                 }
             )
         if pn:
-            levels = [30, 70] if lab.startswith("RSI") else ([0] if lab.startswith("MACD") else [])
+            levels = AN.PANEL_LEVELS.get(AN.EXTRA[lab][0], [])
             panels.append(
                 {
                     "title": f"{lab} ({TF_NAMES[tf]})",
@@ -177,9 +228,10 @@ def chart_block():
         overlays=overlays,
         panels=panels,
         markers=layers["markers"],
+        price_lines=plan_lines(),
         tips=layers["tips"],
         strip=layers["strip"],
-        status=("LIVE IEX · " if label.live else "") + f"bottom band: blue = strategy holds {symbol}, grey = cash",
+        status=("LIVE IEX · " if label.live else "") + f"top band: blue = strategy holds {symbol}, grey = cash",
         height=640 + 120 * len(panels),
         layout_key=f"{symbol}|{tf}|{sid}|{','.join(extras)}|{ext_hours}",
     )
@@ -196,3 +248,4 @@ if refresh:
     st.fragment(chart_block, run_every=refresh)()
 else:
     chart_block()
+plan_block()

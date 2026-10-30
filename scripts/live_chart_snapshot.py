@@ -24,7 +24,7 @@ FRONT = ROOT / "aurum" / "livechart" / "frontend"
 OUT = ROOT / "research" / "monitoring"
 CASES = [
     ("SPY", "1d", "spy-gld-70-30-risk-cap", ["Bollinger 20, 2"]),
-    ("SPY", "15m", "spy-gld-70-30-monthly", ["EMA 20", "RSI 14"]),
+    ("SPY", "15m", "spy-gld-70-30-monthly", ["VWAP (session)", "RSI 14"]),
     ("AAPL", "1h", "example-70-30-spy-trend-filter", ["SMA 50", "MACD 12/26/9"]),
 ]
 
@@ -84,7 +84,7 @@ def main():
                                 }
                                 for i, x in enumerate(pp)
                             ],
-                            "levels": [30, 70] if lab.startswith("RSI") else [0],
+                            "levels": AN.PANEL_LEVELS.get(AN.EXTRA[lab][0], []),
                         }
                     )
             lab = data_label(bars, p.name)

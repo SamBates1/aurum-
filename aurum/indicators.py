@@ -68,6 +68,59 @@ def _atr(p: pd.DataFrame, n: int) -> pd.Series:
     return tr.rolling(n).mean()
 
 
+def _adx(p: pd.DataFrame, n: int) -> pd.Series:
+    """Wilder's average directional index (0-100): trend strength, not direction."""
+    h, lo, c = p["High"].astype(float), p["Low"].astype(float), p["Close"].astype(float)
+    up, dn = h.diff(), -lo.diff()
+    plus = up.where((up > dn) & (up > 0), 0.0)
+    minus = dn.where((dn > up) & (dn > 0), 0.0)
+    prev = c.shift(1)
+    tr = pd.concat([h - lo, (h - prev).abs(), (lo - prev).abs()], axis=1).max(axis=1)
+    w = {"alpha": 1 / n, "adjust": False, "min_periods": n}
+    atr = tr.ewm(**w).mean()
+    pdi = 100 * plus.ewm(**w).mean() / atr.where(atr > 0)
+    mdi = 100 * minus.ewm(**w).mean() / atr.where(atr > 0)
+    dx = 100 * (pdi - mdi).abs() / (pdi + mdi).where((pdi + mdi) > 0)
+    return dx.ewm(**w).mean()
+
+
+def _stoch(p: pd.DataFrame, n: int, smooth: int) -> pd.Series:
+    hh, ll = p["High"].rolling(n).max(), p["Low"].rolling(n).min()
+    k = 100 * (p["Close"] - ll) / (hh - ll).where(hh > ll)
+    return k.rolling(smooth).mean()
+
+
+def pivot_levels(p: pd.DataFrame, k: int = 5) -> pd.DataFrame:
+    """Support and resistance from swing points. A swing high is a high that is the highest of the k bars either side;
+    it is only known k bars later, so each level appears from the bar that confirms it (no look-ahead).
+    Returns columns 'support' (latest confirmed swing low) and 'resistance' (latest confirmed swing high)."""
+    h, lo = p["High"].to_numpy(float), p["Low"].to_numpy(float)
+    n = len(h)
+    sup, res = np.full(n, np.nan), np.full(n, np.nan)
+    last_s = last_r = np.nan
+    for t in range(n):
+        i = t - k  # the candidate swing point confirmed at bar t
+        if i - k >= 0:
+            win_h, win_l = h[i - k : t + 1], lo[i - k : t + 1]
+            if np.isfinite(h[i]) and h[i] >= np.nanmax(win_h):
+                last_r = h[i]
+            if np.isfinite(lo[i]) and lo[i] <= np.nanmin(win_l):
+                last_s = lo[i]
+        sup[t], res[t] = last_s, last_r
+    return pd.DataFrame({"support": sup, "resistance": res}, index=p.index)
+
+
+def session_vwap(p: pd.DataFrame, tz: str = "America/New_York") -> pd.Series:
+    """Volume-weighted average price from each New York session's first bar (intraday bars only)."""
+    typical = (p["High"] + p["Low"] + p["Close"]) / 3
+    v = p["Volume"].fillna(0).astype(float)
+    idx = p.index if p.index.tz is not None else p.index.tz_localize("UTC")
+    day = pd.Index(idx.tz_convert(tz).date)
+    pv = (typical * v).groupby(day).cumsum().to_numpy()
+    vv = v.groupby(day).cumsum().to_numpy()
+    return pd.Series(np.where(vv > 0, pv / np.where(vv > 0, vv, 1), np.nan), index=p.index)
+
+
 def compute(key: str, p: pd.DataFrame, params: dict | None = None) -> pd.Series:
     """Value of indicator `key` on OHLCV frame `p` at each close (NaN until enough history)."""
     params = params or {}
@@ -104,6 +157,12 @@ def compute(key: str, p: pd.DataFrame, params: dict | None = None) -> pd.Series:
         return line - line.ewm(span=g, adjust=False, min_periods=g).mean()
     if key == "atr_pct":
         return _atr(p, _n(params, "n", 14)) / c
+    if key == "adx":
+        return _adx(p, _n(params, "n", 14))
+    if key == "stoch_k":
+        return _stoch(p, _n(params, "n", 14), _n(params, "smooth", 3))
+    if key in ("support", "resistance"):
+        return pivot_levels(p, _n(params, "k", 5))[key]
     raise KeyError(f"unknown indicator {key!r}")
 
 
@@ -163,5 +222,37 @@ INDICATORS: dict[str, Indicator] = {
             (0,),
         ),
         Indicator("atr_pct", "ATR {n} (% of price)", "panel", (Param("n", 14, 2, 100),), "Average true range.", "%"),
+        Indicator(
+            "adx",
+            "ADX {n}",
+            "panel",
+            (Param("n", 14, 2, 100),),
+            "Average directional index: trend strength (above 25 = trending), not direction.",
+            "",
+            (25,),
+        ),
+        Indicator(
+            "stoch_k",
+            "Stochastic %K ({n}, {smooth})",
+            "panel",
+            (Param("n", 14, 2, 100), Param("smooth", 3, 1, 20)),
+            "Where the close sits in the n-day high-low range (0-100), smoothed.",
+            "",
+            (20, 80),
+        ),
+        Indicator(
+            "support",
+            "Support (swing low, {k})",
+            "price",
+            (Param("k", 5, 2, 30),),
+            "Latest confirmed swing low (known k days after it happened).",
+        ),
+        Indicator(
+            "resistance",
+            "Resistance (swing high, {k})",
+            "price",
+            (Param("k", 5, 2, 30),),
+            "Latest confirmed swing high (known k days after it happened).",
+        ),
     )
 }

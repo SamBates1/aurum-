@@ -225,3 +225,65 @@ def test_decision_chart_links_every_panel_to_one_time_axis(market, lib):
     assert fig.layout.hovermode == "x unified" and fig.layout.yaxis.domain[1] == 1
     buys = [t for t in fig.data if str(t.name).startswith("Buy orders")]
     assert buys and "of account" in buys[0].text[0]
+
+
+def test_stop_target_levels_fixed_at_entry_and_cooldown():
+    idx = pd.bdate_range("2024-01-01", periods=12)
+    close = pd.Series([100, 101, 99, 89, 90, 91, 92, 93, 120, 121, 122, 123], index=idx, dtype=float)
+    want = pd.Series(0.7, index=idx)
+    m, lv, ev = E.stop_target_mult(close, want, None, 0.10, 0.25, "pct", 2)
+    assert lv["entry"].iloc[0] == 100 and lv["stop"].iloc[0] == pytest.approx(90) and lv["target"].iloc[0] == 125
+    assert ev.iloc[3] == "stop" and m.iloc[3] == 0 and m.iloc[4] == 0 and m.iloc[5] == 0
+    assert m.iloc[6] == 1 and lv["entry"].iloc[6] == 92  # re-entered after 2 days, fresh levels
+    assert ev.iloc[8] == "target"  # 120 >= 92 x 1.25 = 115
+    m2, _, ev2 = E.stop_target_mult(close, want.where(idx < idx[2], 0.0), None, 0.10, None, "pct", 2)
+    assert ev2.isna().all() and (m2 == 1).all()  # not held when the price fell: nothing to stop
+
+
+def test_stop_target_strategy_acts_on_the_exit_close_not_month_end():
+    spec = {
+        "id": "st-test",
+        "name": "stop test",
+        "universe": ["AAA"],
+        "base_weights": {"AAA": 1.0},
+        "schedule": {"rebalance": "monthly", "band": 0.0},
+        "exits": {"stop_target": {"unit": "pct", "stop": 0.05, "target": None, "cooldown_days": 3}},
+        "execution": {"costs_bps": {"AAA": 0}},
+    }
+    idx = pd.bdate_range("2024-01-02", periods=40)
+    c = pd.Series(100.0, index=idx)
+    c.iloc[10:] = 90.0  # a 10% fall mid-month
+    px = {"AAA": pd.DataFrame({"Open": c, "High": c, "Low": c, "Close": c, "Volume": 1.0})}
+    run = E.run_spec(spec, px, 0.0)
+    sells = run.trades[run.trades["side"] == "SELL"]
+    assert len(sells) and pd.Timestamp(sells.iloc[0]["date"]) == idx[11]  # decided at the close of day 10
+    assert "stop-loss hit" in sells.iloc[0]["reason"]
+
+
+def test_new_indicators_have_no_look_ahead():
+    from aurum.indicators import compute, pivot_levels, session_vwap
+
+    rng = np.random.default_rng(1)
+    n = 300
+    c = pd.Series(100 * np.exp(np.cumsum(rng.normal(0, 0.01, n))), index=pd.bdate_range("2020-01-01", periods=n))
+    p = pd.DataFrame({"Open": c, "High": c * 1.01, "Low": c * 0.99, "Close": c, "Volume": 1000.0})
+    for key in ("adx", "stoch_k", "support", "resistance"):
+        full = compute(key, p)
+        cut = compute(key, p.iloc[:200])
+        pd.testing.assert_series_equal(full.iloc[:200], cut, check_names=False)
+    lv = pivot_levels(p, 5)
+    assert lv["resistance"].notna().sum() > 100
+    t = pd.date_range("2026-10-29 13:30", periods=4, freq="5min", tz="UTC").append(
+        pd.date_range("2026-10-30 13:30", periods=2, freq="5min", tz="UTC")
+    )
+    q = pd.DataFrame(
+        {
+            "High": [2, 4, 4, 4, 9, 9.0],
+            "Low": [2, 4, 4, 4, 9, 9.0],
+            "Close": [2, 4, 4, 4, 9, 9.0],
+            "Volume": [1, 1, 0, 2, 1, 1.0],
+        },
+        index=t,
+    )
+    v = session_vwap(q)
+    assert v.iloc[1] == pytest.approx(3.0) and v.iloc[3] == pytest.approx((2 + 4 + 8) / 4) and v.iloc[4] == 9.0

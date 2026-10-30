@@ -97,6 +97,23 @@ def describe(spec: dict) -> list[str]:
             f"close since it was bought, then waits {int(ts.get('cooldown_days', 21))} days before "
             "re-entering."
         )
+    if "stop_target" in ex:
+        stg = ex["stop_target"]
+        unit = stg.get("unit", "atr")
+
+        def lvl(v):
+            return f"{float(v):g} x the {int(stg.get('atr_window', 14))}-day ATR" if unit == "atr" else pct(float(v))
+
+        bits = []
+        if stg.get("stop") is not None:
+            bits.append(f"sells an asset when its close falls {lvl(stg['stop'])} below the close it was bought on")
+        if stg.get("target") is not None:
+            bits.append(f"takes profit when its close rises {lvl(stg['target'])} above it")
+        out.append(
+            "Stop-loss / take-profit: "
+            + "; ".join(bits)
+            + f"; then waits {int(stg.get('cooldown_days', 10))} days before buying again if the rules still want it."
+        )
     if "account_drawdown" in ex:
         ad = ex["account_drawdown"]
         out.append(
@@ -202,6 +219,18 @@ def sweepable(spec: dict) -> dict[str, tuple]:
             0.5,
             False,
         )
+    stg = s["exits"].get("stop_target")
+    if stg:
+        atr = stg.get("unit", "atr") == "atr"
+        for k in ("stop", "target"):
+            if stg.get(k) is not None:
+                out[f"{k.title()} ({'ATR x' if atr else '%'})"] = (
+                    ("exits", "stop_target", k),
+                    float(stg[k]),
+                    0.25 if atr else 0.01,
+                    10.0 if atr else 0.9,
+                    False,
+                )
     return out
 
 

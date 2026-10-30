@@ -116,8 +116,8 @@ live:
 
 offline: false                  # true = clearly-labelled synthetic data, no internet needed
 
-paper_orders:                   # Alpaca PAPER account only (aurum/broker.py). OFF until the owner says OK (D-042)
-  enabled: false
+paper_orders:                   # Alpaca PAPER account only (aurum/broker.py). Switched on by the owner 2026-10-30 (D-046)
+  enabled: true
   mode: manual                  # every order needs the owner's approval; "auto" only if the owner enables it later
   max_order_usd: 10000
   max_position_pct: 0.25

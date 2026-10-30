@@ -92,6 +92,62 @@ else:
     st.caption("No Alpaca keys on this computer: add them to .env (or the online app's Secrets) to see the account.")
 
 # ---- holdings elsewhere ---------------------------------------------------------------------------------------
+# ---- orders waiting for approval (the 50/50 experiment) --------------------------------------------------------
+st.subheader("Orders waiting for your approval")
+from aurum import experiment as EX  # noqa: E402
+
+props = EX.load()
+waiting = [p for p in props.get("proposals", []) if p.get("status") == "proposed"]
+if not props:
+    st.caption("No proposals yet: they are prepared on GitHub each weekday evening after the US close.")
+elif not waiting:
+    st.caption(f"Nothing waiting from the close of {props.get('asof')}.")
+else:
+    st.caption(
+        f"Prepared from the close of {props['asof']} ({len(waiting)} orders). Limit orders for the next session; swing "
+        "buys carry their own stop and target at Alpaca. PAPER account only. Notes: "
+        + " · ".join(props.get("notes", []))
+    )
+    can_send = bool(alpaca_keys()) and po["enabled"]
+    if not can_send:
+        st.warning("Approving needs the Alpaca keys and paper orders switched on.")
+    done = st.session_state.setdefault("approved_ids", set())
+
+    def send(p: dict) -> str:
+        req = EX.Proposal(**{k: p[k] for k in EX.Proposal.__dataclass_fields__}).request(EX.plan_id(props["asof"], p))
+        if req.client_id() in done:
+            return "already sent from this page"
+        try:
+            lt = provider().latest_trade(p["symbol"]) if hasattr(provider(), "latest_trade") else {}
+            price = lt.get("price") or p.get("plan", {}).get("reference_price") or p.get("limit_price") or 0
+            when = lt.get("time") or pd.Timestamp.now(tz="UTC")
+            BR.PaperBroker().submit(req, float(price), when, approved=True)
+            done.add(req.client_id())
+            return "sent to Alpaca (paper)"
+        except BR.BrokerError as e:
+            return f"blocked: {e}"
+
+    rows = []
+    for i, p in enumerate(waiting):
+        c = st.columns([1.1, 0.8, 1, 0.9, 1, 1, 4, 1.2])
+        c[0].markdown(f"**{p['pot']}**")
+        c[1].markdown("🟢 BUY" if p["side"] == "buy" else "🔴 SELL")
+        c[2].markdown(f"**{p['symbol']}**")
+        c[3].markdown(f"{p['qty']:g} sh")
+        c[4].markdown(f"limit ${p['limit_price']:,.2f}" if p.get("limit_price") else "market")
+        c[5].markdown(f"stop ${p['stop_loss']:,.2f}" if p.get("stop_loss") else "-")
+        c[6].caption(p["reason"][:220].replace("$", "\\$"))
+        if c[7].button("Approve", key=f"ap-{i}", disabled=not can_send):
+            st.toast(f"{p['symbol']}: {send(p)}")
+    if st.button(f"Approve all {len(waiting)}", type="primary", disabled=not can_send):
+        res = [f"{p['symbol']}: {send(p)}" for p in waiting]
+        st.success(" · ".join(res))
+    with st.expander("Emergency stop"):
+        st.caption("Pauses all new orders and cancels every open order in the paper account.")
+        if st.button("Stop everything", disabled=not alpaca_keys()):
+            BR.PaperBroker().cancel_all_and_pause("owner pressed Stop everything on the Portfolio page")
+            st.error("Paused and all open orders cancelled. Delete research/orders/PAUSE to resume.")
+
 st.subheader("Holdings elsewhere (entered by you)")
 st.caption(
     "For anything not in the Alpaca paper account, e.g. a UK fund on another platform. Currency USD or GBP; "

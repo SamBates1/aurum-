@@ -296,3 +296,11 @@ do while no signal is supported (see the open question in the build plan).
    (+10.6%, t 1.63), both of which FAILED EXP-051a. Every ranking and verdict says so; confidence is never "High";
    evidence-backed weights replace the live test as soon as a signal passes. Paper orders stay off until the owner
    says OK. Remove `experiment.live_test_signals` from config.yaml to stop the test.
+
+**D-046 — Paper trading switched on, with the owner approving each order** (2026-10-30)
+The owner gave Aurum access to place trades in the Alpaca PAPER account (simulated money). Paper orders are now on
+(`paper_orders.enabled: true`) in manual mode: each weekday evening the experiment runner proposes orders for the two
+$50,000 pots from the scans (exits first, then entries; long-term buys a third of each planned position; swing buys
+carry a stop and target at Alpaca), and nothing is sent until the owner taps Approve on the Portfolio page. Every
+independent check still applies, an emergency stop cancels all open orders, and only Alpaca's paper address exists in
+the code. Rankings are the labelled live test of D-045. First orders can fill at the Monday 2 November 2026 open.

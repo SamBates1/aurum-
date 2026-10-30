@@ -22,8 +22,8 @@ def test_live_analysis_shows_long_term_and_swing_verdicts():
     assert "Long-Term:" in text and "Swing:" in text
 
 
-def test_portfolio_page_says_paper_and_orders_off():
+def test_portfolio_page_says_paper_and_shows_approvals():
     at = AppTest.from_file(str(ROOT / "pages/7_Portfolio.py"), default_timeout=300)
     at.run()
     text = " ".join(m.value for m in at.markdown) + " ".join(i.value for i in at.info)
-    assert "PAPER TRADING" in text and "switched off" in text
+    assert "PAPER TRADING" in text and "Orders waiting for your approval" in " ".join(h.value for h in at.subheader)

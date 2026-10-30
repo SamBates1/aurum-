@@ -1,6 +1,6 @@
 {
  "scanner": "swing",
- "asof": "2026-10-30 00:00:00",
+ "asof": "2026-10-29 00:00:00",
  "stages": [
   [
    "1. validate",
@@ -24,23 +24,23 @@
   ],
   [
    "2. filter: volatility band",
-   1963,
+   1973,
    "daily range 1% to 6%"
   ],
   [
    "3. analyse",
-   1941,
+   1949,
    "200+ days of history, signals computed"
   ],
   [
    "4. rank",
-   1941,
+   1949,
    "equal weights (untested)"
   ],
   [
    "5. risk check",
-   56,
-   "44 dropped: earnings within 8 weeks"
+   35,
+   "65 dropped: earnings within 8 weeks"
   ]
  ],
  "weights": {

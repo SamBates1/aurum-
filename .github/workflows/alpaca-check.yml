@@ -25,12 +25,20 @@ jobs:
           ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
           ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
         run: python scripts/alpaca_check.py
+      - name: Live chart snapshots
+        env:
+          ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
+          ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+        run: |
+          pip install playwright
+          python -m playwright install --with-deps chromium
+          python scripts/live_chart_snapshot.py
       - name: Commit report
         if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add research/monitoring/alpaca-check.md || true
+          git add research/monitoring/alpaca-check.md research/monitoring/live-chart-* || true
           git diff --cached --quiet && exit 0
           git commit -m "Alpaca connection check"
           git pull --rebase origin main

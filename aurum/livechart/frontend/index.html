@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { --bg: #ffffff; --ink: #1f1f1d; --quiet: #6b6a64; --grid: rgba(128,128,128,0.14); --panel: rgba(255,255,255,0.94); --edge: #d8d7d2; }
+  :root[data-theme="dark"] { --bg: #0e1117; --ink: #ecebe6; --quiet: #a3a29b; --grid: rgba(160,160,160,0.12); --panel: rgba(20,23,30,0.94); --edge: #3a3d45; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font: 12px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  #wrap { position: relative; }
+  #chart { width: 100%; }
+  #legend { position: absolute; left: 8px; top: 6px; z-index: 3; pointer-events: none; max-width: 70%; }
+  #legend .title { font-weight: 600; font-size: 13px; }
+  #legend .row { color: var(--quiet); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #tip { position: absolute; right: 64px; top: 6px; z-index: 4; pointer-events: none; display: none; max-width: 360px;
+         background: var(--panel); border: 1px solid var(--edge); border-radius: 8px; padding: 8px 10px; box-shadow: none; }
+  #tip .head { font-weight: 600; margin-bottom: 4px; }
+  #tip .buy { color: #008300; } #tip .sell { color: #d1495b; }
+  #tip .line { color: var(--ink); }
+  #tip .note { color: var(--quiet); margin-top: 4px; }
+  #status { position: absolute; right: 78px; top: 20px; max-width: 45%; text-align: right; background: var(--bg-soft, transparent); z-index: 3; color: var(--quiet); font-size: 11px; pointer-events: none; }
+</style>
+</head>
+<body>
+<div id="wrap"><div id="chart"></div><div id="legend"></div><div id="tip"></div><div id="status"></div></div>
+<script src="lightweight-charts.standalone.production.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

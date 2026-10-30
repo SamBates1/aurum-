@@ -112,3 +112,12 @@ def test_bracket_legs_count_in_the_pot():
     pots = BR.ledgers_from_orders([parent], {"long-term": 50_000, "swing": 50_000})
     assert pots["swing"]["positions"] == {} and pots["swing"]["realised"] == pytest.approx(100.0)
     assert pots["swing"]["cash"] == pytest.approx(50_100.0)
+
+
+def test_swing_orders_are_whole_shares():
+    syms = [f"T{i}" for i in range(15)]
+    daily = {s: _daily(0.003, 10 + i) for i, s in enumerate(syms)}
+    ps = EX.propose(
+        "swing", 50_000, 50_000, {}, _ranking(syms), "live-test", daily, 1.3, {}, TODAY, fractionable=set(syms)
+    )
+    assert ps and all(p.qty == int(p.qty) and p.qty >= 1 for p in ps)

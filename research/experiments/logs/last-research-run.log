@@ -92,7 +92,7 @@ See https://pandas.pydata.org/docs/dev/whatsnew/v3.1.0.html#deprecation-inplace 
 /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/yfinance/multi.py:224: Pandas4Warning: The inplace keyword in DataFrame.sort_index is deprecated and will be removed in a future version (PDEP-8).
 See https://pandas.pydata.org/docs/dev/whatsnew/v3.1.0.html#deprecation-inplace for more details.
   data.sort_index(level=0, axis=1, inplace=True)
-Writing results to /home/runner/work/aurum-/aurum-/results/20261030-110541
+Writing results to /home/runner/work/aurum-/aurum-/results/20261030-111950
 [aurum:warning] CL=F: dropped 1 rows with missing/non-positive close
 Researching GLD ...
 /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/yfinance/utils.py:568: Pandas4Warning: The inplace keyword in DataFrame.sort_index is deprecated and will be removed in a future version (PDEP-8).
@@ -211,7 +211,7 @@ See https://pandas.pydata.org/docs/dev/whatsnew/v3.1.0.html#deprecation-inplace 
 
 # Aurum research report
 
-**Generated:** 2026-10-30T11:05:41+00:00 · **commit:** `eee621f` · **config:** `781eaead3521`
+**Generated:** 2026-10-30T11:19:50+00:00 · **commit:** `b37b4e4` · **config:** `781eaead3521`
 
 
 ## Setup
@@ -229,14 +229,14 @@ Equal sleeves across tickers (each capped at 20%), after costs.
 | strategy | cagr | volatility | sharpe | sortino | max_drawdown | calmar | time_in_market | trades | costs_per_year |
 |---|---|---|---|---|---|---|---|---|---|
 | strategy | 23.1% | 13.4% | 1.293 | 1.840 | -13.5% | 1.704 | 100.0% | 0 | 0.2% |
-| timing_v02 | 20.9% | 17.2% | 0.940 | 1.255 | -17.2% | 1.218 | 76.9% | 78 | 0.3% |
+| timing_v02 | 20.8% | 17.2% | 0.939 | 1.252 | -17.1% | 1.217 | 76.9% | 78 | 0.3% |
 | buy_hold | 42.6% | 35.9% | 1.052 | 1.461 | -38.0% | 1.122 | 100.0% | 0 | 0.0% |
 | vol_sized_hold | 27.3% | 25.1% | 0.918 | 1.251 | -29.5% | 0.925 | 100.0% | 0 | 0.0% |
 | sma_trend | 22.1% | 19.5% | 0.907 | 1.208 | -20.0% | 1.107 | 82.4% | 38 | 0.2% |
 | momentum | 13.2% | 14.7% | 0.628 | 0.808 | -22.0% | 0.602 | 33.7% | 27 | 0.1% |
-| technical_only | 19.0% | 15.0% | 0.954 | 1.245 | -15.7% | 1.210 | 70.6% | 127 | 0.4% |
-| ml_only | 18.1% | 7.9% | 1.612 | 2.395 | -5.1% | 3.539 | 48.7% | 181 | 0.6% |
-| ml_no_macro | 14.9% | 7.0% | 1.394 | 2.061 | -5.4% | 2.758 | 43.0% | 216 | 0.7% |
+| technical_only | 19.0% | 15.0% | 0.954 | 1.245 | -15.7% | 1.209 | 70.6% | 127 | 0.4% |
+| ml_only | 17.4% | 7.8% | 1.550 | 2.296 | -5.1% | 3.429 | 48.7% | 181 | 0.6% |
+| ml_no_macro | 15.1% | 7.0% | 1.433 | 2.125 | -5.1% | 2.947 | 42.7% | 215 | 0.7% |
 | cash | 4.4% | 0.0% | – | – | 0.0% | – | 0.0% | 0 | 0.0% |
 
 
@@ -247,14 +247,14 @@ Equal sleeves across tickers (each capped at 20%), after costs.
 | strategy | cagr | volatility | sharpe | sortino | max_drawdown | calmar | time_in_market | trades | costs_per_year |
 |---|---|---|---|---|---|---|---|---|---|
 | strategy | 3.4% | 11.5% | 0.241 | 0.345 | -20.8% | 0.164 | 100.0% | 0 | 0.2% |
-| timing_v02 | 0.8% | 8.3% | -0.017 | -0.024 | -21.2% | 0.036 | 46.1% | 568 | 0.7% |
+| timing_v02 | 0.9% | 8.3% | -0.001 | -0.001 | -21.3% | 0.042 | 46.2% | 567 | 0.7% |
 | buy_hold | 6.0% | 30.1% | 0.303 | 0.437 | -43.0% | 0.140 | 100.0% | 0 | 0.0% |
 | vol_sized_hold | 3.4% | 14.3% | 0.221 | 0.316 | -25.8% | 0.134 | 100.0% | 0 | 0.0% |
 | sma_trend | -0.2% | 9.2% | -0.110 | -0.150 | -24.7% | -0.008 | 48.6% | 325 | 0.4% |
 | momentum | -0.6% | 5.8% | -0.293 | -0.388 | -15.0% | -0.041 | 24.5% | 283 | 0.3% |
-| technical_only | 1.7% | 9.1% | 0.092 | 0.131 | -20.4% | 0.083 | 49.4% | 612 | 0.7% |
-| ml_only | -0.3% | 6.0% | -0.233 | -0.321 | -16.9% | -0.020 | 35.7% | 964 | 1.1% |
-| ml_no_macro | 0.6% | 5.8% | -0.081 | -0.113 | -19.8% | 0.031 | 36.1% | 827 | 0.9% |
+| technical_only | 1.7% | 9.1% | 0.090 | 0.129 | -20.4% | 0.082 | 49.4% | 613 | 0.7% |
+| ml_only | -0.5% | 6.0% | -0.260 | -0.358 | -16.8% | -0.029 | 35.6% | 958 | 1.1% |
+| ml_no_macro | 0.5% | 5.8% | -0.108 | -0.150 | -20.3% | 0.022 | 36.1% | 832 | 0.9% |
 | cash | 1.3% | 0.1% | – | – | -0.0% | 3522.615 | 0.0% | 0 | 0.0% |
 
 
@@ -285,16 +285,16 @@ AUC 0.5 = coin flip. Brier/log loss below their baseline (a constant forecast at
 | GLD | ml_technical_only | 705 | 0.561 | 0.535 | 0.603 | 0.251 | 0.239 | 0.696 | 0.672 |
 | SLV | ml_all_features | 705 | 0.454 | 0.487 | 0.563 | 0.264 | 0.246 | 0.723 | 0.685 |
 | SLV | ml_technical_only | 705 | 0.446 | 0.472 | 0.563 | 0.267 | 0.246 | 0.730 | 0.685 |
-| GDX | ml_all_features | 705 | 0.528 | 0.543 | 0.559 | 0.261 | 0.247 | 0.722 | 0.686 |
-| GDX | ml_technical_only | 705 | 0.513 | 0.492 | 0.559 | 0.269 | 0.247 | 0.743 | 0.686 |
-| NEM | ml_all_features | 705 | 0.507 | 0.485 | 0.570 | 0.264 | 0.245 | 0.724 | 0.683 |
-| NEM | ml_technical_only | 705 | 0.511 | 0.511 | 0.570 | 0.267 | 0.245 | 0.732 | 0.683 |
-| AEM | ml_all_features | 705 | 0.516 | 0.525 | 0.569 | 0.260 | 0.245 | 0.718 | 0.684 |
-| AEM | ml_technical_only | 705 | 0.529 | 0.529 | 0.569 | 0.256 | 0.245 | 0.707 | 0.684 |
-| WPM | ml_all_features | 705 | 0.530 | 0.557 | 0.557 | 0.254 | 0.247 | 0.704 | 0.687 |
-| WPM | ml_technical_only | 705 | 0.552 | 0.521 | 0.557 | 0.251 | 0.247 | 0.695 | 0.687 |
+| GDX | ml_all_features | 705 | 0.527 | 0.543 | 0.559 | 0.262 | 0.247 | 0.722 | 0.686 |
+| GDX | ml_technical_only | 705 | 0.514 | 0.498 | 0.559 | 0.269 | 0.247 | 0.743 | 0.686 |
+| NEM | ml_all_features | 705 | 0.507 | 0.484 | 0.570 | 0.264 | 0.245 | 0.724 | 0.683 |
+| NEM | ml_technical_only | 705 | 0.513 | 0.511 | 0.570 | 0.267 | 0.245 | 0.731 | 0.683 |
+| AEM | ml_all_features | 705 | 0.517 | 0.522 | 0.569 | 0.260 | 0.245 | 0.718 | 0.684 |
+| AEM | ml_technical_only | 705 | 0.527 | 0.530 | 0.569 | 0.257 | 0.245 | 0.709 | 0.684 |
+| WPM | ml_all_features | 705 | 0.530 | 0.560 | 0.557 | 0.254 | 0.247 | 0.705 | 0.687 |
+| WPM | ml_technical_only | 705 | 0.553 | 0.523 | 0.557 | 0.251 | 0.247 | 0.695 | 0.687 |
 
 
 
-Full results: /home/runner/work/aurum-/aurum-/results/20261030-110541
+Full results: /home/runner/work/aurum-/aurum-/results/20261030-111950
 Committable summary: /home/runner/work/aurum-/aurum-/reports/latest

@@ -86,9 +86,9 @@ See https://pandas.pydata.org/docs/dev/whatsnew/v3.1.0.html#deprecation-inplace 
 /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/yfinance/multi.py:224: Pandas4Warning: The inplace keyword in DataFrame.sort_index is deprecated and will be removed in a future version (PDEP-8).
 See https://pandas.pydata.org/docs/dev/whatsnew/v3.1.0.html#deprecation-inplace for more details.
   data.sort_index(level=0, axis=1, inplace=True)
-# EXP-046, EXP-047, EXP-048 results (2026-10-30 11:07 UTC)
+# EXP-046, EXP-047, EXP-048 results (2026-10-30 11:21 UTC)
 
-Code 7d1955ed0409, commit eee621f. Historical simulations, net of the stated costs; not forecasts and not personal financial advice.
+Code 39d546bbd598, commit b37b4e4. Historical simulations, net of the stated costs; not forecasts and not personal financial advice.
 
 ## EXP-046: 70/30 as a UK investor (pounds, UK funds, fees, ISA)
 
@@ -100,6 +100,14 @@ Daily 2006-06-01 to 2026-10-29. Decisions from US prices; accounting in pounds a
 | 70/30 (main) | 12.7% | 11.1% | 0.69 | -19.3% | -38.5% | 16.1% | -2.8% |
 | 70/30 + risk cap (shadow) | 11.6% | 11.0% | 0.73 | -15.3% | -25.8% | 13.6% | -2.9% |
 
+Measured on month-end values in pounds (the MAIN risk figures: the pound/dollar rate is recorded hours away from the US close, which adds day-to-day noise that cancels within a month, so the daily volatility above is overstated):
+
+| Strategy | CAGR | Volatility | Sharpe (vs UK cash) | Worst fall (month-end) | Worst year |
+|---|---|---|---|---|---|
+| S&P fund only | 12.5% | 13.3% | 0.80 | -31.1% | -14.7% |
+| 70/30 (main) | 12.7% | 10.6% | 0.99 | -10.2% | -2.8% |
+| 70/30 + risk cap (shadow) | 11.7% | 9.7% | 0.98 | -8.3% | -2.9% |
+
 Downturns (return over the window, in pounds then dollars):
 
 | Strategy | 2008-09 | 2020 | 2022 |
@@ -108,12 +116,12 @@ Downturns (return over the window, in pounds then dollars):
 | 70/30 (main) | -0.7% (in $ -20.3%) | +1.0% (in $ -4.3%) | -1.6% (in $ -15.4%) |
 | 70/30 + risk cap (shadow) | -3.6% (in $ -13.8%) | -2.6% (in $ -6.2%) | -1.9% (in $ -14.2%) |
 
-Model check (modelled UK fund vs the real fund's price, annual return):
+Model check (modelled UK fund vs the real fund's price, month-end, annual return):
 
-| Fund | Dates | Real | Model | Difference | Correlation of daily returns |
-|---|---|---|---|---|---|
-| VUSA.L | 2012-05-29 to 2026-10-29 | 15.4% | 15.7% | +0.3% | 0.45 |
-| SGLN.L | 2011-04-13 to 2026-10-29 | -21.9% | 7.5% | +29.4% | 0.31 |
+| Fund | Months | Real | Model | Difference | Correlation of monthly returns | Pence/pound fixes |
+|---|---|---|---|---|---|---|
+| VUSA.L | 2012-05 to 2026-10 | 15.7% | 16.0% | +0.3% | 0.96 | 0 |
+| SGLN.L | 2011-04 to 2026-10 | 4.2% | 7.7% | +3.5% | 0.85 | 0 |
 
 **Test 1 (model realistic, < 0.5 pt/yr):** FAIL. **Test 2 (70/30 CAGR within 1 pt of the S&P fund):** PASS. **Test 3 (higher Sharpe and smaller worst fall):** PASS.
 
@@ -208,6 +216,8 @@ Daily data over the same years (EXP-045/designer): S&P volatility 19.3%, worst f
 
 10,000 simulated futures (block bootstrap, 12-month blocks). Main view: true month-end returns from EXP-046's daily data in pounds, 2006-2026, after UK fund costs and the platform fee. Second view: 1972-2026 monthly series scaled to daily-data volatility. Nominal pounds, before inflation. The future can be worse than anything in the sample.
 
+**Read this first:** 2006-2026 was unusually kind to a UK holder of 70/30 (gold rose about fourfold in pounds and the pound fell against the dollar, which lifts the value of dollar assets). The main view repeats those 20 years, so it is the OPTIMISTIC view. The 1972-2026 view includes harder decades (the early-1980s gold crash, the 1990s when gold fell) and is the more CAUTIOUS guide.
+
 ### 70/30 (main): £1,000 once
 
 | Years | Paid in | Bad (1 in 20) | Below typical | Typical (median) | Above typical | Good (1 in 20) | Chance of ending below what you paid in | Chance of a 20%+ fall on the way |
@@ -264,4 +274,4 @@ Daily data over the same years (EXP-045/designer): S&P volatility 19.3%, worst f
 - [outcome_ranges.png](figures/outcome_ranges.png)
 - [rolling_10y_gbp.png](figures/rolling_10y_gbp.png)
 - [rolling_10y_usd.png](figures/rolling_10y_usd.png)
-Wrote /home/runner/work/aurum-/aurum-/research/experiments/results/2026-10-30-1107-uk-real/summary.md
+Wrote /home/runner/work/aurum-/aurum-/research/experiments/results/2026-10-30-1121-uk-real/summary.md

@@ -1,0 +1,1091 @@
+{
+ "asof": "2026-10-30",
+ "created": "2026-10-30 21:06:05+00:00",
+ "notes": [
+  "long-term: value $50,000, cash $50,000, 0 positions, 12 proposals (live-test)",
+  "swing: value $50,000, cash $50,000, 0 positions, 8 proposals (live-test)"
+ ],
+ "mode": "manual",
+ "proposals": [
+  {
+   "pot": "long-term",
+   "symbol": "AXTI",
+   "side": "buy",
+   "qty": 19.5721,
+   "type": "limit",
+   "limit_price": 56.66,
+   "take_profit": null,
+   "stop_loss": null,
+   "reason": "BUY (live-test): Score 100/100; 2 points for, 1 against; LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 42.29,
+    "targets": [
+     [
+      "resistance",
+      57.62,
+      0.20010535392544013
+     ],
+     [
+      "2R",
+      80.61,
+      2.0
+     ],
+     [
+      "3R",
+      93.38,
+      3.0
+     ]
+    ],
+    "entry_zone": [
+     53.36,
+     56.66
+    ],
+    "tranches": [
+     [
+      "now (next open)",
+      55.06,
+      19.5721
+     ],
+     [
+      "on a pullback to the zone's low",
+      53.36,
+      19.5721
+     ],
+     [
+      "after the next quarterly report, if the case holds",
+      55.06,
+      19.5721
+     ]
+    ],
+    "max_loss_usd": 750.0,
+    "reasons": {
+     "stop": "invalidation: below the 200-day average ($64.86) by one daily range ($6.39); the long-term case is broken there",
+     "entry": "between the nearest support (or one daily range lower) and a quarter of a range above",
+     "size": "risk budget: 1.50% of the pot ($750) lost if the stop is hit",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)"
+    },
+    "reference_price": 55.06
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "long-term",
+   "symbol": "SNDK",
+   "side": "buy",
+   "qty": 1.2669,
+   "type": "limit",
+   "limit_price": 1175.56,
+   "take_profit": null,
+   "stop_loss": null,
+   "reason": "BUY (live-test): Score 99/100; 2 points for, 1 against; LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 953.56,
+    "targets": [
+     [
+      "resistance",
+      1446.62,
+      1.4986997951106729
+     ],
+     [
+      "2R",
+      1545.54,
+      2.0
+     ],
+     [
+      "3R",
+      1742.87,
+      3.0
+     ]
+    ],
+    "entry_zone": [
+     1052.23,
+     1175.56
+    ],
+    "tranches": [
+     [
+      "now (next open)",
+      1150.89,
+      1.2669
+     ],
+     [
+      "on a pullback to the zone's low",
+      1052.23,
+      1.2669
+     ],
+     [
+      "after the next quarterly report, if the case holds",
+      1150.89,
+      1.2669
+     ]
+    ],
+    "max_loss_usd": 750.0,
+    "reasons": {
+     "stop": "invalidation: below the 200-day average ($1,259.17) by one daily range ($98.66); the long-term case is broken there",
+     "entry": "between the nearest support (or one daily range lower) and a quarter of a range above",
+     "size": "risk budget: 1.50% of the pot ($750) lost if the stop is hit",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)"
+    },
+    "reference_price": 1150.89
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "long-term",
+   "symbol": "TXG",
+   "side": "buy",
+   "qty": 6.9465,
+   "type": "limit",
+   "limit_price": 71.72,
+   "take_profit": null,
+   "stop_loss": null,
+   "reason": "BUY (live-test): Score 99/100; 3 points for, 0 against; LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 34.12,
+    "targets": [
+     [
+      "resistance",
+      102.81,
+      0.9086040216147728
+     ],
+     [
+      "2R",
+      142.09,
+      2.0
+     ],
+     [
+      "3R",
+      178.08,
+      3.0
+     ]
+    ],
+    "entry_zone": [
+     67.25,
+     71.72
+    ],
+    "tranches": [
+     [
+      "now (next open)",
+      70.11,
+      6.9465
+     ],
+     [
+      "on a pullback to the zone's low",
+      67.25,
+      6.9465
+     ],
+     [
+      "after the next quarterly report, if the case holds",
+      70.11,
+      6.9465
+     ]
+    ],
+    "max_loss_usd": 750.0,
+    "reasons": {
+     "stop": "invalidation: below the 200-day average ($40.57) by one daily range ($6.45); the long-term case is broken there",
+     "entry": "between the nearest support (or one daily range lower) and a quarter of a range above",
+     "size": "risk budget: 1.50% of the pot ($750) lost if the stop is hit",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)"
+    },
+    "reference_price": 70.11
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "long-term",
+   "symbol": "ERAS",
+   "side": "buy",
+   "qty": 116.144,
+   "type": "limit",
+   "limit_price": 14.59,
+   "take_profit": null,
+   "stop_loss": null,
+   "reason": "BUY (live-test): Score 98/100; 2 points for, 1 against; LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 12.4,
+    "targets": [
+     [
+      "resistance",
+      15.03,
+      0.34884828763860476
+     ],
+     [
+      "2R",
+      18.25,
+      2.0
+     ],
+     [
+      "3R",
+      20.2,
+      3.0
+     ]
+    ],
+    "entry_zone": [
+     14.0,
+     14.59
+    ],
+    "tranches": [
+     [
+      "now (next open)",
+      14.35,
+      116.144
+     ],
+     [
+      "on a pullback to the zone's low",
+      14.0,
+      116.144
+     ],
+     [
+      "after the next quarterly report, if the case holds",
+      14.35,
+      116.144
+     ]
+    ],
+    "max_loss_usd": 679.19,
+    "reasons": {
+     "stop": "invalidation: below the 200-day average ($15.00) by one daily range ($0.97); the long-term case is broken there",
+     "entry": "between the nearest support (or one daily range lower) and a quarter of a range above",
+     "size": "position limit: at most 10% of the pot in one position",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)"
+    },
+    "reference_price": 14.35
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "long-term",
+   "symbol": "MXL",
+   "side": "buy",
+   "qty": 16.2036,
+   "type": "limit",
+   "limit_price": 69.4,
+   "take_profit": null,
+   "stop_loss": null,
+   "reason": "BUY (live-test): Score 98/100; 3 points for, 0 against; LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 52.04,
+    "targets": [
+     [
+      "resistance",
+      89.0,
+      1.3954565025161918
+     ],
+     [
+      "2R",
+      98.33,
+      2.0
+     ],
+     [
+      "3R",
+      113.76,
+      3.0
+     ]
+    ],
+    "entry_zone": [
+     59.76,
+     69.4
+    ],
+    "tranches": [
+     [
+      "now (next open)",
+      67.47,
+      16.2036
+     ],
+     [
+      "on a pullback to the zone's low",
+      59.76,
+      16.2036
+     ],
+     [
+      "after the next quarterly report, if the case holds",
+      67.47,
+      16.2036
+     ]
+    ],
+    "max_loss_usd": 750.0,
+    "reasons": {
+     "stop": "invalidation: below the 200-day average ($59.96) by one daily range ($7.71); the long-term case is broken there",
+     "entry": "between the nearest support (or one daily range lower) and a quarter of a range above",
+     "size": "risk budget: 1.50% of the pot ($750) lost if the stop is hit",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)"
+    },
+    "reference_price": 67.47
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "long-term",
+   "symbol": "TWST",
+   "side": "buy",
+   "qty": 3.1981,
+   "type": "limit",
+   "limit_price": 156.38,
+   "take_profit": null,
+   "stop_loss": null,
+   "reason": "BUY (live-test): Score 98/100; 3 points for, 0 against; LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 74.61,
+    "targets": [
+     [
+      "resistance",
+      155.44,
+      0.034027855509538296
+     ],
+     [
+      "2R",
+      309.12,
+      2.0
+     ],
+     [
+      "3R",
+      387.29,
+      3.0
+     ]
+    ],
+    "entry_zone": [
+     138.37,
+     156.38
+    ],
+    "tranches": [
+     [
+      "now (next open)",
+      152.78,
+      3.1981
+     ],
+     [
+      "on a pullback to the zone's low",
+      138.37,
+      3.1981
+     ],
+     [
+      "after the next quarterly report, if the case holds",
+      152.78,
+      3.1981
+     ]
+    ],
+    "max_loss_usd": 750.0,
+    "reasons": {
+     "stop": "invalidation: below the 200-day average ($89.01) by one daily range ($14.41); the long-term case is broken there",
+     "entry": "between the nearest support (or one daily range lower) and a quarter of a range above",
+     "size": "risk budget: 1.50% of the pot ($750) lost if the stop is hit",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)"
+    },
+    "reference_price": 152.78
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "long-term",
+   "symbol": "LITE",
+   "side": "buy",
+   "qty": 1.7402,
+   "type": "limit",
+   "limit_price": 858.66,
+   "take_profit": null,
+   "stop_loss": null,
+   "reason": "BUY (live-test): Score 97/100; 3 points for, 0 against; LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 697.04,
+    "targets": [
+     [
+      "resistance",
+      897.0,
+      0.3918931322046157
+     ],
+     [
+      "2R",
+      1128.02,
+      2.0
+     ],
+     [
+      "3R",
+      1271.68,
+      3.0
+     ]
+    ],
+    "entry_zone": [
+     832.11,
+     858.66
+    ],
+    "tranches": [
+     [
+      "now (next open)",
+      840.7,
+      1.7402
+     ],
+     [
+      "on a pullback to the zone's low",
+      832.11,
+      1.7402
+     ],
+     [
+      "after the next quarterly report, if the case holds",
+      840.7,
+      1.7402
+     ]
+    ],
+    "max_loss_usd": 750.0,
+    "reasons": {
+     "stop": "invalidation: below the 200-day average ($801.17) by one daily range ($71.83); the long-term case is broken there",
+     "entry": "between the nearest support (or one daily range lower) and a quarter of a range above",
+     "size": "risk budget: 1.50% of the pot ($750) lost if the stop is hit",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)"
+    },
+    "reference_price": 840.7
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "long-term",
+   "symbol": "MU",
+   "side": "buy",
+   "qty": 1.322,
+   "type": "limit",
+   "limit_price": 897.49,
+   "take_profit": null,
+   "stop_loss": null,
+   "reason": "BUY (live-test): Score 97/100; 3 points for, 0 against; LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 695.64,
+    "targets": [
+     [
+      "resistance",
+      1011.61,
+      0.6709078147475823
+     ],
+     [
+      "2R",
+      1262.94,
+      2.0
+     ],
+     [
+      "3R",
+      1452.05,
+      3.0
+     ]
+    ],
+    "entry_zone": [
+     854.08,
+     897.49
+    ],
+    "tranches": [
+     [
+      "now (next open)",
+      884.74,
+      1.322
+     ],
+     [
+      "on a pullback to the zone's low",
+      854.08,
+      1.322
+     ],
+     [
+      "after the next quarterly report, if the case holds",
+      884.74,
+      1.322
+     ]
+    ],
+    "max_loss_usd": 750.0,
+    "reasons": {
+     "stop": "invalidation: below the 200-day average ($746.62) by one daily range ($50.99); the long-term case is broken there",
+     "entry": "between the nearest support (or one daily range lower) and a quarter of a range above",
+     "size": "risk budget: 1.50% of the pot ($750) lost if the stop is hit",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)"
+    },
+    "reference_price": 884.74
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "long-term",
+   "symbol": "ATEX",
+   "side": "buy",
+   "qty": 8.1092,
+   "type": "limit",
+   "limit_price": 92.05,
+   "take_profit": null,
+   "stop_loss": null,
+   "reason": "BUY (live-test): Score 96/100; 3 points for, 0 against; LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 59.84,
+    "targets": [
+     [
+      "resistance",
+      95.95,
+      0.17126705531529696
+     ],
+     [
+      "2R",
+      152.33,
+      2.0
+     ],
+     [
+      "3R",
+      183.16,
+      3.0
+     ]
+    ],
+    "entry_zone": [
+     85.88,
+     92.05
+    ],
+    "tranches": [
+     [
+      "now (next open)",
+      90.67,
+      8.1092
+     ],
+     [
+      "on a pullback to the zone's low",
+      85.88,
+      8.1092
+     ],
+     [
+      "after the next quarterly report, if the case holds",
+      90.67,
+      8.1092
+     ]
+    ],
+    "max_loss_usd": 750.0,
+    "reasons": {
+     "stop": "invalidation: below the 200-day average ($65.36) by one daily range ($5.51); the long-term case is broken there",
+     "entry": "between the nearest support (or one daily range lower) and a quarter of a range above",
+     "size": "risk budget: 1.50% of the pot ($750) lost if the stop is hit",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)"
+    },
+    "reference_price": 90.67
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "long-term",
+   "symbol": "SYRE",
+   "side": "buy",
+   "qty": 9.009,
+   "type": "limit",
+   "limit_price": 97.66,
+   "take_profit": null,
+   "stop_loss": null,
+   "reason": "BUY (live-test): Score 96/100; 3 points for, 0 against; LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 68.81,
+    "targets": [
+     [
+      "resistance",
+      102.06,
+      0.19819837675529434
+     ],
+     [
+      "2R",
+      152.06,
+      2.0
+     ],
+     [
+      "3R",
+      179.81,
+      3.0
+     ]
+    ],
+    "entry_zone": [
+     95.61,
+     97.66
+    ],
+    "tranches": [
+     [
+      "now (next open)",
+      96.56,
+      9.009
+     ],
+     [
+      "on a pullback to the zone's low",
+      95.61,
+      9.009
+     ],
+     [
+      "after the next quarterly report, if the case holds",
+      96.56,
+      9.009
+     ]
+    ],
+    "max_loss_usd": 750.0,
+    "reasons": {
+     "stop": "invalidation: below the 200-day average ($73.22) by one daily range ($4.41); the long-term case is broken there",
+     "entry": "between the nearest support (or one daily range lower) and a quarter of a range above",
+     "size": "risk budget: 1.50% of the pot ($750) lost if the stop is hit",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)"
+    },
+    "reference_price": 96.56
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "long-term",
+   "symbol": "AEHR",
+   "side": "buy",
+   "qty": 19.6771,
+   "type": "limit",
+   "limit_price": 56.48,
+   "take_profit": null,
+   "stop_loss": null,
+   "reason": "BUY (live-test): Score 95/100; 2 points for, 1 against; LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 42.18,
+    "targets": [
+     [
+      "2R",
+      80.3,
+      2.0
+     ],
+     [
+      "3R",
+      93.01,
+      3.0
+     ],
+     [
+      "resistance",
+      102.48,
+      3.7457356879906625
+     ]
+    ],
+    "entry_zone": [
+     48.54,
+     56.48
+    ],
+    "tranches": [
+     [
+      "now (next open)",
+      54.89,
+      19.6771
+     ],
+     [
+      "on a pullback to the zone's low",
+      48.54,
+      19.6771
+     ],
+     [
+      "after the next quarterly report, if the case holds",
+      54.89,
+      19.6771
+     ]
+    ],
+    "max_loss_usd": 750.0,
+    "reasons": {
+     "stop": "invalidation: below the 200-day average ($74.41) by one daily range ($6.35); the long-term case is broken there",
+     "entry": "between the nearest support (or one daily range lower) and a quarter of a range above",
+     "size": "risk budget: 1.50% of the pot ($750) lost if the stop is hit",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)"
+    },
+    "reference_price": 54.89
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "long-term",
+   "symbol": "BAND",
+   "side": "buy",
+   "qty": 22.2657,
+   "type": "limit",
+   "limit_price": 48.58,
+   "take_profit": null,
+   "stop_loss": null,
+   "reason": "BUY (live-test): Score 95/100; 3 points for, 0 against; LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 36.11,
+    "targets": [
+     [
+      "resistance",
+      55.62,
+      0.7374388250853876
+     ],
+     [
+      "2R",
+      69.8,
+      2.0
+     ],
+     [
+      "3R",
+      81.02,
+      3.0
+     ]
+    ],
+    "entry_zone": [
+     44.77,
+     48.58
+    ],
+    "tranches": [
+     [
+      "now (next open)",
+      47.34,
+      22.2657
+     ],
+     [
+      "on a pullback to the zone's low",
+      44.77,
+      22.2657
+     ],
+     [
+      "after the next quarterly report, if the case holds",
+      47.34,
+      22.2657
+     ]
+    ],
+    "max_loss_usd": 750.0,
+    "reasons": {
+     "stop": "invalidation: below the 200-day average ($41.06) by one daily range ($4.95); the long-term case is broken there",
+     "entry": "between the nearest support (or one daily range lower) and a quarter of a range above",
+     "size": "risk budget: 1.50% of the pot ($750) lost if the stop is hit",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)"
+    },
+    "reference_price": 47.34
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "swing",
+   "symbol": "SSL",
+   "side": "buy",
+   "qty": 290.36,
+   "type": "limit",
+   "limit_price": 17.37,
+   "take_profit": 19.57,
+   "stop_loss": 16.04,
+   "reason": "BUY (live-test): Score 96/100; setup: strong trend (ADX above 25, above the 50-day average); LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 16.04,
+    "targets": [
+     [
+      "resistance",
+      18.19,
+      0.8256017505470463
+     ],
+     [
+      "2R",
+      19.57,
+      2.0
+     ],
+     [
+      "3R",
+      20.75,
+      3.0
+     ]
+    ],
+    "entry_zone": [
+     17.07,
+     17.37
+    ],
+    "tranches": [],
+    "max_loss_usd": 341.21,
+    "reasons": {
+     "stop": "two daily ranges ($1.18) below the entry: the setup has failed there",
+     "entry": "the next open, if it is within a quarter of a daily range of the last close",
+     "size": "position limit: at most 10% of the pot in one position",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)",
+     "setup": "strong trend (ADX above 25, above the 50-day average)"
+    },
+    "reference_price": 17.22
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "swing",
+   "symbol": "PSX",
+   "side": "buy",
+   "qty": 17.6785,
+   "type": "limit",
+   "limit_price": 285.43,
+   "take_profit": 324.43,
+   "stop_loss": 262.03,
+   "reason": "BUY (live-test): Score 93/100; setup: strong trend (ADX above 25, above the 50-day average); LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 262.03,
+    "targets": [
+     [
+      "resistance",
+      299.39,
+      0.7960931549861228
+     ],
+     [
+      "2R",
+      324.43,
+      2.0
+     ],
+     [
+      "3R",
+      345.23,
+      3.0
+     ]
+    ],
+    "entry_zone": [
+     280.23,
+     285.43
+    ],
+    "tranches": [],
+    "max_loss_usd": 367.74,
+    "reasons": {
+     "stop": "two daily ranges ($20.80) below the entry: the setup has failed there",
+     "entry": "the next open, if it is within a quarter of a daily range of the last close",
+     "size": "position limit: at most 10% of the pot in one position",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)",
+     "setup": "strong trend (ADX above 25, above the 50-day average)"
+    },
+    "reference_price": 282.83
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "swing",
+   "symbol": "SLDE",
+   "side": "buy",
+   "qty": 180.3101,
+   "type": "limit",
+   "limit_price": 27.97,
+   "take_profit": 31.49,
+   "stop_loss": 25.85,
+   "reason": "BUY (live-test): Score 91/100; setup: strong trend (ADX above 25, above the 50-day average); LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 25.85,
+    "targets": [
+     [
+      "2R",
+      31.49,
+      2.0
+     ],
+     [
+      "3R",
+      33.37,
+      3.0
+     ]
+    ],
+    "entry_zone": [
+     27.49,
+     27.97
+    ],
+    "tranches": [],
+    "max_loss_usd": 339.27,
+    "reasons": {
+     "stop": "two daily ranges ($1.88) below the entry: the setup has failed there",
+     "entry": "the next open, if it is within a quarter of a daily range of the last close",
+     "size": "position limit: at most 10% of the pot in one position",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)",
+     "setup": "strong trend (ADX above 25, above the 50-day average)"
+    },
+    "reference_price": 27.73
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "swing",
+   "symbol": "ICLR",
+   "side": "buy",
+   "qty": 18.2535,
+   "type": "limit",
+   "limit_price": 213.93,
+   "take_profit": 252.45,
+   "stop_loss": 190.82,
+   "reason": "BUY (live-test): Score 91/100; setup: strong trend (ADX above 25, above the 50-day average); LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 190.82,
+    "targets": [
+     [
+      "2R",
+      252.45,
+      2.0
+     ],
+     [
+      "3R",
+      272.99,
+      3.0
+     ]
+    ],
+    "entry_zone": [
+     208.79,
+     213.93
+    ],
+    "tranches": [],
+    "max_loss_usd": 375.0,
+    "reasons": {
+     "stop": "two daily ranges ($20.54) below the entry: the setup has failed there",
+     "entry": "the next open, if it is within a quarter of a daily range of the last close",
+     "size": "risk budget: 0.75% of the pot ($375) lost if the stop is hit",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)",
+     "setup": "strong trend (ADX above 25, above the 50-day average)"
+    },
+    "reference_price": 211.36
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "swing",
+   "symbol": "MANH",
+   "side": "buy",
+   "qty": 20.1296,
+   "type": "limit",
+   "limit_price": 250.57,
+   "take_profit": 283.3,
+   "stop_loss": 230.93,
+   "reason": "BUY (live-test): Score 91/100; setup: breakout to a 20-day high on above-average volume; LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 230.93,
+    "targets": [
+     [
+      "2R",
+      283.3,
+      2.0
+     ],
+     [
+      "3R",
+      300.76,
+      3.0
+     ]
+    ],
+    "entry_zone": [
+     246.21,
+     250.57
+    ],
+    "tranches": [],
+    "max_loss_usd": 351.37,
+    "reasons": {
+     "stop": "two daily ranges ($17.46) below the entry: the setup has failed there",
+     "entry": "the next open, if it is within a quarter of a daily range of the last close",
+     "size": "position limit: at most 10% of the pot in one position",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)",
+     "setup": "breakout to a 20-day high on above-average volume"
+    },
+    "reference_price": 248.39
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "swing",
+   "symbol": "GDDY",
+   "side": "buy",
+   "qty": 40.9996,
+   "type": "limit",
+   "limit_price": 118.38,
+   "take_profit": 135.53,
+   "stop_loss": 108.09,
+   "reason": "BUY (live-test): Score 90/100; setup: breakout to a 20-day high on above-average volume; LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 108.09,
+    "targets": [
+     [
+      "resistance",
+      131.74,
+      1.5853182350644295
+     ],
+     [
+      "2R",
+      135.53,
+      2.0
+     ],
+     [
+      "3R",
+      144.68,
+      3.0
+     ]
+    ],
+    "entry_zone": [
+     116.1,
+     118.38
+    ],
+    "tranches": [],
+    "max_loss_usd": 375.0,
+    "reasons": {
+     "stop": "two daily ranges ($9.15) below the entry: the setup has failed there",
+     "entry": "the next open, if it is within a quarter of a daily range of the last close",
+     "size": "risk budget: 0.75% of the pot ($375) lost if the stop is hit",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)",
+     "setup": "breakout to a 20-day high on above-average volume"
+    },
+    "reference_price": 117.24
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "swing",
+   "symbol": "RXO",
+   "side": "buy",
+   "qty": 181.8843,
+   "type": "limit",
+   "limit_price": 27.65,
+   "take_profit": 30.02,
+   "stop_loss": 26.23,
+   "reason": "BUY (live-test): Score 90/100; setup: strong trend (ADX above 25, above the 50-day average); LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 26.23,
+    "targets": [
+     [
+      "resistance",
+      28.62,
+      0.8937853107344641
+     ],
+     [
+      "2R",
+      30.02,
+      2.0
+     ],
+     [
+      "3R",
+      31.28,
+      3.0
+     ]
+    ],
+    "entry_zone": [
+     27.33,
+     27.65
+    ],
+    "tranches": [],
+    "max_loss_usd": 229.95,
+    "reasons": {
+     "stop": "two daily ranges ($1.26) below the entry: the setup has failed there",
+     "entry": "the next open, if it is within a quarter of a daily range of the last close",
+     "size": "position limit: at most 10% of the pot in one position",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)",
+     "setup": "strong trend (ADX above 25, above the 50-day average)"
+    },
+    "reference_price": 27.49
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "swing",
+   "symbol": "GILD",
+   "side": "buy",
+   "qty": 29.2946,
+   "type": "limit",
+   "limit_price": 171.88,
+   "take_profit": 189.95,
+   "stop_loss": 161.05,
+   "reason": "BUY (live-test): Score 89/100; setup: breakout to a 20-day high on above-average volume; LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 161.05,
+    "targets": [
+     [
+      "2R",
+      189.95,
+      2.0
+     ],
+     [
+      "3R",
+      199.58,
+      3.0
+     ]
+    ],
+    "entry_zone": [
+     169.48,
+     171.88
+    ],
+    "tranches": [],
+    "max_loss_usd": 282.25,
+    "reasons": {
+     "stop": "two daily ranges ($9.64) below the entry: the setup has failed there",
+     "entry": "the next open, if it is within a quarter of a daily range of the last close",
+     "size": "position limit: at most 10% of the pot in one position",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)",
+     "setup": "breakout to a 20-day high on above-average volume"
+    },
+    "reference_price": 170.68
+   },
+   "status": "proposed"
+  }
+ ]
+}

@@ -44,9 +44,7 @@
   ]
  ],
  "weights": {
-  "momentum": 0.3333333333333333,
-  "low_volatility": 0.3333333333333333,
-  "near_52w_high": 0.3333333333333333
+  "momentum": 1.0
  },
- "evidence": "untested"
+ "evidence": "live-test"
 }

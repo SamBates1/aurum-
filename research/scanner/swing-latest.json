@@ -39,14 +39,12 @@
   ],
   [
    "5. risk check",
-   47,
-   "53 dropped: earnings within 8 weeks"
+   24,
+   "76 dropped: earnings within 8 weeks"
   ]
  ],
  "weights": {
-  "short_term_reversal": 0.3333333333333333,
-  "breakout": 0.3333333333333333,
-  "trend_strength": 0.3333333333333333
+  "trend_strength": 1.0
  },
- "evidence": "untested"
+ "evidence": "live-test"
 }

@@ -46,7 +46,7 @@ Close of 2026-10-30. Alpaca SIP daily prices, 3,072 instruments analysed. What t
 | 2. filter: volatility band | 1,964 | daily range 1% to 6% |
 | 3. analyse | 1,942 | 200+ days of history, signals computed |
 | 4. rank | 1,942 | equal weights (untested) |
-| 5. risk check | 24 | 76 dropped: earnings within 8 weeks |
+| 5. risk check | 23 | 77 dropped: earnings within 8 weeks |
 
 **Live test (owner decision D-045):** ranked by trend_strength alone. This signal did NOT pass its test (EXP-051a); it is being tried with paper money to learn, not because it is proven.
 
@@ -100,4 +100,4 @@ Close of 2026-10-30. Alpaca SIP daily prices, 3,072 instruments analysed. What t
 | 14 | PRF | 82 | 90% | 82% | 73% |
 | 15 | MGV | 82 | 91% | 81% | 73% |
 
-Run time 303s.
+Run time 189s.

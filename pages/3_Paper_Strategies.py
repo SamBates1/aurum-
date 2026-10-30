@@ -123,7 +123,7 @@ for it in items:
                 yaxis_title="Equity ($)",
                 hovermode="x unified",
             )
-            st.plotly_chart(fig, width="stretch", theme="streamlit")
+            st.plotly_chart(fig, width="stretch", theme="streamlit", key=f"equity_{it['ledger']}")
         tr = pd.DataFrame(led.get("trades", []))
         if len(tr):
             with st.expander(f"Orders ({len(tr)})"):

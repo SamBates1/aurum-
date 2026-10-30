@@ -22,3 +22,13 @@ approvals:
     as a shadow strategy for evidence only.'
   note: Narrowly failed EXP-045's downturn test (2020); shadow only, not eligible
     as main. See D-034.
+- strategy_id: spy-gld-70-30-daily
+  version: 1
+  spec_hash: 9245b2081d68
+  role: shadow
+  approved_by: owner (chat, 2026-10-30)
+  date: '2026-10-30'
+  evidence: Owner asked for a paper account that trades every day and chose 'Add a
+    3rd daily account' on 2026-10-30; evidence only.
+  note: Same 70/30 as the main strategy, rebalanced daily; EXP-045 found rebalancing
+    frequency made little difference. See D-038.

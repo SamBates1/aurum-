@@ -276,12 +276,14 @@ def test_paper_trader_respects_the_off_switch(market, lib, tmp_path, cfg, monkey
     assert any(m.startswith("BUY SPY") for m in msgs) and tr.book.state["pending"] is None
 
 
-def test_configured_paper_strategies_are_the_option3_pair():
+def test_configured_paper_strategies_are_the_option3_pair_plus_daily():
     items = SPP.configured()
     assert [(i["spec"]["id"], i["role"]) for i in items] == [
         ("spy-gld-70-30-monthly", "main"),
         ("spy-gld-70-30-risk-cap", "shadow"),
+        ("spy-gld-70-30-daily", "shadow"),
     ]
+    assert items[2]["min_order"] == 5 and items[0]["min_order"] is None
 
 
 # ---------------------------------------------------------------- desk and pages

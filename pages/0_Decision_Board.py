@@ -118,7 +118,8 @@ def board_view():
             cc = st.columns([1.2, 1, 1, 1, 2.2])
             cc[0].markdown(f"#### {icon} {r['action']} {r['asset']}")
             cc[1].metric("Trade", f"£{abs(r['trade_amount']):,.0f}" if r["action"] != "HOLD" else "–")
-            cc[2].metric("Target", f"{r['target_share']:.0%} = £{r['target_amount']:,.0f}")
+            cc[2].metric("Target", f"{r['target_share']:.0%}")
+            cc[2].caption(f"= £{r['target_amount']:,.0f} of your money")
             cc[3].metric("You hold", f"£{r['current_amount']:,.0f}")
             cc[4].markdown(f"**When:** {r['when']}  \n**UK fund:** {r['uk_fund']}")
             st.markdown(

@@ -621,9 +621,9 @@ def mini_chart(
         xaxis={"rangeslider": {"visible": False}, "showspikes": True, "spikemode": "across"},
         hovermode="x unified",
         hoversubplots="axis",
-        height=380,
+        height=400,
         margin={"l": 50, "r": 10, "t": 40, "b": 20},
-        legend={"orientation": "h", "y": 1.12, "font": {"size": 9}},
+        legend={"orientation": "h", "y": -0.08, "yanchor": "top", "font": {"size": 9}},
         template="plotly_white",
     )
     return fig

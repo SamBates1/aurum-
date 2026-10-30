@@ -21,6 +21,8 @@ AGENTS = {
         f"Mozilla/5.0 (compatible; AurumResearch/1.0; +https://github.com/SamBates1/aurum-) {CONTACT}"
     ),
 }
+if __import__("os").environ.get("SEC_USER_AGENT"):  # the owner's contact from the repository secret (never printed)
+    AGENTS = {"owner contact (secret)": __import__("os").environ["SEC_USER_AGENT"], **AGENTS}
 URLS = {
     "ticker list (www.sec.gov)": "https://www.sec.gov/files/company_tickers.json",
     "company facts (data.sec.gov)": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000320193.json",

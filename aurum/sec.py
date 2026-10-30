@@ -25,7 +25,7 @@ from .config import ROOT
 CACHE = ROOT / "data" / "sec"
 TICKERS_URL = "https://www.sec.gov/files/company_tickers.json"
 FACTS_URL = "https://data.sec.gov/api/xbrl/companyfacts/CIK{cik:010d}.json"
-USER_AGENT = os.environ.get("SEC_USER_AGENT", "Aurum research project SamBates1@users.noreply.github.com")
+USER_AGENT = os.environ.get("SEC_USER_AGENT") or "Aurum research project SamBates1@users.noreply.github.com"
 
 # concept -> XBRL tags tried in order (companies use different tags for the same thing)
 CONCEPTS = {

@@ -130,3 +130,6 @@ experiment:                     # 50/50 long-term vs swing (D-042); starts only 
   shift_step: 0.10
   max_split: 0.70
   min_swing_trades: 30
+  live_test_signals:            # owner decision D-045: while no signal has passed (EXP-051a), rank by the two closest
+    long-term: momentum         # +6.4%/yr, t 1.98 (failed). Clearly labelled LIVE TEST everywhere; remove to stop
+    swing: trend_strength       # +10.6%/yr, t 1.63 (failed)

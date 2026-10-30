@@ -78,3 +78,8 @@ def test_pullback_setup_is_a_warning_after_exp051a():
         ON,
     )
     assert a.verdict != "BUY" and any("harmful" in x for x in a.bearish)
+
+
+def test_live_test_can_buy_but_is_labelled():
+    a = AS.long_term("X", _daily(), 92, "live-test", GOOD, ON)
+    assert a.verdict in ("BUY", "WAIT") and "LIVE TEST" in a.why and not a.confidence.startswith("High")

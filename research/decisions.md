@@ -287,3 +287,12 @@ uptrends lost money reliably (-9.6% a year, t = -2.4) and is now shown as a warn
 rankings are labelled "not supported by evidence", and no assessment can say BUY. Company-account signals (EXP-051b)
 wait for SEC access (the SEC refuses requests from GitHub's machines). The owner must decide what the experiment pots
 do while no signal is supported (see the open question in the build plan).
+
+**D-045 — Owner decisions after EXP-051a: SEC contact and a labelled live test** (2026-10-30)
+1. The owner allowed his email as the contact address the SEC requires. It is kept in a private repository secret
+   (SEC_USER_AGENT), never in the public code or reports.
+2. While no signal has passed its test, the experiment ranks by the two closest signals as a clearly labelled LIVE
+   TEST with paper money: momentum for the long-term pot (+6.4% a year, t 1.98) and trend strength for the swing pot
+   (+10.6%, t 1.63), both of which FAILED EXP-051a. Every ranking and verdict says so; confidence is never "High";
+   evidence-backed weights replace the live test as soon as a signal passes. Paper orders stay off until the owner
+   says OK. Remove `experiment.live_test_signals` from config.yaml to stop the test.

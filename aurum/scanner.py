@@ -81,7 +81,13 @@ class ScanResult:
         lines += ["| Stage | Kept | Note |", "|---|---|---|"]
         lines += [f"| {s} | {n:,} | {note} |" for s, n, note in self.stages]
         lines.append("")
-        if self.evidence == "untested":
+        if self.evidence == "live-test":
+            lines.append(
+                "**Live test (owner decision D-045):** ranked by " + ", ".join(self.weights) + " alone. This "
+                "signal did NOT pass its test (EXP-051a); it is being tried with paper money to learn, not "
+                "because it is proven."
+            )
+        elif self.evidence == "untested":
             lines.append(
                 "**Not supported by evidence:** no signal has passed its test, so all count equally and the "
                 "ranking is for information only."
@@ -165,6 +171,7 @@ def rank(
     weights: dict[str, float] | None,
     asof=None,
     min_history: int = 200,
+    live_test: dict | None = None,
 ) -> tuple[pd.DataFrame, dict, str]:
     """Composite score (0-100) from percentile ranks on `asof` (default: last row), with each signal's raw value and
     rank, so the reason for a position is visible. Returns (table, weights used, 'evidence' | 'untested')."""
@@ -182,6 +189,9 @@ def rank(
     pct = raw.rank(pct=True)
     used = {k: v for k, v in (weights or {}).items() if k in cols and v > 0}
     status = "evidence" if used else "untested"
+    live = (live_test or {}).get(scanner) if not used else None
+    if live and live in cols:
+        used, status = {live: 1.0}, "live-test"
     if not used:
         harmful = {k for k, v in (load_weights().get("tested") or {}).items() if "harmful" in str(v)}
         avail = [k for k in cols if raw[k].notna().any() and k not in harmful]  # tested harmful: no weight at all

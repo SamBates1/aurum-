@@ -62,10 +62,18 @@ def exp046(cfg, out, L):
             checks[t] = {"error": str(exc)[:150], "diff": np.nan}
     sm = {n: E.summary(r) for n, r in runs_gbp.items()}
     su = {n: E.summary(r) for n, r in runs_usd.items()}
+    me = {n: U.month_end_stats(r.daily["ret"], rf_gbp) for n, r in runs_gbp.items()}
+    for t, c in checks.items():
+        if "monthly" in c:
+            c.pop("monthly").to_csv(out / f"exp046_check_{U.UK_FUNDS_YAHOO[t]}.csv")
     t1 = all(np.isfinite(c.get("diff", np.nan)) and abs(c["diff"]) < 0.005 for c in checks.values())
     a, s = sm["70/30 (main)"], sm["S&P fund only"]
     t2 = a["cagr"] >= s["cagr"] - 0.01
-    t3 = a["sharpe"] > s["sharpe"] and a["max_drawdown"] > s["max_drawdown"]
+    # risk measured on month-end values: daily pound returns carry exchange-rate timing noise (see the note)
+    t3 = (
+        me["70/30 (main)"]["sharpe"] > me["S&P fund only"]["sharpe"]
+        and me["70/30 (main)"]["max_drawdown"] > me["S&P fund only"]["max_drawdown"]
+    )
     L += [
         "## EXP-046: 70/30 as a UK investor (pounds, UK funds, fees, ISA)",
         "",
@@ -88,6 +96,21 @@ def exp046(cfg, out, L):
         )
     L += [
         "",
+        "Measured on month-end values in pounds (the MAIN risk figures: the pound/dollar rate is recorded hours away "
+        "from the US close, which adds day-to-day noise that cancels within a month, so the daily volatility above is "
+        "overstated):",
+        "",
+        "| Strategy | CAGR | Volatility | Sharpe (vs UK cash) | Worst fall (month-end) | Worst year |",
+        "|---|---|---|---|---|---|",
+    ]
+    for n in specs:
+        x = me[n]
+        L.append(
+            f"| {n} | {pct(x['cagr'])} | {pct(x['volatility'])} | {num(x['sharpe'])} | "
+            f"{pct(x['max_drawdown'])} | {pct(x['worst_year'])} |"
+        )
+    L += [
+        "",
         "Downturns (return over the window, in pounds then dollars):",
         "",
         "| Strategy | 2008-09 | 2020 | 2022 |",
@@ -103,19 +126,21 @@ def exp046(cfg, out, L):
         L.append(f"| {n} | " + " | ".join(cells) + " |")
     L += [
         "",
-        "Model check (modelled UK fund vs the real fund's price, annual return):",
+        "Model check (modelled UK fund vs the real fund's price, month-end, annual return):",
         "",
-        "| Fund | Dates | Real | Model | Difference | Correlation of daily returns |",
-        "|---|---|---|---|---|---|",
+        "| Fund | Months | Real | Model | Difference | Correlation of monthly returns | Pence/pound fixes |",
+        "|---|---|---|---|---|---|---|",
     ]
     for t, c in checks.items():
         if "error" in c:
-            L.append(f"| {U.UK_FUNDS_YAHOO[t]} | – | – | – | unavailable: {c['error']} | – |")
+            L.append(f"| {U.UK_FUNDS_YAHOO[t]} | – | – | – | unavailable: {c['error']} | – | – |")
+        elif "start" not in c:
+            L.append(f"| {U.UK_FUNDS_YAHOO[t]} | too little data | – | – | – | – | – |")
         else:
             L.append(
                 f"| {U.UK_FUNDS_YAHOO[t]} | {c.get('start')} to {c.get('end')} | "
                 f"{pct(c.get('actual_cagr'))} | {pct(c.get('model_cagr'))} | {pct(c['diff'], True)} | "
-                f"{num(c.get('correlation'))} |"
+                f"{num(c.get('correlation'))} | {c.get('unit_fixes', 0)} |"
             )
     L += [
         "",
@@ -136,7 +161,14 @@ def exp046(cfg, out, L):
     fp.annual({n: r.daily["ret"] for n, r in runs_gbp.items()}, name="annual_returns_gbp")
     pd.DataFrame({n: r.daily["ret"] for n, r in runs_gbp.items()}).to_csv(out / "exp046_daily_returns_gbp.csv")
     month_end = {n: (1 + r.daily["ret"]).groupby(r.daily.index.to_period("M")).prod() - 1 for n, r in runs_gbp.items()}
-    return {"tests": [t1, t2, t3], "summary_gbp": sm, "summary_usd": su, "checks": checks, "month_end": month_end}
+    return {
+        "tests": [t1, t2, t3],
+        "summary_gbp": sm,
+        "summary_usd": su,
+        "checks": checks,
+        "month_end": month_end,
+        "month_end_stats": me,
+    }
 
 
 def exp047(cfg, out, L):
@@ -253,6 +285,12 @@ def exp048(cfg, out, L, r046, r047):
         "1972-2026 monthly series scaled "
         "to daily-data volatility. Nominal pounds, before inflation. The future can be worse than "
         "anything in the sample.",
+        "",
+        "**Read this first:** 2006-2026 was unusually kind to a UK holder of 70/30 (gold rose about fourfold in pounds "
+        "and the pound fell against the dollar, which lifts the value of dollar assets). The main view repeats "
+        "those 20 "
+        "years, so it is the OPTIMISTIC view. The 1972-2026 view includes harder decades (the early-1980s gold crash, "
+        "the 1990s when gold fell) and is the more CAUTIOUS guide.",
         "",
     ]
     out_tables = {}

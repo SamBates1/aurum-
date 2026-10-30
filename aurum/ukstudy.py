@@ -264,30 +264,48 @@ def run_in_gbp(
 
 
 def tracking_check(model: pd.Series, actual: pd.Series) -> dict:
-    """Annualised return of modelled vs actual UK fund prices over their common dates; days with a >40% move in the
-    actual series are treated as unit changes (pence/pounds) and excluded."""
+    """Annualised return of the modelled vs the actual UK fund on MONTH-END prices (daily London and New York closes
+    are hours apart, so daily returns do not line up). Yahoo histories of London-listed funds sometimes switch between
+    pence and pounds: a month where actual/model jumps by more than 10x is treated as a unit change and corrected by
+    the nearest power of ten (reported in `unit_fixes`)."""
     a = actual.dropna()
-    ra = a.pct_change(fill_method=None)
-    bad = ra.abs() > 0.4
-    ra = ra[~bad]
-    rm = model.pct_change(fill_method=None)
-    common = ra.index.intersection(rm.index)
-    common = common[common >= max(a.index[0], model.index[0]) + pd.Timedelta(days=5)]
-    if len(common) < 250:
+    a = a[a > 0]
+    common = a.index.intersection(model.index)
+    if len(common) < 300:
         return {"years": len(common) / TRADING_DAYS, "diff": np.nan}
-    years = len(common) / TRADING_DAYS
-    ga = float(np.prod(1 + ra.loc[common]) ** (1 / years) - 1)
-    gm = float(np.prod(1 + rm.loc[common]) ** (1 / years) - 1)
+    a, m = a.loc[common], model.loc[common]
+    am = a.groupby(a.index.to_period("M")).last()
+    mm = m.groupby(m.index.to_period("M")).last()
+    lr = np.log10(am / mm)
+    jumps = lr.diff()
+    fix = (-jumps.where(jumps.abs() > 1).round().fillna(0)).cumsum()
+    am = am * 10**fix
+    ra, rm = am.pct_change().dropna(), mm.pct_change().dropna()
+    years = len(ra) / 12
+    ga = float((am.iloc[-1] / am.iloc[0]) ** (1 / years) - 1)
+    gm = float((mm.iloc[-1] / mm.iloc[0]) ** (1 / years) - 1)
     return {
-        "start": str(common[0].date()),
-        "end": str(common[-1].date()),
+        "start": str(am.index[0]),
+        "end": str(am.index[-1]),
         "years": years,
         "actual_cagr": ga,
         "model_cagr": gm,
         "diff": gm - ga,
-        "excluded_days": int(bad.sum()),
-        "correlation": float(ra.loc[common].corr(rm.loc[common])),
+        "unit_fixes": int((jumps.abs() > 1).sum()),
+        "correlation": float(ra.corr(rm)),
+        "monthly": pd.DataFrame({"actual": am, "model": mm}),
     }
+
+
+def month_end_stats(r_daily: pd.Series, cash_annual) -> dict:
+    """Return, risk and worst fall from month-end values (immune to the daily exchange-rate timing mismatch)."""
+    m = (1 + r_daily).groupby(r_daily.index.to_period("M")).prod() - 1
+    m.index = m.index.to_timestamp()
+    cash = None
+    if isinstance(cash_annual, pd.Series):
+        cash = cash_annual.groupby(cash_annual.index.to_period("M")).mean()
+        cash.index = cash.index.to_timestamp()
+    return mstats(m.iloc[1:], cash)
 
 
 # ---------------------------------------------------------------------------------------------------------------

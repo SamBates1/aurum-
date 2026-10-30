@@ -53,7 +53,15 @@ def test_tracking_check_ignores_unit_changes():
     actual = model.copy()
     actual.iloc[300:] *= 100  # pounds to pence switch
     c = U.tracking_check(model, actual)
-    assert abs(c["diff"]) < 1e-3 and c["excluded_days"] == 1
+    assert abs(c["diff"]) < 1e-3 and c["unit_fixes"] == 1 and c["correlation"] > 0.99
+
+
+def test_month_end_stats_ignore_daily_timing_noise():
+    idx = pd.bdate_range("2020-01-01", periods=750)
+    noise = np.tile([0.01, -0.01], 375)  # perfectly reverting day-to-day noise (like a timing mismatch)
+    r = pd.Series(noise, index=idx)
+    st = U.month_end_stats(r, None)
+    assert st["volatility"] < 0.05 and r.std() * np.sqrt(252) > 0.15
 
 
 def test_outcomes_with_zero_returns_and_contributions():

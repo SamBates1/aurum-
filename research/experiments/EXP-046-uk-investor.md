@@ -28,3 +28,12 @@ inside an ISA (no UK tax), after fund fees, dividend withholding and a platform 
 2. **Profit in pounds:** 70/30's CAGR in pounds is within 1 percentage point of the S&P fund's.
 3. **Risk in pounds:** 70/30 has a higher Sharpe ratio (against pound cash) and a smaller worst fall than the S&P fund.
 Reported also: worst year, the 2008-09 / 2020 / 2022 downturns in pounds, and how much the pound changed each result.
+
+## Correction after the first run (2026-10-30 11:30 UK; no test or threshold changed)
+The first run (`results/2026-10-30-1107-uk-real/`) exposed two measurement problems, fixed before reading any
+conclusion: (1) daily returns in pounds had autocorrelation of about −0.18 because Yahoo's GBP/USD close is recorded
+hours away from the US close; that noise cancels within a month, so risk figures (volatility, Sharpe, worst fall, test 3)
+are now measured on month-end values, with the daily figures kept for reference; (2) the real-fund check compared daily
+returns across different closing times and could not handle Yahoo's pence/pound switches (SGLN.L showed an impossible
+−21.9% a year); it now uses month-end prices and corrects 10x jumps, reporting how many. The model's assumptions are
+unchanged.

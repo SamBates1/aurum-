@@ -6,4 +6,4 @@ each "lab:" line is one run_lab.py run (EXP-020 onwards); each "plab:" line one 
 "audit:" runs run_data_audit.py; "report:" saves a daily report to research/monitoring; each "xlab:" line one run_xlab.py run (EXP-037 onwards);
 each "designer:" line one run_designer.py run (every saved strategy: backtest, Fair Test, charts, reproduction check);
 "uk:" runs run_uk.py (EXP-046..048).
-Requested: 2026-10-30 EXP-046..048 (UK investor, 1972-2026 history, range of outcomes).
+Requested: 2026-10-30 re-run of EXP-046..048 after fixing the exchange-rate timing and UK fund check (EXP-046 correction note).

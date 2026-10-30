@@ -1,0 +1,225 @@
+{
+ "strategy_id": "spy-gld-70-30-daily",
+ "name": "C: 70/30 SPY/GLD, rebalanced every day",
+ "version": 1,
+ "spec_hash": "9245b2081d68",
+ "status": "failed",
+ "explanation": "Worse than the benchmark in development: lower Sharpe ratio and no meaningful reduction in falls.",
+ "checks": [
+  {
+   "name": "Valid definition",
+   "passed": true,
+   "detail": "spy-gld-70-30-daily v1, hash 9245b2081d68",
+   "kind": "check"
+  },
+  {
+   "name": "Enough clean data",
+   "passed": true,
+   "detail": "20.4 years of common daily data (2006-06-01 to 2026-10-29); longest gap 5.0 days",
+   "kind": "check"
+  },
+  {
+   "name": "No look-ahead",
+   "passed": true,
+   "detail": "targets identical when data after 3 cut dates were removed",
+   "kind": "check"
+  },
+  {
+   "name": "Accounting",
+   "passed": true,
+   "detail": "no borrowing, no negative cash, costs charged on every order",
+   "kind": "check"
+  },
+  {
+   "name": "Execution: next-close fills and 1 day late",
+   "passed": true,
+   "detail": "development Sharpe 0.73; next-close fills 0.73; one day late 0.73",
+   "kind": "check"
+  },
+  {
+   "name": "Not fragile (+-20% on every number)",
+   "passed": true,
+   "detail": "2 nudged versions: development Sharpe from 0.72 to 0.72 (as defined 0.73)",
+   "kind": "check"
+  },
+  {
+   "name": "Deflated Sharpe ratio",
+   "passed": false,
+   "detail": "DSR 0.40 allowing for 100 versions tried (needs >= 0.50)",
+   "kind": "evidence"
+  }
+ ],
+ "numbers": {
+  "periods": {
+   "pre": [
+    "2006-06-01",
+    "2013-10-17"
+   ],
+   "dev": [
+    "2013-10-18",
+    "2023-12-31"
+   ],
+   "holdout": [
+    "2024-01-01",
+    null
+   ]
+  },
+  "comparison": {
+   "pre": {
+    "sharpe": 0.4721687783436186,
+    "bench_sharpe": 0.4690824089308768,
+    "cagr": 0.0834166381685848,
+    "bench_cagr": 0.08211260216293303,
+    "max_drawdown": -0.3813088768448183,
+    "bench_max_drawdown": -0.3847432508855797,
+    "d_sharpe": 0.003086369412741763,
+    "share_better": 0.581,
+    "diff_p05": -0.012683878521478158,
+    "diff_p95": 0.024173845721596803,
+    "dd_rel": 0.021397174149146214
+   },
+   "dev": {
+    "sharpe": 0.7273200677026084,
+    "bench_sharpe": 0.7331854602822389,
+    "cagr": 0.10338089105194581,
+    "bench_cagr": 0.10326260366931139,
+    "max_drawdown": -0.25530999089419126,
+    "bench_max_drawdown": -0.2509270527633335,
+    "d_sharpe": -0.0058653925796304796,
+    "share_better": 0.199,
+    "diff_p05": -0.014447461452243921,
+    "diff_p95": 0.0030653080808899598,
+    "dd_rel": -0.006185015398655791
+   },
+   "holdout": {
+    "sharpe": 1.253902806097359,
+    "bench_sharpe": 1.2391871053479144,
+    "cagr": 0.2278701611059708,
+    "bench_cagr": 0.22520017799068426,
+    "max_drawdown": -0.12958946399121685,
+    "bench_max_drawdown": -0.1293852632829382,
+    "d_sharpe": 0.014715700749444505,
+    "share_better": 0.91,
+    "diff_p05": -0.003687496062295997,
+    "diff_p95": 0.038431684961846874,
+    "dd_rel": -0.0005520643825687177
+   },
+   "full": {
+    "sharpe": 0.6766215035038448,
+    "bench_sharpe": 0.6769754546077051,
+    "cagr": 0.11236394819518236,
+    "bench_cagr": 0.11148420787107871,
+    "max_drawdown": -0.3813088768448183,
+    "bench_max_drawdown": -0.3847432508855797,
+    "d_sharpe": -0.00035395110386038375,
+    "share_better": 0.499,
+    "diff_p05": -0.007600375739401389,
+    "diff_p95": 0.00855943889609634,
+    "dd_rel": 0.01949623337528017
+   }
+  },
+  "dev_2x_costs": {
+   "sharpe": 0.7253284508749456,
+   "bench_sharpe": 0.732724159172531,
+   "cagr": 0.1030964420517253,
+   "bench_cagr": 0.10319684416319741,
+   "max_drawdown": -0.25537283355563123,
+   "bench_max_drawdown": -0.25093322367165394,
+   "d_sharpe": -0.007395708297585402,
+   "share_better": 0.105,
+   "diff_p05": -0.01582399451072805,
+   "diff_p95": 0.0014685198408808601,
+   "dd_rel": -0.006396826440352221
+  },
+  "execution": {
+   "dev_sharpe": 0.7273200677026084,
+   "next_close": 0.7301026495405365,
+   "one_day_late": 0.7273200677026075
+  },
+  "sensitivity": [
+   {
+    "change": "SPY weight -10%",
+    "dev_sharpe": 0.7193886335555233
+   },
+   {
+    "change": "SPY weight +10%",
+    "dev_sharpe": 0.7201744063573325
+   }
+  ],
+  "pbo": {
+   "pbo": NaN,
+   "n_splits": 0
+  },
+  "dsr": 0.3977915704319386,
+  "n_trials": 100,
+  "benchmark": "A: 70/30 SPY/GLD, monthly rebalance",
+  "summary_full": {
+   "start": "2006-06-01",
+   "end": "2026-10-29",
+   "years": 20.38095238095238,
+   "final_value": 87610.4611999279,
+   "total_return": 7.761046119992789,
+   "cagr": 0.11236394819518236,
+   "volatility": 0.14932332343350643,
+   "sharpe": 0.6766215035038448,
+   "sortino": 0.9581384081763015,
+   "max_drawdown": -0.3813088768448183,
+   "max_drawdown_peak": "2007-10-31",
+   "max_drawdown_trough": "2008-11-20",
+   "recovered_on": "2010-04-06",
+   "calmar": 0.2946796023343334,
+   "avg_exposure": 0.9998052959501558,
+   "turnover_per_year": 1.1206304017237054,
+   "costs_per_year": 0.0002798242547212785,
+   "costs_paid": 167.95467649101835,
+   "orders": 10270,
+   "orders_per_year": 503.9018691588785,
+   "best_year": 0.3103006229088716,
+   "worst_year": -0.24203432891507326,
+   "worst_day": -0.08138686798014305,
+   "var_95_daily": -0.013843651921699146,
+   "excess_mean_ann": 0.10103079800892587
+  }
+ },
+ "data_label": "Yahoo Finance adjusted daily data (EOD), completed bars to 2026-10-29; historical backtest, net of costs",
+ "code_fingerprint": "d836141cb562",
+ "git_commit": "f6cea5b",
+ "run_at": "2026-10-30T11:57:54+00:00",
+ "spec": {
+  "id": "spy-gld-70-30-daily",
+  "name": "C: 70/30 SPY/GLD, rebalanced every day",
+  "version": 1,
+  "description": "The same 70/30 mix, traded back to target after every close (no band), so the paper account trades almost every day. Added on the owner's request (2026-10-30, D-038) to see daily activity. EXP-045 found rebalancing frequency made little difference to 70/30, so this should behave like the main strategy with more, smaller trades and slightly higher costs. Paper only, evidence only.",
+  "universe": [
+   "SPY",
+   "GLD"
+  ],
+  "base_weights": {
+   "SPY": 0.7,
+   "GLD": 0.3
+  },
+  "benchmark": "spy-gld-70-30-monthly",
+  "schedule": {
+   "rebalance": "daily",
+   "band": 0.0,
+   "act_on_signal_change": false
+  },
+  "sizing": {
+   "method": "fixed",
+   "target_vol": 0.2,
+   "vol_window": 21,
+   "max_weight": 1.0
+  },
+  "signals": [],
+  "exits": {},
+  "execution": {
+   "fill": "open",
+   "costs_bps": {
+    "SPY": 2.0,
+    "GLD": 3.0
+   },
+   "cost_mult": 1.0
+  },
+  "start": "2006-06-01"
+ }
+}

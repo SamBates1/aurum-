@@ -1,0 +1,57 @@
+{
+ "run_at": "2026-10-30T11:57:46.578312+00:00",
+ "data_label": "Yahoo Finance adjusted daily data (EOD), completed bars to 2026-10-29; historical backtest, net of costs",
+ "code": "d836141cb562",
+ "commit": "f6cea5b",
+ "data": {
+  "GLD": {
+   "rows": 5136,
+   "first": "2006-06-01",
+   "last": "2026-10-29",
+   "sha256_close": "fd38b928937a3d77"
+  },
+  "SPY": {
+   "rows": 5136,
+   "first": "2006-06-01",
+   "last": "2026-10-29",
+   "sha256_close": "0b3cc2b4f7bcef64"
+  }
+ },
+ "strategies": {
+  "spy-gld-70-30-daily": {
+   "spec_hash": "9245b2081d68",
+   "summary": {
+    "start": "2006-06-01",
+    "end": "2026-10-29",
+    "years": "20.38095238095238",
+    "final_value": "87610.4611999279",
+    "total_return": "7.761046119992789",
+    "cagr": "0.11236394819518236",
+    "volatility": "0.14932332343350643",
+    "sharpe": "0.6766215035038448",
+    "sortino": "0.9581384081763015",
+    "max_drawdown": "-0.3813088768448183",
+    "max_drawdown_peak": "2007-10-31",
+    "max_drawdown_trough": "2008-11-20",
+    "recovered_on": "2010-04-06",
+    "calmar": "0.2946796023343334",
+    "avg_exposure": "0.9998052959501558",
+    "turnover_per_year": "1.1206304017237054",
+    "costs_per_year": "0.0002798242547212785",
+    "costs_paid": "167.95467649101835",
+    "orders": "10270",
+    "orders_per_year": "503.9018691588785",
+    "best_year": "0.3103006229088716",
+    "worst_year": "-0.24203432891507326",
+    "worst_day": "-0.08138686798014305",
+    "var_95_daily": "-0.013843651921699146",
+    "excess_mean_ann": "0.10103079800892587"
+   },
+   "fair_test": {
+    "status": "failed",
+    "explanation": "Worse than the benchmark in development: lower Sharpe ratio and no meaningful reduction in falls.",
+    "report": "research/fairtests/2026-10-30-spy-gld-70-30-daily-9245b2081d68.md"
+   }
+  }
+ }
+}

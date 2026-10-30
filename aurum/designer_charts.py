@@ -543,3 +543,87 @@ def comparison_chart(runs: dict[str, StrategyRun], currency: str = "USD", fx: pd
         template="plotly_white",
     )
     return fig
+
+
+def mini_chart(
+    p: pd.DataFrame,
+    ticker: str,
+    *,
+    overlays: dict[str, pd.Series] | None = None,
+    live: float | None = None,
+    months: int = 9,
+    title: str = "",
+) -> go.Figure:
+    """Small indicator chart for the Decision Board: candles with 50- and 200-day averages, any price-type indicator
+    the strategy uses, the latest (delayed) price as a dashed line, and RSI 14 underneath. One shared time axis."""
+    from .indicators import compute
+
+    full = p.copy()
+    start = full.index[-1] - pd.DateOffset(months=months)
+    view = full.loc[start:]
+    fig = go.Figure()
+    fig.add_trace(
+        go.Candlestick(
+            x=view.index,
+            open=view["Open"],
+            high=view["High"],
+            low=view["Low"],
+            close=view["Close"],
+            name=ticker,
+            increasing_line_color="#1baf7a",
+            decreasing_line_color="#e34948",
+            increasing_line_width=1,
+            decreasing_line_width=1,
+            showlegend=False,
+        )
+    )
+    lines = {"SMA 50": compute("sma", full, {"n": 50}), "SMA 200": compute("sma", full, {"n": 200})}
+    lines.update(overlays or {})
+    for k, (name, ser) in enumerate(lines.items()):
+        fig.add_trace(
+            go.Scatter(
+                x=view.index,
+                y=ser.reindex(view.index),
+                name=name,
+                line={"width": 1.6, "color": (["#c98500", "#52514e"] + OVERLAY)[k % (2 + len(OVERLAY))]},
+                hovertemplate="%{y:,.2f}",
+            )
+        )
+    if live is not None and np.isfinite(live):
+        fig.add_trace(
+            go.Scatter(
+                x=[view.index[0], view.index[-1]],
+                y=[live, live],
+                mode="lines",
+                line={"width": 1, "dash": "dash", "color": STRATEGY},
+                name=f"latest {live:,.2f} (delayed)",
+                hoverinfo="skip",
+            )
+        )
+    rsi = compute("rsi", full, {"n": 14}).reindex(view.index)
+    fig.add_trace(go.Scatter(x=view.index, y=rsi, name="RSI 14", yaxis="y2", line={"width": 1.4, "color": OVERLAY[0]}))
+    for lvl in (30, 70):
+        fig.add_trace(
+            go.Scatter(
+                x=[view.index[0], view.index[-1]],
+                y=[lvl, lvl],
+                mode="lines",
+                yaxis="y2",
+                line={"width": 1, "dash": "dot", "color": MUTED},
+                hoverinfo="skip",
+                showlegend=False,
+            )
+        )
+    fig.update_layout(
+        title={"text": title or ticker, "font": {"size": 13}},
+        yaxis={"domain": [0.32, 1], "title": "price"},
+        yaxis2={"domain": [0, 0.24], "range": [0, 100], "title": "RSI"},
+        xaxis={"rangeslider": {"visible": False}, "showspikes": True, "spikemode": "across"},
+        hovermode="x unified",
+        hoversubplots="axis",
+        height=380,
+        margin={"l": 50, "r": 10, "t": 40, "b": 20},
+        legend={"orientation": "h", "y": 1.12, "font": {"size": 9}},
+        template="plotly_white",
+    )
+    return fig

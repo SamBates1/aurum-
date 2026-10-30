@@ -2,7 +2,7 @@
 
 | Field | |
 |---|---|
-| Status | Pre-registered 2026-10-30, before any run on real data |
+| Status | Pre-registered 2026-10-30; amended 2026-10-30 19:50 UTC before any run (split into 051a / 051b) |
 | Origin | Market platform build plan (D-042), phase 2: scanner weights must come from evidence |
 
 ## Why this experiment, and why not EXP-050
@@ -59,6 +59,15 @@ Compared with holding **all 1,000 stocks equally** (same dates, same costs):
 - A signal that fails is still shown on charts, labelled "tested: no evidence it helps (EXP-051)", with weight zero.
 - If nothing passes, the scanners rank by the strongest signal for information only, every result says "not yet
   supported by evidence", and the experiment pots will mostly hold the benchmark or cash. That is a valid result.
+
+## Amendment (2026-10-30 19:50 UTC, before any EXP-051 run on real data)
+The SEC refused every request from GitHub's machines (HTTP 403 for six compliant request formats;
+`research/universe/sec-probe.md`), so company accounts are not available yet. Rather than wait or change the test
+after seeing results, the experiment is split now:
+- **EXP-051a (run now):** the 7 price-based signals (momentum, low volatility, near 52-week high; short-term reversal,
+  breakout, pullback in uptrend, trend strength). The Benjamini-Hochberg check runs across these 7.
+- **EXP-051b (later):** quality, value and the combined signal, once SEC access works, with its own BH check across 3.
+Every other rule (universe, dates, costs, the 3%-a-year bar, t >= 2, both halves and 2024+) is unchanged.
 
 ## Results
 _Not run yet._

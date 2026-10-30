@@ -77,8 +77,12 @@ def main():
     stocks = a[(a["kind"] == "stock") & a["eligible"]].sort_values("dollar_volume_20d", ascending=False)
     symbols = list(stocks.index[:N_STOCKS])
     p = panels(symbols)
-    fund, info = fundamental_panels(p)
-    p.fundamentals = fund
+    try:
+        fund, info = fundamental_panels(p)
+        p.fundamentals = fund
+    except Exception as exc:  # EXP-051a: price signals only (amendment of 2026-10-30)
+        print(f"SEC accounts unavailable ({exc}): running the price-based signals only (EXP-051a)")
+        info = {"sec_found": 0, "sec_failed": 0, "sec_error": str(exc)[:200]}
     stats, returns = {}, {}
     for name, sig in FL.long_term_signals(p).items():
         res = FL.backtest(p, sig, "monthly", hold=1, cost_bps=10, start="2017-01-01")
@@ -100,8 +104,9 @@ def main():
             "-" if x is None or (isinstance(x, float) and not np.isfinite(x)) else (f"{x:+.1%}" if pct else f"{x:.2f}")
         )
 
+    part = "EXP-051a (price signals)" if not p.fundamentals else "EXP-051"
     lines = [
-        "# EXP-051 results: stock signals vs holding every stock equally",
+        f"# {part} results: stock signals vs holding every stock equally",
         "",
         f"Run {pd.Timestamp.now(tz='UTC'):%Y-%m-%d %H:%M} UTC. {p.close.shape[1]} stocks with prices "
         f"({p.close.index[0]} to {p.close.index[-1]}), Alpaca SIP daily, adjusted. SEC accounts found for "

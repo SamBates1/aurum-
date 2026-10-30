@@ -23,3 +23,15 @@ make the range of outcomes look far too narrow. So the **main** simulation now u
 from EXP-046's daily data (2006-2026, net of the same fees); the 1972-2026 monthly series is shown as a second view,
 with its monthly returns scaled to the volatility measured on daily data over 2006-2026 (stated as an approximation).
 Everything else is unchanged.
+
+## Results (real data; `results/2026-10-30-1134-uk-real/`)
+**£1,000 now + £100 a month, 70/30, in pounds after fees** (paid in: £2,100 after 1 year, £6,900 after 5, £12,900 after 10):
+
+| | 1 year | 5 years | 10 years |
+|---|---|---|---|
+| Optimistic view (2006-2026 repeated): bad 1-in-20 / typical | £2,085 / £2,286 | £8,221 / £9,896 | £20,131 / £26,232 |
+| Cautious view (1972-2026): bad 1-in-20 / typical | £1,867 / £2,283 | £6,744 / £9,681 | £14,772 / £25,018 |
+| Cautious view: chance of ending below what you paid in | 21% | 6% | 2% |
+
+The two views agree on the typical outcome; they differ on the bad outcomes. The cautious view is the better guide:
+2006-2026 was unusually good for a UK holder of gold. Neither view can include a crisis worse than 1972-2026's.

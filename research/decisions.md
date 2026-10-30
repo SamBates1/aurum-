@@ -215,3 +215,12 @@ sell**: live charts with indicators across every ticker, checked against a teste
 "buy / hold / sell, amount, exit rule, reason" decision per ticker (planned: the Decision Board). Every decision will
 carry its evidence status (Fair Test verdict) and states what the strategy says, not personal financial advice; the
 owner makes the final call and places any real-money order himself. Aurum never trades real money.
+
+**D-037 — 70/30 holds up for a UK investor and over 1972-2026, with one clear weakness** (2026-10-30)
+EXP-046 (all tests pass): in pounds through UK funds (VUSA/SGLN) after fund fees, dividend withholding and a 0.25%
+platform fee, 70/30 returned 12.7% a year over 2006-2026 with a worst month-end fall of −10% (S&P fund: 12.5%, −31%);
+the modelled funds match the real ones within 0.3 pt a year. EXP-047: over 1972-2026 70/30 kept a higher Sharpe and a
+far better worst decade, but **fell more than the S&P in 1980-82**, when gold crashed; it beat the S&P in only 31% of
+10-year periods. EXP-048: for £1,000 + £100 a month, the cautious (1972-2026) view gives a 21% chance of being below
+what was paid in after 1 year, 6% after 5 years. No change to the strategies; the owner's decision to invest is his.
+Daily paper trading now runs on GitHub (first orders fill at the 2026-10-30 open).

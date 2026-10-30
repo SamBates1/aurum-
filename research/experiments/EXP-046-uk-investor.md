@@ -40,3 +40,17 @@ unchanged.
 Second correction (11:40 UK): the re-run showed SGLN.L's first month on Yahoo (April 2011) at about 1.65x its level
 in every later month relative to the model (a bad print), which alone moved the comparison by several points a year.
 Months more than 25% away from the fund's usual price relative to the model are now dropped and counted.
+
+## Results (real data; `results/2026-10-30-1134-uk-real/`)
+**All three tests pass.** Model check: modelled vs real UK funds differ by +0.3 pt/yr (VUSA, 2012-2026) and +0.1 pt/yr
+(SGLN, 2011-2026), monthly correlation 0.96 and 0.98.
+
+| In pounds, 2006-2026, after all fees (month-end) | CAGR | Volatility | Sharpe | Worst fall | Worst year |
+|---|---|---|---|---|---|
+| S&P fund only (VUSA-like) | 12.5% | 13.3% | 0.80 | −31.1% | −14.7% |
+| **70/30 (main)** | **12.7%** | 10.6% | 0.99 | **−10.2%** | −2.8% |
+| 70/30 + risk cap (shadow) | 11.7% | 9.7% | 0.98 | −8.3% | −2.9% |
+
+Downturns in pounds: 2008-09 S&P fund −19.2%, 70/30 −0.7%; 2020 −4.8% vs +1.0%; 2022 −5.0% vs −1.6%. A UK investor
+lost much less than a US one in each crisis because the pound fell when markets fell (which raises the pound value of
+dollar assets). Caveat: this pound "cushion" is a historical pattern, not a guarantee.

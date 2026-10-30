@@ -24,3 +24,14 @@
    three sub-periods 1972-1989, 1990-2007, 2008-2026.
 3. **Better worst decade:** 70/30's worst rolling 10-year return is higher than the S&P's.
 Reported also: CAGR gap, decade-by-decade returns, share of 10-year periods where 70/30 beat the S&P.
+
+## Results (real data; `results/2026-10-30-1134-uk-real/`)
+**Test 1 FAILS, tests 2 and 3 PASS** (same verdicts in dollars and pounds).
+- 70/30 fell less than the S&P in 6 of 7 bear markets. The exception is **1980-82**: gold crashed from its 1980 peak,
+  so 70/30 lost −21% (in dollars) while the S&P lost −12%.
+- Whole period 1972-2026 (dollars, monthly averages): S&P 11.0% a year, worst fall −49%; 70/30 10.7% a year, worst
+  fall −33%. In pounds: S&P 12.3%, 70/30 12.0%.
+- Sharpe higher for 70/30 in 1972-1989 and 2008-2026, slightly lower in 1990-2007 (the gold bear market).
+- Worst 10-year return a year: S&P −3.7%, 70/30 +1.3%. But 70/30 beat the S&P in only 31% of 10-year periods: in the
+  1980s and 1990s holding only the S&P made far more.
+- Monthly averages understate falls: over 2006-2026 they show −49% / −33% where daily data show −55% / −38.5%.

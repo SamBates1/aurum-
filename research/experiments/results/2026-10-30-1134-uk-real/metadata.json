@@ -1,0 +1,34 @@
+{
+ "run_at": "2026-10-30T11:34:53.333819+00:00",
+ "code": "26347595f61f",
+ "commit": "a5a8299",
+ "exp046_tests": [
+  true,
+  "True",
+  true
+ ],
+ "exp046_checks": {
+  "SPY": {
+   "start": "2012-05",
+   "end": "2026-10",
+   "years": 14.416666666666666,
+   "actual_cagr": 0.15706260176499498,
+   "model_cagr": 0.15966401082848924,
+   "diff": 0.0026014090634942644,
+   "unit_fixes": 0,
+   "bad_months_dropped": 0,
+   "correlation": 0.9568273142022572
+  },
+  "GLD": {
+   "start": "2011-05",
+   "end": "2026-10",
+   "years": 15.416666666666666,
+   "actual_cagr": 0.07646068779169735,
+   "model_cagr": 0.07795252790569052,
+   "diff": 0.0014918401139931703,
+   "unit_fixes": 0,
+   "bad_months_dropped": 1,
+   "correlation": 0.9766007252328396
+  }
+ }
+}

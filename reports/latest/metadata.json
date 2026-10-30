@@ -1,7 +1,7 @@
 {
-  "run_at": "2026-10-29T23:31:26+00:00",
-  "git_commit": "f6555f3",
-  "config_hash": "4c1c01d63cc0",
+  "run_at": "2026-10-30T11:05:41+00:00",
+  "git_commit": "eee621f",
+  "config_hash": "781eaead3521",
   "offline": false,
   "tickers": [
     "GLD",
@@ -28,7 +28,7 @@
     "GLD": {
       "name": "GLD",
       "source": "yahoo:GLD",
-      "retrieved_at": "2026-10-29T23:31:30+00:00",
+      "retrieved_at": "2026-10-30T11:05:45+00:00",
       "rows": 4232,
       "first": "2010-01-04",
       "last": "2026-10-29"
@@ -36,7 +36,7 @@
     "SLV": {
       "name": "SLV",
       "source": "yahoo:SLV",
-      "retrieved_at": "2026-10-29T23:31:41+00:00",
+      "retrieved_at": "2026-10-30T11:05:59+00:00",
       "rows": 4232,
       "first": "2010-01-04",
       "last": "2026-10-29"
@@ -44,7 +44,7 @@
     "GDX": {
       "name": "GDX",
       "source": "yahoo:GDX",
-      "retrieved_at": "2026-10-29T23:31:30+00:00",
+      "retrieved_at": "2026-10-30T11:05:45+00:00",
       "rows": 4232,
       "first": "2010-01-04",
       "last": "2026-10-29"
@@ -52,7 +52,7 @@
     "NEM": {
       "name": "NEM",
       "source": "yahoo:NEM",
-      "retrieved_at": "2026-10-29T23:32:01+00:00",
+      "retrieved_at": "2026-10-30T11:06:26+00:00",
       "rows": 4232,
       "first": "2010-01-04",
       "last": "2026-10-29"
@@ -60,7 +60,7 @@
     "AEM": {
       "name": "AEM",
       "source": "yahoo:AEM",
-      "retrieved_at": "2026-10-29T23:32:11+00:00",
+      "retrieved_at": "2026-10-30T11:06:39+00:00",
       "rows": 4232,
       "first": "2010-01-04",
       "last": "2026-10-29"
@@ -68,7 +68,7 @@
     "WPM": {
       "name": "WPM",
       "source": "yahoo:WPM",
-      "retrieved_at": "2026-10-29T23:32:22+00:00",
+      "retrieved_at": "2026-10-30T11:06:52+00:00",
       "rows": 4232,
       "first": "2010-01-04",
       "last": "2026-10-29"
@@ -76,7 +76,7 @@
   },
   "data_events": [
     {
-      "time": "2026-10-29T23:31:29+00:00",
+      "time": "2026-10-30T11:05:44+00:00",
       "level": "warning",
       "source": "CL=F",
       "message": "dropped 1 rows with missing/non-positive close"

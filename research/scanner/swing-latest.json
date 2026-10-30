@@ -1,6 +1,6 @@
 {
  "scanner": "swing",
- "asof": "2026-10-29 00:00:00",
+ "asof": "2026-10-30 00:00:00",
  "stages": [
   [
    "1. validate",
@@ -24,30 +24,29 @@
   ],
   [
    "2. filter: volatility band",
-   1973,
+   1964,
    "daily range 1% to 6%"
   ],
   [
    "3. analyse",
-   1949,
+   1942,
    "200+ days of history, signals computed"
   ],
   [
    "4. rank",
-   1949,
+   1942,
    "equal weights (untested)"
   ],
   [
    "5. risk check",
-   35,
-   "65 dropped: earnings within 8 weeks"
+   47,
+   "53 dropped: earnings within 8 weeks"
   ]
  ],
  "weights": {
-  "short_term_reversal": 0.25,
-  "breakout": 0.25,
-  "pullback_in_uptrend": 0.25,
-  "trend_strength": 0.25
+  "short_term_reversal": 0.3333333333333333,
+  "breakout": 0.3333333333333333,
+  "trend_strength": 0.3333333333333333
  },
  "evidence": "untested"
 }

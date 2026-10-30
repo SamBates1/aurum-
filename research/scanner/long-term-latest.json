@@ -1,6 +1,6 @@
 {
  "scanner": "long-term",
- "asof": "2026-10-29 00:00:00",
+ "asof": "2026-10-30 00:00:00",
  "stages": [
   [
    "1. validate",
@@ -24,7 +24,7 @@
   ],
   [
    "3. analyse",
-   2381,
+   2383,
    "252+ days of history, signals computed"
   ],
   [

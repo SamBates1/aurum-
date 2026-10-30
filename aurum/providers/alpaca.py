@@ -23,7 +23,7 @@ from .base import TIMEFRAMES, Provider, finish
 from .keys import alpaca_keys, redact
 
 DATA = "https://data.alpaca.markets"
-TRADING = "https://paper-api.alpaca.markets"  # paper endpoint: used only for the market clock, never for orders
+TRADING = "https://paper-api.alpaca.markets"  # paper endpoint: market clock and asset list (read-only)
 STREAM = "wss://stream.data.alpaca.markets/v2/iex"
 MAX_STREAM_SYMBOLS = 30
 
@@ -114,6 +114,47 @@ class AlpacaProvider(Provider):
         if not parts:
             raise AlpacaError(f"no bars for {symbol} {timeframe}")
         return pd.concat(parts).sort_index()
+
+    def assets(self) -> list[dict]:
+        """Every active US equity / ETF Alpaca lists (read-only call on the paper endpoint)."""
+        d = _get(f"{TRADING}/v2/assets", {"status": "active", "asset_class": "us_equity"}, timeout=60)
+        return d if isinstance(d, list) else []
+
+    def daily_many(self, symbols: list[str], days: int = 90, chunk: int = 200) -> dict[str, pd.DataFrame]:
+        """Daily consolidated (SIP) bars for many symbols at once, up to 16 minutes ago (free-plan rule)."""
+        end = pd.Timestamp(datetime.now(timezone.utc)) - pd.Timedelta(minutes=16)
+        start = end - pd.Timedelta(days=int(days * 1.5) + 7)
+        out: dict[str, list] = {}
+        for i in range(0, len(symbols), chunk):
+            part = symbols[i : i + chunk]
+            token = None
+            while True:
+                d = _get(
+                    f"{DATA}/v2/stocks/bars",
+                    {
+                        "symbols": ",".join(part),
+                        "timeframe": "1Day",
+                        "start": _iso(start),
+                        "end": _iso(end),
+                        "limit": 10000,
+                        "adjustment": "all",
+                        "feed": "sip",
+                        "page_token": token,
+                    },
+                )
+                for sym, rows in (d.get("bars") or {}).items():
+                    out.setdefault(sym, []).extend(rows)
+                token = d.get("next_page_token")
+                if not token:
+                    break
+        frames = {}
+        for sym, rows in out.items():
+            df = pd.DataFrame(rows)
+            df.index = pd.to_datetime(df["t"], utc=True)
+            frames[sym] = df.rename(columns={"o": "Open", "h": "High", "l": "Low", "c": "Close", "v": "Volume"})[
+                ["Open", "High", "Low", "Close", "Volume"]
+            ]
+        return frames
 
     def news(self, symbols, limit=20) -> list[dict]:
         d = _get(f"{DATA}/v1beta1/news", {"symbols": ",".join(symbols), "limit": limit, "sort": "desc"})

@@ -190,7 +190,7 @@ def main():
                 f"- {item['spec']['id']} NOT traded: " + "; ".join(g["detail"] for g in el["gates"] if not g["passed"])
             )
             continue
-        traders.append(SPP.SpecPaperTrader(item["spec"], item["role"], item["ledger"]))
+        traders.append(SPP.SpecPaperTrader(item["spec"], item["role"], item["ledger"], min_order=item.get("min_order")))
     tickers = sorted({a for tr in traders for a in SP.assets_needed(tr.spec)} | {"SPY"})
     daily = {t: data.completed_bars(data.daily_prices(t, use_cache=False)) for t in tickers}
     log = []

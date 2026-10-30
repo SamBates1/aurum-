@@ -39,7 +39,7 @@ def spec_loop(args):
             print(f"NOT TRADED {item['spec']['id']} ({item['role']}): {why}")
             data.log_event("warning", item["spec"]["id"], f"not eligible for paper trading: {why}")
             continue
-        traders.append(SPP.SpecPaperTrader(item["spec"], item["role"], item["ledger"]))
+        traders.append(SPP.SpecPaperTrader(item["spec"], item["role"], item["ledger"], min_order=item.get("min_order")))
         print(f"Paper-trading {item['spec']['name']} as {item['role']} (hash {traders[-1].hash})")
     if not traders:
         print("No eligible strategy: nothing to do.")

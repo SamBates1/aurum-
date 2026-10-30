@@ -83,6 +83,9 @@ paper:
                                 # .github/workflows/paper-trading.yml); every eligibility gate must pass (aurum/gates.py)
     - {file: strategies/spy-gld-70-30-monthly.yaml, role: main, ledger: research/paper/ledger-main.json}
     - {file: strategies/spy-gld-70-30-risk-cap.yaml, role: shadow, ledger: research/paper/ledger-shadow.json}
+    # owner's request 2026-10-30 (D-038): a third, daily-rebalanced 70/30 account so trades show every day; orders
+    # down to $5 (instead of the $25 risk-limit minimum) apply to THIS paper account only
+    - {file: strategies/spy-gld-70-30-daily.yaml, role: shadow, ledger: research/paper/ledger-daily.json, min_order: 5}
 
 risk:                           # independent risk engine (aurum/risk.py); it can only cut risk. Changes need owner approval
   allowed_assets: [SPY, QQQ, IWM, EFA, TLT, IEF, GLD, SLV, GDX, DBC]

@@ -7,5 +7,6 @@ yfinance>=0.2.50
 vaderSentiment>=3.3
 streamlit>=1.50
 plotly>=5.20
+websocket-client>=1.7     # Alpaca IEX real-time stream (live charts)
 matplotlib>=3.8
 xlrd>=2.0               # reads the daily geopolitical-risk index (.xls), research lab only

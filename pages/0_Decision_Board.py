@@ -125,6 +125,12 @@ def board_view():
             st.markdown(
                 f"**Why:** {r['reason']}.  \n**When to sell:** {r['exit_rule']}.  \n**Evidence:** {r['evidence']}."
             )
+            st.page_link(
+                "pages/1_Live_Analysis.py",
+                label=f"Open the {r['asset']} chart, trade plan and summary",
+                icon="📈",
+                query_params={"symbol": r["asset"]},
+            )
     if b.cash_after > 0.5:
         st.caption(f"Cash left after these trades: about £{b.cash_after:,.0f} (the strategy keeps it in cash).")
 

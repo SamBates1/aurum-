@@ -13,9 +13,11 @@ import streamlit as st
 
 from aurum import analysis as AN
 from aurum import data
+from aurum import fairtest as FT
 from aurum import recommendations as RC
 from aurum import spec as SP
 from aurum import spec_paper as SPP
+from aurum import summary as SM
 from aurum import tradeplan as TP
 from aurum.config import CFG
 from aurum.livechart import build_payload, live_chart
@@ -70,8 +72,9 @@ order = main_ids + [k for k in lib if k not in main_ids]
 
 with st.sidebar:
     st.subheader("Ticker")
-    pick = st.selectbox("Watchlist", WATCH, index=0)
-    typed = st.text_input("Or type any US ticker", "").strip().upper()
+    linked = str(st.query_params.get("symbol", "")).strip().upper()
+    pick = st.selectbox("Watchlist", WATCH, index=WATCH.index(linked) if linked in WATCH else 0)
+    typed = st.text_input("Or type any US ticker", "" if linked in WATCH else linked).strip().upper()
     symbol = typed or pick
     tf = st.radio("Timeframe", list(TIMEFRAMES), index=4, format_func=lambda k: TF_NAMES[k], horizontal=True)
     st.subheader("Strategy")
@@ -120,6 +123,11 @@ if sv is not None and symbol in daily:
         st.caption(f"Trade plan not available: {exc}")
 
 
+def md(text: str) -> str:
+    """Escape "$" so Streamlit markdown does not read prices as maths."""
+    return str(text).replace("$", "\\$")
+
+
 def plan_lines() -> list[dict]:
     if plan is None or not show_plan:
         return []
@@ -145,7 +153,7 @@ def plan_block():
     left.table(pd.DataFrame(rows, columns=["", "Plan"]).set_index(""))
     with right:
         st.markdown("**What would prove it wrong**")
-        st.markdown("\n".join(f"- {x}" for x in plan.invalidation))
+        st.markdown("\n".join(f"- {md(x)}" for x in plan.invalidation))
         st.markdown("**Confidence checks**")
         st.markdown("\n".join(f"- {'✅' if ok else '⚠️'} {t}" for ok, t in plan.confidence_points))
     st.caption(
@@ -302,9 +310,96 @@ if refresh:
     st.fragment(chart_block, run_every=refresh)()
 else:
     chart_block()
+
+
+@st.cache_data(ttl=600, show_spinner=False)
+def news_for(sym: str, ten_min: int):
+    try:
+        return provider().news([sym], limit=12)
+    except Exception as exc:
+        return [{"headline": f"News not available: {exc}", "time": None, "source": "", "url": ""}]
+
+
+def evidence_text() -> str | None:
+    if sv is None or sv.research_only:
+        return "not tested on this ticker"
+    ft = FT.latest_results().get(SP.spec_hash(sv.spec))
+    if not ft:
+        return "no Fair Test saved"
+    dsr = ft.get("dsr")
+    return f"{ft['status']}" + (f" (DSR {dsr:.2f})" if isinstance(dsr, (int, float)) else "")
+
+
+def summary_and_alerts():
+    recs = [r for r in RC.load() if r["symbol"] == symbol]
+    frames = {}
+    for k in ("1h", "1d", "1w"):
+        try:
+            frames[TF_NAMES[k]] = AN.regular_hours(bars_for(symbol, k, int(datetime.now().timestamp() // 60)), k).iloc[
+                :-1
+            ]
+        except Exception:
+            frames[TF_NAMES[k]] = None
+    mt = AN.multi_timeframe(frames)
+    try:
+        price = float(bars_for(symbol, tf, int(datetime.now().timestamp() // 60))["Close"].iloc[-1])
+    except Exception:
+        price = plan.entry if plan else float("nan")
+    for a in SM.check_alerts(symbol, price, plan, recs):
+        st.info(md(a))
+    if plan is None:
+        return
+    sm = SM.build(plan, mt, recs, evidence_text())
+    st.subheader("Summary")
+    st.markdown(f"**{md(sm.headline)}**")
+    a, b, c = st.columns(3)
+    a.markdown(
+        "**Why we might be interested**\n\n" + "\n".join(f"- {md(x)}" for x in sm.interested or ["Nothing stands out."])
+    )
+    b.markdown("**Why we might be wrong** (devil's advocate)\n\n" + "\n".join(f"- {md(x)}" for x in sm.wrong))
+    c.markdown("**What to do**\n\n" + "\n".join(f"- {md(x)}" for x in sm.do))
+
+
+def news_and_alert_settings():
+    left, right = st.columns([3, 2])
+    with left:
+        st.subheader("News")
+        items = news_for(symbol, int(datetime.now().timestamp() // 600))
+        df = SM.news_table(items)
+        if df.empty:
+            st.caption("No recent headlines.")
+        else:
+            st.dataframe(
+                df,
+                hide_index=True,
+                use_container_width=True,
+                column_config={"Link": st.column_config.LinkColumn("Link")},
+            )
+            st.caption(f"Headlines from {p.name} (Alpaca news is from Benzinga). Context only: not used by any rule.")
+    with right:
+        st.subheader("Your price alerts")
+        alerts = SM.load_alerts()
+        mine = [x for x in alerts if x.get("symbol") == symbol]
+        for x in mine:
+            st.markdown(f"- {x['when']} \\${float(x['price']):,.2f}")
+        with st.form(f"alert-{symbol}", clear_on_submit=True):
+            when = st.radio("Alert me when the price is", ["above", "below"], horizontal=True)
+            lvl = st.number_input("Price ($)", min_value=0.0, value=round(plan.entry, 2) if plan else 0.0, step=0.5)
+            c1, c2 = st.columns(2)
+            if c1.form_submit_button("Add alert") and lvl > 0:
+                SM.save_alerts(alerts + [{"symbol": symbol, "when": when, "price": float(lvl)}])
+                st.rerun()
+            if c2.form_submit_button("Clear this ticker's alerts") and mine:
+                SM.save_alerts([x for x in alerts if x.get("symbol") != symbol])
+                st.rerun()
+        st.caption("Alerts show on this page (saved on your computer in alerts.yaml). Email alerts can be added later.")
+
+
+summary_and_alerts()
 plan_block()
 c_left, c_right = st.columns([2, 3])
 with c_left:
     timeframes_block()
 with c_right:
     history_block()
+news_and_alert_settings()

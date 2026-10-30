@@ -144,6 +144,7 @@ class SpecPaperTrader:
                 continue
             last_close = float(closes[t].iloc[-1]) if t in closes and len(closes[t]) else None
             checks = safety.pre_trade_checks(
+                today=ny_now(now).date(),
                 ticker=t,
                 side=side,
                 target_weight=w,
@@ -182,7 +183,7 @@ class SpecPaperTrader:
                     + "; ".join(f"{x['check']}: {x['detail']}" for x in checks if not x["passed"])
                 )
                 continue
-            safety.record_order(st, t, f"{side} {c:.0%}->{w:.0%}")
+            safety.record_order(st, t, f"{side} {c:.0%}->{w:.0%}", today=ny_now(now).date())
             out.append(
                 self._fill(
                     t,

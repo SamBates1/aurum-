@@ -120,6 +120,9 @@ AURUM_OFFLINE=1 python run_experiments.py --quick   # synthetic: checks the code
 | [EXP-042](EXP-042-ml-models.md) | Machine learning vs simple baselines | master brief | Run: no ML skill |
 | [EXP-043](EXP-043-macro-lead-lag.md) | Macro and cross-asset lead-lag | master brief | Run: nothing confirmed |
 | [EXP-045](EXP-045-sp500-gold-mix.md) | S&P 500 + gold: robustness and downturn protection | owner | Run: mix robust; protections fail strict test (risk cap near miss) |
+| [EXP-046](EXP-046-uk-investor.md) | 70/30 as a UK investor: pounds, UK funds, fees, ISA | owner | Pre-registered 2026-10-30 |
+| [EXP-047](EXP-047-long-history.md) | 70/30 over 1972-2026 (monthly index data) | owner | Pre-registered 2026-10-30 |
+| [EXP-048](EXP-048-outcome-ranges.md) | Range of outcomes for the owner's money | owner | Pre-registered 2026-10-30 (amended before running) |
 | [EXP-044](EXP-044-execution-delay.md) | Execution delay and cost sensitivity of the adopted strategy | master brief | Run: robust to delay and costs |
 | EXP-009 | Chandelier trailing stop, confirmatory | EXP-005 result | Answered by EXP-023 (more history, new assets): rejected |
 

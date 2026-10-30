@@ -58,8 +58,9 @@ jobs:
           xlabs=$(grep '^xlab:' research/experiments/RUN 2>/dev/null | sed 's/^xlab://' || true)
           reports=$(grep '^report:' research/experiments/RUN 2>/dev/null | sed 's/^report://' || true)
           designers=$(grep '^designer:' research/experiments/RUN 2>/dev/null | sed 's/^designer://; s/^ *$/ /' || true)
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then lines="$default_args"; labs=""; plabs=""; audits=""; xlabs=""; designers=""; fi
-          if [ -z "$lines$labs$plabs$audits$xlabs$reports$designers" ]; then lines="$default_args"; fi
+          uks=$(grep '^uk:' research/experiments/RUN 2>/dev/null | sed 's/^uk://; s/^ *$/ /' || true)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then lines="$default_args"; labs=""; plabs=""; audits=""; xlabs=""; designers=""; uks=""; fi
+          if [ -z "$lines$labs$plabs$audits$xlabs$reports$designers$uks" ]; then lines="$default_args"; fi
           status=0
           if [ -n "$lines" ]; then
             while IFS= read -r args; do
@@ -103,6 +104,11 @@ jobs:
               echo "=== python run_designer.py $args ===" | tee -a experiments-run.log
               python run_designer.py $args 2>&1 | tee -a experiments-run.log || status=1
             done <<< "$designers"
+          fi
+          # "uk:" lines run EXP-046..048 (UK investor, 1972-2026 history, range of outcomes)
+          if [ -n "$uks" ]; then
+            echo "=== python run_uk.py ===" | tee -a experiments-run.log
+            python run_uk.py 2>&1 | tee -a experiments-run.log || status=1
           fi
           exit $status
         shell: bash -o pipefail {0}

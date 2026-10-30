@@ -183,7 +183,8 @@ def rank(
     used = {k: v for k, v in (weights or {}).items() if k in cols and v > 0}
     status = "evidence" if used else "untested"
     if not used:
-        avail = [k for k in cols if raw[k].notna().any()]
+        harmful = {k for k, v in (load_weights().get("tested") or {}).items() if "harmful" in str(v)}
+        avail = [k for k in cols if raw[k].notna().any() and k not in harmful]  # tested harmful: no weight at all
         used = {k: 1 / len(avail) for k in avail} if avail else {}
     num = sum(pct[k].fillna(0) * w for k, w in used.items()) if used else pd.Series(0.0, index=names)
     if scanner == "swing":

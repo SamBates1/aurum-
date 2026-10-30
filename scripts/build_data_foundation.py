@@ -123,7 +123,14 @@ def calendar_and_fx() -> None:
 
 
 if __name__ == "__main__":
-    snap = build_universe()
+    import traceback
+
+    U.FOLDER.mkdir(parents=True, exist_ok=True)
+    try:
+        snap = build_universe()
+    except Exception:  # keep the reason: GitHub logs are not readable from the build machine
+        (U.FOLDER / "build-error.txt").write_text(traceback.format_exc()[-4000:])
+        raise
     for step in (fundamentals_check, calendar_and_fx):
         try:
             step(snap) if step is fundamentals_check else step()

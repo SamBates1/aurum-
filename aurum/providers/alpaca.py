@@ -120,33 +120,53 @@ class AlpacaProvider(Provider):
         d = _get(f"{TRADING}/v2/assets", {"status": "active", "asset_class": "us_equity"}, timeout=60)
         return d if isinstance(d, list) else []
 
-    def daily_many(self, symbols: list[str], days: int = 90, chunk: int = 200) -> dict[str, pd.DataFrame]:
-        """Daily consolidated (SIP) bars for many symbols at once, up to 16 minutes ago (free-plan rule)."""
+    def daily_many(self, symbols: list[str], days: int = 90, chunk: int = 200, start=None) -> dict[str, pd.DataFrame]:
+        """Daily consolidated (SIP) bars for many symbols at once, up to 16 minutes ago (free-plan rule).
+        `start` (a date) overrides `days`."""
         end = pd.Timestamp(datetime.now(timezone.utc)) - pd.Timedelta(minutes=16)
-        start = end - pd.Timedelta(days=int(days * 1.5) + 7)
+        if start is not None:
+            start = pd.Timestamp(start)
+            start = start.tz_localize("UTC") if start.tzinfo is None else start
+        else:
+            start = end - pd.Timedelta(days=int(days * 1.5) + 7)
         out: dict[str, list] = {}
-        for i in range(0, len(symbols), chunk):
-            part = symbols[i : i + chunk]
+        self.skipped: list[str] = []
+
+        def fetch(part: list[str]):
             token = None
             while True:
-                d = _get(
-                    f"{DATA}/v2/stocks/bars",
-                    {
-                        "symbols": ",".join(part),
-                        "timeframe": "1Day",
-                        "start": _iso(start),
-                        "end": _iso(end),
-                        "limit": 10000,
-                        "adjustment": "all",
-                        "feed": "sip",
-                        "page_token": token,
-                    },
-                )
+                try:
+                    d = _get(
+                        f"{DATA}/v2/stocks/bars",
+                        {
+                            "symbols": ",".join(part),
+                            "timeframe": "1Day",
+                            "start": _iso(start),
+                            "end": _iso(end),
+                            "limit": 10000,
+                            "adjustment": "all",
+                            "feed": "sip",
+                            "page_token": token,
+                        },
+                    )
+                except AlpacaError as e:
+                    if "HTTP 4" not in str(e) or token is not None:
+                        raise
+                    if len(part) == 1:  # this symbol is not accepted: skip it, keep the rest
+                        self.skipped.append(part[0])
+                        return
+                    half = len(part) // 2
+                    fetch(part[:half])
+                    fetch(part[half:])
+                    return
                 for sym, rows in (d.get("bars") or {}).items():
                     out.setdefault(sym, []).extend(rows)
                 token = d.get("next_page_token")
                 if not token:
-                    break
+                    return
+
+        for i in range(0, len(symbols), chunk):
+            fetch(symbols[i : i + chunk])
         frames = {}
         for sym, rows in out.items():
             df = pd.DataFrame(rows)

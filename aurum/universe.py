@@ -193,17 +193,19 @@ def changes(old: pd.DataFrame | None, new: pd.DataFrame) -> dict[str, list]:
     }
 
 
-def save(snap: Snapshot, folder: Path = FOLDER) -> Path:
+def save(snap: Snapshot, folder: Path | None = None) -> Path:
+    folder = folder or FOLDER
     folder.mkdir(parents=True, exist_ok=True)
     path = folder / "assets.csv"
-    snap.assets.to_csv(path)
+    snap.assets.rename_axis("symbol").to_csv(path)
     (folder / "snapshot.json").write_text(
         json.dumps({"taken": str(snap.taken), "source": snap.source, "counts": snap.counts(), "rules": RULES}, indent=2)
     )
     return path
 
 
-def load(folder: Path = FOLDER) -> Snapshot | None:
+def load(folder: Path | None = None) -> Snapshot | None:
+    folder = folder or FOLDER
     p = folder / "assets.csv"
     if not p.is_file():
         return None

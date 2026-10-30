@@ -124,6 +124,7 @@ AURUM_OFFLINE=1 python run_experiments.py --quick   # synthetic: checks the code
 | [EXP-047](EXP-047-long-history.md) | 70/30 over 1972-2026 (monthly index data) | owner | Run: tests 2-3 pass, test 1 fails (1980-82 gold crash) |
 | [EXP-048](EXP-048-outcome-ranges.md) | Range of outcomes for the owner's money | owner | Run: typical outcomes agree; cautious view 21% chance of loss after 1 year |
 | [EXP-049](EXP-049-stop-target-exits.md) | Stop-loss / take-profit on the 70/30 strategy | live charts | Run: none passed (2 failed, 1 inconclusive), as predicted |
+| [EXP-051](EXP-051-stock-factors.md) | Stock signals for the long-term and swing scanners | platform plan | Pre-registered |
 | [EXP-044](EXP-044-execution-delay.md) | Execution delay and cost sensitivity of the adopted strategy | master brief | Run: robust to delay and costs |
 | EXP-009 | Chandelier trailing stop, confirmatory | EXP-005 result | Answered by EXP-023 (more history, new assets): rejected |
 

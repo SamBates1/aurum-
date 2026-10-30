@@ -334,3 +334,33 @@ def strategy_layers(sv: StrategyView, bars: pd.DataFrame, timeframe: str, capita
         known = as_known_on(codes, bars.index, timeframe)
         strip = known.map({1.0: "held", 0.0: "cash"})
     return {"overlays": overlays, "panels": list(panels.values()), "markers": markers, "tips": tips, "strip": strip}
+
+
+def trend_state(bars: pd.DataFrame) -> tuple[str, str]:
+    """Simple trend on one timeframe from completed bars: up when close > EMA 20 > EMA 50, down when below both."""
+    c = bars["Close"].dropna()
+    if len(c) < 60:
+        return "unknown", "not enough bars"
+    e20 = c.ewm(span=20, adjust=False).mean().iloc[-1]
+    e50 = c.ewm(span=50, adjust=False).mean().iloc[-1]
+    x = c.iloc[-1]
+    if x > e20 > e50:
+        return "up", f"close {x:,.2f} > EMA 20 {e20:,.2f} > EMA 50 {e50:,.2f}"
+    if x < e20 < e50:
+        return "down", f"close {x:,.2f} < EMA 20 {e20:,.2f} < EMA 50 {e50:,.2f}"
+    return "mixed", f"close {x:,.2f}, EMA 20 {e20:,.2f}, EMA 50 {e50:,.2f}"
+
+
+def multi_timeframe(frames: dict[str, pd.DataFrame]) -> dict:
+    """{rows: [(timeframe, state, detail)], verdict}: do the timeframes agree?"""
+    rows = [(tf, *trend_state(b)) for tf, b in frames.items() if b is not None and len(b)]
+    states = {s for _, s, _ in rows if s != "unknown"}
+    if states == {"up"}:
+        verdict = "All timeframes agree: up"
+    elif states == {"down"}:
+        verdict = "All timeframes agree: down"
+    elif "up" in states and "down" in states:
+        verdict = "Timeframes conflict: some up, some down"
+    else:
+        verdict = "No clear agreement (some timeframes mixed)"
+    return {"rows": rows, "verdict": verdict}

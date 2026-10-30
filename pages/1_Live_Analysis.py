@@ -13,6 +13,7 @@ import streamlit as st
 
 from aurum import analysis as AN
 from aurum import data
+from aurum import recommendations as RC
 from aurum import spec as SP
 from aurum import spec_paper as SPP
 from aurum import tradeplan as TP
@@ -244,8 +245,66 @@ def chart_block():
 
 
 refresh = "2s" if (live and clock["is_open"]) else None
+
+
+def timeframes_block():
+    st.subheader("Do the timeframes agree?")
+    frames = {}
+    for k in ("1h", "1d", "1w"):
+        try:
+            b = bars_for(symbol, k, int(datetime.now().timestamp() // 60))
+            frames[TF_NAMES[k]] = AN.regular_hours(b, k).iloc[:-1]  # completed bars only
+        except Exception:
+            frames[TF_NAMES[k]] = None
+    mt = AN.multi_timeframe(frames)
+    icon = {"up": "🟢", "down": "🔴", "mixed": "🟡", "unknown": "⚪"}
+    st.markdown(f"**{mt['verdict']}**")
+    st.markdown("\n".join(f"- {icon[s_]} **{tf}**: {s_} ({d_})" for tf, s_, d_ in mt["rows"]))
+    st.caption(
+        "Trend = close vs its 20- and 50-bar exponential averages, on completed bars. Context only: the strategy "
+        "decides on daily closes."
+    )
+
+
+def history_block():
+    st.subheader("Decisions over time")
+    recs = RC.load()
+    ok, msg = RC.verify(recs)
+    mine = [r for r in recs if r["symbol"] == symbol]
+    if not mine:
+        st.caption(
+            f"No recorded recommendations for {symbol} yet. GitHub records the main strategy's view of every "
+            "watchlist ticker after each US close."
+        )
+    else:
+        rows = [
+            {
+                "Close of": r["as_of"],
+                "Strategy": r["strategy_id"],
+                "Says": r["recommendation"]["action"],
+                "Target": f"{r['recommendation']['target_weight']:.0%}",
+                "Stop": f"{r['recommendation']['stop']:,.2f}",
+                "What changed": "; ".join(r["changed"]) or "-",
+                "Confidence": r["recommendation"]["confidence"],
+            }
+            for r in reversed(mine[-60:])
+        ]
+        st.dataframe(pd.DataFrame(rows), hide_index=True, use_container_width=True)
+        closes = {t: daily[t]["Close"] for t in daily} if sv is not None else {}
+        summ = RC.outcome_summary(RC.outcomes(mine, closes)) if "SPY" in closes else pd.DataFrame()
+        if len(summ):
+            st.markdown("**How these turned out** (after a round-trip cost, vs SPY)")
+            st.dataframe(summ, hide_index=True)
+    (st.caption if ok else st.error)(f"History check: {msg}.")
+
+
 if refresh:
     st.fragment(chart_block, run_every=refresh)()
 else:
     chart_block()
 plan_block()
+c_left, c_right = st.columns([2, 3])
+with c_left:
+    timeframes_block()
+with c_right:
+    history_block()

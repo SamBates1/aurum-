@@ -70,4 +70,18 @@ def main(b: BR.PaperBroker | None = None) -> str:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as exc:  # keep the reason (keys are redacted by the broker); GitHub logs are not readable here
+        BR.FOLDER.mkdir(parents=True, exist_ok=True)
+        msg = str(exc)[:500]
+        hint = (
+            " The Alpaca keys stored on GitHub were rejected: update ALPACA_API_KEY / ALPACA_SECRET_KEY in the "
+            "repository secrets."
+            if ("401" in msg or "403" in msg or "unauthorized" in msg.lower())
+            else ""
+        )
+        (BR.FOLDER / "status.md").write_text(
+            f"# Paper account status\n\nCheck failed: {type(exc).__name__}: {msg}.{hint}\n"
+        )
+        print(msg)

@@ -121,3 +121,20 @@ def test_swing_orders_are_whole_shares():
         "swing", 50_000, 50_000, {}, _ranking(syms), "live-test", daily, 1.3, {}, TODAY, fractionable=set(syms)
     )
     assert ps and all(p.qty == int(p.qty) and p.qty >= 1 for p in ps)
+
+
+def test_paper_status_lists_orders(tmp_path, monkeypatch):
+    import paper_status as PS
+
+    fake = FakeAlpaca()
+    b = BR.PaperBroker(fake, cfg={"paper_orders": {"enabled": True}}, folder=tmp_path)
+    b.submit(
+        BR.OrderRequest("PSX", "buy", 17, type="limit", limit_price=285.43, pot="swing", plan_id="s"),
+        285.0,
+        pd.Timestamp.now(tz="UTC"),
+        approved=True,
+    )
+    monkeypatch.setattr(PS.BR, "FOLDER", tmp_path)
+    monkeypatch.setattr(PS.EX, "load", lambda folder=None: {})
+    text = PS.main(b)
+    assert "Open orders: 1" in text and "| PSX | buy | 17 | limit | 285.43" in text and "swing" in text

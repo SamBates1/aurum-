@@ -5,7 +5,7 @@
       "qty": 8.297321891208222,
       "entry_price": 361.4540100097656,
       "entry_fee": 0.8997300809757073,
-      "last_price": 361.6499938964844,
+      "last_price": 359.260009765625,
       "stop": 0.0,
       "opened": "2026-10-30T22:55:53"
     },
@@ -13,7 +13,7 @@
       "qty": 9.191993794243649,
       "entry_price": 761.3800048828125,
       "entry_fee": 1.3997200559888023,
-      "last_price": 752.0999755859375,
+      "last_price": 754.3499755859375,
       "stop": 0.0,
       "opened": "2026-10-30T22:55:53"
     }
@@ -52,6 +52,10 @@
     {
       "time": "2026-11-02",
       "equity": 9914.02
+    },
+    {
+      "time": "2026-11-03",
+      "equity": 9914.88
     }
   ],
   "stopped_out": {},
@@ -60,17 +64,10 @@
   "spec_hash": "518a2c8d1e1e",
   "strategy_id": "spy-gld-70-30-monthly",
   "role": "main",
-  "pending": {
-    "decided": "2026-11-02",
-    "targets": {
-      "SPY": 0.7,
-      "GLD": 0.3
-    },
-    "signals": []
-  },
-  "last_decided": "2026-11-02",
+  "pending": null,
+  "last_decided": "2026-11-03",
   "peak_equity": 10000.0,
-  "last_processed": "2026-11-02",
+  "last_processed": "2026-11-03",
   "started": "2026-10-29",
   "orders_by_day": {
     "2026-10-30": {
@@ -78,5 +75,5 @@
       "SPY": "BUY 0%->70%"
     }
   },
-  "last_executed": "2026-10-30T22:55:53"
+  "last_executed": "2026-11-03T23:04:53"
 }

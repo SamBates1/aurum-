@@ -62,6 +62,44 @@ def main(b: BR.PaperBroker | None = None) -> str:
         )
     if not all_o:
         lines.append("| - | - | - | - | - | - | no orders in the account | - | - |")
+    lines += [
+        "",
+        "## Positions",
+        "",
+        "| Symbol | Pot | Qty | Avg cost | Now | Value | P&L | P&L % |",
+        "|---|---|---|---|---|---|---|---|",
+    ]
+    pot_by_sym = {}
+    for o in all_o:
+        if o.get("side") == "buy" and BR.pot_of(o.get("client_order_id")):
+            pot_by_sym.setdefault(o.get("symbol"), BR.pot_of(o.get("client_order_id")))
+    tot = {}
+    for q in sorted(pos, key=lambda x: x.get("symbol")):
+        pot = pot_by_sym.get(q.get("symbol"), "not Aurum")
+        mv, pl = float(q.get("market_value") or 0), float(q.get("unrealized_pl") or 0)
+        t = tot.setdefault(pot, [0.0, 0.0])
+        t[0] += mv
+        t[1] += pl
+        lines.append(
+            f"| {q.get('symbol')} | {pot} | {float(q.get('qty') or 0):g} | "
+            f"${float(q.get('avg_entry_price') or 0):,.2f} | "
+            f"${float(q.get('current_price') or 0):,.2f} | ${mv:,.2f} | ${pl:,.2f} | "
+            f"{float(q.get('unrealized_plpc') or 0):+.1%} |"
+        )
+    pots = BR.ledgers_from_orders(all_o, EX.settings().get("pots", {"long-term": 50_000, "swing": 50_000}))
+    lines += [
+        "",
+        "## Pots",
+        "",
+        "| Pot | Cash | Positions value | Total | Unrealised P&L | Realised P&L |",
+        "|---|---|---|---|---|---|",
+    ]
+    for name, led in pots.items():
+        mv, pl = tot.get(name, [0.0, 0.0])
+        lines.append(
+            f"| {name} | ${led['cash']:,.2f} | ${mv:,.2f} | ${led['cash'] + mv:,.2f} | ${pl:,.2f} | "
+            f"${led['realised']:,.2f} |"
+        )
     text = "\n".join(lines) + "\n"
     (BR.FOLDER).mkdir(parents=True, exist_ok=True)
     (BR.FOLDER / "status.md").write_text(text)

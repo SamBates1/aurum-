@@ -1,4 +1,536 @@
 {
- "long-term": {},
- "swing": {}
+ "long-term": {
+  "AXTI": {
+   "opened": "2026-11-03",
+   "stop": 42.29,
+   "targets": [
+    [
+     "resistance",
+     57.62,
+     0.20010535392544013
+    ],
+    [
+     "2R",
+     80.61,
+     2.0
+    ],
+    [
+     "3R",
+     93.38,
+     3.0
+    ]
+   ],
+   "tranches_left": [
+    [
+     "on a pullback to the zone's low",
+     53.36,
+     19.5721
+    ],
+    [
+     "after the next quarterly report, if the case holds",
+     55.06,
+     19.5721
+    ]
+   ]
+  },
+  "SNDK": {
+   "opened": "2026-11-03",
+   "stop": 953.56,
+   "targets": [
+    [
+     "resistance",
+     1446.62,
+     1.4986997951106729
+    ],
+    [
+     "2R",
+     1545.54,
+     2.0
+    ],
+    [
+     "3R",
+     1742.87,
+     3.0
+    ]
+   ],
+   "tranches_left": [
+    [
+     "on a pullback to the zone's low",
+     1052.23,
+     1.2669
+    ],
+    [
+     "after the next quarterly report, if the case holds",
+     1150.89,
+     1.2669
+    ]
+   ]
+  },
+  "TXG": {
+   "opened": "2026-11-03",
+   "stop": 34.12,
+   "targets": [
+    [
+     "resistance",
+     102.81,
+     0.9086040216147728
+    ],
+    [
+     "2R",
+     142.09,
+     2.0
+    ],
+    [
+     "3R",
+     178.08,
+     3.0
+    ]
+   ],
+   "tranches_left": [
+    [
+     "on a pullback to the zone's low",
+     67.25,
+     6.9465
+    ],
+    [
+     "after the next quarterly report, if the case holds",
+     70.11,
+     6.9465
+    ]
+   ]
+  },
+  "ERAS": {
+   "opened": "2026-11-03",
+   "stop": 12.4,
+   "targets": [
+    [
+     "resistance",
+     15.03,
+     0.34884828763860476
+    ],
+    [
+     "2R",
+     18.25,
+     2.0
+    ],
+    [
+     "3R",
+     20.2,
+     3.0
+    ]
+   ],
+   "tranches_left": [
+    [
+     "on a pullback to the zone's low",
+     14.0,
+     116.144
+    ],
+    [
+     "after the next quarterly report, if the case holds",
+     14.35,
+     116.144
+    ]
+   ]
+  },
+  "MXL": {
+   "opened": "2026-11-03",
+   "stop": 52.04,
+   "targets": [
+    [
+     "resistance",
+     89.0,
+     1.3954565025161918
+    ],
+    [
+     "2R",
+     98.33,
+     2.0
+    ],
+    [
+     "3R",
+     113.76,
+     3.0
+    ]
+   ],
+   "tranches_left": [
+    [
+     "on a pullback to the zone's low",
+     59.76,
+     16.2036
+    ],
+    [
+     "after the next quarterly report, if the case holds",
+     67.47,
+     16.2036
+    ]
+   ]
+  },
+  "TWST": {
+   "opened": "2026-11-03",
+   "stop": 74.61,
+   "targets": [
+    [
+     "resistance",
+     155.44,
+     0.034027855509538296
+    ],
+    [
+     "2R",
+     309.12,
+     2.0
+    ],
+    [
+     "3R",
+     387.29,
+     3.0
+    ]
+   ],
+   "tranches_left": [
+    [
+     "on a pullback to the zone's low",
+     138.37,
+     3.1981
+    ],
+    [
+     "after the next quarterly report, if the case holds",
+     152.78,
+     3.1981
+    ]
+   ]
+  },
+  "LITE": {
+   "opened": "2026-11-03",
+   "stop": 697.04,
+   "targets": [
+    [
+     "resistance",
+     897.0,
+     0.3918931322046157
+    ],
+    [
+     "2R",
+     1128.02,
+     2.0
+    ],
+    [
+     "3R",
+     1271.68,
+     3.0
+    ]
+   ],
+   "tranches_left": [
+    [
+     "on a pullback to the zone's low",
+     832.11,
+     1.7402
+    ],
+    [
+     "after the next quarterly report, if the case holds",
+     840.7,
+     1.7402
+    ]
+   ]
+  },
+  "MU": {
+   "opened": "2026-11-03",
+   "stop": 695.64,
+   "targets": [
+    [
+     "resistance",
+     1011.61,
+     0.6709078147475823
+    ],
+    [
+     "2R",
+     1262.94,
+     2.0
+    ],
+    [
+     "3R",
+     1452.05,
+     3.0
+    ]
+   ],
+   "tranches_left": [
+    [
+     "on a pullback to the zone's low",
+     854.08,
+     1.322
+    ],
+    [
+     "after the next quarterly report, if the case holds",
+     884.74,
+     1.322
+    ]
+   ]
+  },
+  "ATEX": {
+   "opened": "2026-11-03",
+   "stop": 59.84,
+   "targets": [
+    [
+     "resistance",
+     95.95,
+     0.17126705531529696
+    ],
+    [
+     "2R",
+     152.33,
+     2.0
+    ],
+    [
+     "3R",
+     183.16,
+     3.0
+    ]
+   ],
+   "tranches_left": [
+    [
+     "on a pullback to the zone's low",
+     85.88,
+     8.1092
+    ],
+    [
+     "after the next quarterly report, if the case holds",
+     90.67,
+     8.1092
+    ]
+   ]
+  },
+  "SYRE": {
+   "opened": "2026-11-03",
+   "stop": 68.81,
+   "targets": [
+    [
+     "resistance",
+     102.06,
+     0.19819837675529434
+    ],
+    [
+     "2R",
+     152.06,
+     2.0
+    ],
+    [
+     "3R",
+     179.81,
+     3.0
+    ]
+   ],
+   "tranches_left": [
+    [
+     "on a pullback to the zone's low",
+     95.61,
+     9.009
+    ],
+    [
+     "after the next quarterly report, if the case holds",
+     96.56,
+     9.009
+    ]
+   ]
+  },
+  "AEHR": {
+   "opened": "2026-11-03",
+   "stop": 42.18,
+   "targets": [
+    [
+     "2R",
+     80.3,
+     2.0
+    ],
+    [
+     "3R",
+     93.01,
+     3.0
+    ],
+    [
+     "resistance",
+     102.48,
+     3.7457356879906625
+    ]
+   ],
+   "tranches_left": [
+    [
+     "on a pullback to the zone's low",
+     48.54,
+     19.6771
+    ],
+    [
+     "after the next quarterly report, if the case holds",
+     54.89,
+     19.6771
+    ]
+   ]
+  },
+  "BAND": {
+   "opened": "2026-11-03",
+   "stop": 36.11,
+   "targets": [
+    [
+     "resistance",
+     55.62,
+     0.7374388250853876
+    ],
+    [
+     "2R",
+     69.8,
+     2.0
+    ],
+    [
+     "3R",
+     81.02,
+     3.0
+    ]
+   ],
+   "tranches_left": [
+    [
+     "on a pullback to the zone's low",
+     44.77,
+     22.2657
+    ],
+    [
+     "after the next quarterly report, if the case holds",
+     47.34,
+     22.2657
+    ]
+   ]
+  }
+ },
+ "swing": {
+  "PSX": {
+   "opened": "2026-11-03",
+   "stop": 262.03,
+   "targets": [
+    [
+     "resistance",
+     299.39,
+     0.7960931549861228
+    ],
+    [
+     "2R",
+     324.43,
+     2.0
+    ],
+    [
+     "3R",
+     345.23,
+     3.0
+    ]
+   ],
+   "tranches_left": []
+  },
+  "SLDE": {
+   "opened": "2026-11-03",
+   "stop": 25.85,
+   "targets": [
+    [
+     "2R",
+     31.49,
+     2.0
+    ],
+    [
+     "3R",
+     33.37,
+     3.0
+    ]
+   ],
+   "tranches_left": []
+  },
+  "ICLR": {
+   "opened": "2026-11-03",
+   "stop": 190.82,
+   "targets": [
+    [
+     "2R",
+     252.45,
+     2.0
+    ],
+    [
+     "3R",
+     272.99,
+     3.0
+    ]
+   ],
+   "tranches_left": []
+  },
+  "MANH": {
+   "opened": "2026-11-03",
+   "stop": 230.93,
+   "targets": [
+    [
+     "2R",
+     283.3,
+     2.0
+    ],
+    [
+     "3R",
+     300.76,
+     3.0
+    ]
+   ],
+   "tranches_left": []
+  },
+  "GDDY": {
+   "opened": "2026-11-03",
+   "stop": 108.09,
+   "targets": [
+    [
+     "resistance",
+     131.74,
+     1.5853182350644295
+    ],
+    [
+     "2R",
+     135.53,
+     2.0
+    ],
+    [
+     "3R",
+     144.68,
+     3.0
+    ]
+   ],
+   "tranches_left": []
+  },
+  "RXO": {
+   "opened": "2026-11-03",
+   "stop": 26.23,
+   "targets": [
+    [
+     "resistance",
+     28.62,
+     0.8937853107344641
+    ],
+    [
+     "2R",
+     30.02,
+     2.0
+    ],
+    [
+     "3R",
+     31.28,
+     3.0
+    ]
+   ],
+   "tranches_left": []
+  },
+  "GILD": {
+   "opened": "2026-11-03",
+   "stop": 161.05,
+   "targets": [
+    [
+     "2R",
+     189.95,
+     2.0
+    ],
+    [
+     "3R",
+     199.58,
+     3.0
+    ]
+   ],
+   "tranches_left": []
+  }
+ }
 }

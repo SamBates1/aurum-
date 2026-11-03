@@ -1,9 +1,9 @@
 # Experiment: long-term vs swing (PAPER TRADING)
 
-Prepared from the close of 2026-11-02. Mode: manual; paper orders ON.
+Prepared from the close of 2026-11-03. Mode: manual; paper orders ON.
 
-- long-term: value $49,491, cash $37,457, 12 positions, 0 proposals (live-test)
-- swing: value $49,491, cash $16,697, 7 positions, 10 proposals (live-test)
+- long-term: value $49,751, cash $37,457, 12 positions, 0 proposals (live-test)
+- swing: value $49,516, cash $16,697, 7 positions, 10 proposals (live-test)
 
 | Pot | Side | Symbol | Shares | Limit | Stop | Target | Status | Why |
 |---|---|---|---|---|---|---|---|---|
@@ -14,6 +14,6 @@ Prepared from the close of 2026-11-02. Mode: manual; paper orders ON.
 | swing | sell | RXO | 181 | - | 26.23 | 30.02 | proposed | re-attach stop and target (none working at Alpaca) |
 | swing | sell | MANH | 20 | - | 230.93 | 283.3 | proposed | re-attach stop and target (none working at Alpaca) |
 | swing | sell | GDDY | 40 | - | 108.09 | 135.53 | proposed | re-attach stop and target (none working at Alpaca) |
-| swing | buy | INTA | 103 | 45.69 | 41.45 | 52.19 | proposed | BUY (live-test): Score 95/100; setup: strong trend (ADX above 25, above the 50-day average); LIVE TEST: the ranking sign |
-| swing | buy | TYL | 11 | 407.86 | 372.62 | 466.58 | proposed | BUY (live-test): Score 92/100; setup: breakout to a 20-day high on above-average volume; LIVE TEST: the ranking signal f |
-| swing | buy | CART | 70 | 58.25 | 52.35 | 68.07 | proposed | BUY (live-test): Score 90/100; setup: strong trend (ADX above 25, above the 50-day average); LIVE TEST: the ranking sign |
+| swing | buy | SSL | 309 | 16.17 | 15.24 | 17.51 | proposed | BUY (live-test): Score 97/100; setup: strong trend (ADX above 25, above the 50-day average); LIVE TEST: the ranking sign |
+| swing | buy | HNGE | 38 | 118.05 | 107.12 | 136.28 | proposed | BUY (live-test): Score 96/100; setup: strong trend (ADX above 25, above the 50-day average); LIVE TEST: the ranking sign |
+| swing | buy | RRC | 87 | 54.54 | 49.78 | 62.48 | proposed | BUY (live-test): Score 95/100; setup: strong trend (ADX above 25, above the 50-day average); LIVE TEST: the ranking sign |

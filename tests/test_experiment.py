@@ -138,3 +138,70 @@ def test_paper_status_lists_orders(tmp_path, monkeypatch):
     monkeypatch.setattr(PS.EX, "load", lambda folder=None: {})
     text = PS.main(b)
     assert "Open orders: 1" in text and "| PSX | buy | 17 | limit | 285.43" in text and "swing" in text
+
+
+def test_swing_brackets_are_good_till_cancelled():
+    syms = [f"T{i}" for i in range(15)]
+    daily = {s: _daily(0.003, 10 + i) for i, s in enumerate(syms)}
+    ps = EX.propose("swing", 50_000, 50_000, {}, _ranking(syms), "live-test", daily, 1.3, {}, TODAY)
+    assert ps and all(p.request("x").payload()["time_in_force"] == "gtc" for p in ps)
+    lt = EX.propose("long-term", 50_000, 50_000, {}, _ranking(syms), "live-test", daily, 1.3, {}, TODAY)
+    assert all(p.request("x").payload()["time_in_force"] == "day" for p in lt)  # plain entries expire daily
+
+
+def test_unprotected_swing_position_gets_stop_and_target_reattached():
+    daily = {"PSX": _daily(0.002, 5)}
+    held = {"PSX": {"qty": 17, "cost": 17 * 285.0}}
+    ps = EX.propose(
+        "swing",
+        50_000,
+        45_000,
+        held,
+        _ranking(["PSX"]),
+        "live-test",
+        daily,
+        1.3,
+        {"PSX": {"opened": str(TODAY.date())}},
+        TODAY,
+        protected=set(),
+    )
+    prot = [p for p in ps if "re-attach" in p.reason]
+    assert len(prot) == 1 and prot[0].qty == 17
+    pay = prot[0].request("x").payload()
+    assert pay["order_class"] == "oco" and pay["side"] == "sell" and pay["time_in_force"] == "gtc"
+    assert float(pay["stop_loss"]["stop_price"]) < float(pay["take_profit"]["limit_price"])
+    again = EX.propose(
+        "swing",
+        50_000,
+        45_000,
+        held,
+        _ranking(["PSX"]),
+        "live-test",
+        daily,
+        1.3,
+        {"PSX": {"opened": str(TODAY.date())}},
+        TODAY,
+        protected={"PSX"},
+    )
+    assert not [p for p in again if "re-attach" in p.reason]  # already protected at Alpaca: nothing added
+
+
+def test_exit_cancels_working_stop_and_target_first(tmp_path):
+    fake = FakeAlpaca()
+    b = BR.PaperBroker(fake, cfg={"paper_orders": {"enabled": True}}, folder=tmp_path)
+    b.submit(BR.OrderRequest("PSX", "buy", 10, pot="swing", plan_id="b"), 285.0, pd.Timestamp.now(tz="UTC"), True)
+    fake.fill(0, 10, 285.0)
+    fake.open = []
+    b.submit(
+        BR.OrderRequest("PSX", "sell", 10, type="limit", take_profit=320.0, stop_loss=260.0, pot="swing", plan_id="p"),
+        285.0,
+        pd.Timestamp.now(tz="UTC"),
+        True,
+    )
+    assert len(fake.open) == 1
+    b.submit_exit(
+        BR.OrderRequest("PSX", "sell", 10, pot="swing", plan_id="exit"), 285.0, pd.Timestamp.now(tz="UTC"), True
+    )
+    assert len([o for o in fake.open if o["type"] == "market"]) == 1 and not [
+        o for o in fake.open if o.get("order_class") == "oco"
+    ]

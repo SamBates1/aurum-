@@ -58,7 +58,9 @@ class Proposal:
             stop_loss=self.stop_loss,
             pot=self.pot,
             plan_id=plan_id,
-            time_in_force="day",
+            # swing orders carry a stop and target: "gtc" keeps them working after the first day (a "day" bracket
+            # cancels its stop and target at that day's close); unfilled entries are cancelled by the runner
+            time_in_force="gtc" if (self.take_profit and self.stop_loss) else "day",
         )
 
 
@@ -79,6 +81,7 @@ def propose(
     today: pd.Timestamp,
     regime: dict | None = None,
     fractionable: set[str] | None = None,
+    protected: set[str] | None = None,
 ) -> list[Proposal]:
     """Order proposals for one pot. `held`: {symbol: {qty, cost}}; `state`: what was planned per held symbol."""
     lim = LIMITS[pot]
@@ -112,6 +115,33 @@ def propose(
                 reason = f"time stop: held {(today - opened).days} days without reaching the target"
         if reason:
             out.append(Proposal(pot, s, "sell", round(float(h["qty"]), 4), "market", None, None, None, reason))
+    # 1b. swing positions with no working stop/target (e.g. bought with an older "day" bracket): re-attach them
+    if pot == "swing":
+        for s, h in held.items():
+            if s in (protected or set()) or any(p.symbol == s for p in out):
+                continue
+            d = daily.get(s)
+            if d is None or len(d) < 50:
+                continue
+            plan = IP.build(s, d, "swing", "BUY", pot_value, usd_per_gbp)
+            st = state.get(s, {})
+            stop = st.get("stop") or plan.stop
+            target = next((t[1] for t in (st.get("targets") or plan.targets) if t[0] == "2R"), None)
+            qty = float(int(float(h["qty"])))
+            if stop and target and qty >= 1:
+                out.append(
+                    Proposal(
+                        pot,
+                        s,
+                        "sell",
+                        qty,
+                        "limit",
+                        None,
+                        round(float(target), 2),
+                        round(float(stop), 2),
+                        "re-attach stop and target (none working at Alpaca)",
+                    )
+                )
     # 2. entries and staged top-ups
     open_slots = lim["max_positions"] - (len(held) - sum(1 for p in out if p.side == "sell"))
     cash = pot_cash

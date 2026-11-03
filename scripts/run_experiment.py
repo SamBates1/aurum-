@@ -57,6 +57,21 @@ def main(broker: BR.PaperBroker | None = None, frames=None) -> dict:
     cfg = EX.settings()
     today = pd.Timestamp.now(tz="America/New_York").normalize().tz_localize(None)
     orders = b.orders("all", 500)
+    open_orders = b.orders("open", 500)
+    protected = {o.get("symbol") for o in open_orders if o.get("side") == "sell"}
+    # unfilled swing entries from an earlier day: the plan was for that session only, so cancel them (risk-reducing,
+    # only Aurum's own entry orders; positions are never touched here)
+    today_ny = pd.Timestamp.now(tz="America/New_York").date()
+    for o in open_orders:
+        cid = o.get("client_order_id") or ""
+        sub = pd.Timestamp(o.get("submitted_at") or pd.Timestamp.now(tz="UTC")).tz_convert("America/New_York").date()
+        if (
+            cid.startswith("AUR-SW-")
+            and o.get("side") == "buy"
+            and float(o.get("filled_qty") or 0) == 0
+            and sub < today_ny
+        ):
+            b.cancel(o["id"])
     pots = BR.ledgers_from_orders(orders, cfg.get("pots", {"long-term": 50_000, "swing": 50_000}))
     positions = b.positions()
     prices = {p["symbol"]: float(p.get("current_price") or 0) for p in positions}
@@ -111,6 +126,7 @@ def main(broker: BR.PaperBroker | None = None, frames=None) -> dict:
             today,
             regime,
             fractionable,
+            protected,
         )
         for p in ps:
             p.plan["reference_price"] = float(last.get(p.symbol, 0) or 0)
@@ -126,7 +142,7 @@ def main(broker: BR.PaperBroker | None = None, frames=None) -> dict:
     if st["enabled"] and st["mode"] == "auto":
         for p in proposals:
             try:
-                b.submit(
+                (b.submit_exit if (p.side == "sell" and p.type == "market") else b.submit)(
                     p.request(EX.plan_id(asof, {"pot": p.pot, "symbol": p.symbol, "side": p.side})),
                     p.plan.get("reference_price") or 1.0,
                     pd.Timestamp.now(tz="UTC"),

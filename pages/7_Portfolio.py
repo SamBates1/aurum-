@@ -121,7 +121,10 @@ else:
             lt = provider().latest_trade(p["symbol"]) if hasattr(provider(), "latest_trade") else {}
             price = lt.get("price") or p.get("plan", {}).get("reference_price") or p.get("limit_price") or 0
             when = lt.get("time") or pd.Timestamp.now(tz="UTC")
-            BR.PaperBroker().submit(req, float(price), when, approved=True)
+            b = BR.PaperBroker()
+            (b.submit_exit if (p["side"] == "sell" and p["type"] == "market") else b.submit)(
+                req, float(price), when, approved=True
+            )
             done.add(req.client_id())
             return "sent to Alpaca (paper)"
         except BR.BrokerError as e:

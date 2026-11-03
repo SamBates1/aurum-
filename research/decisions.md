@@ -304,3 +304,11 @@ $50,000 pots from the scans (exits first, then entries; long-term buys a third o
 carry a stop and target at Alpaca), and nothing is sent until the owner taps Approve on the Portfolio page. Every
 independent check still applies, an emergency stop cancels all open orders, and only Alpaca's paper address exists in
 the code. Rankings are the labelled live test of D-045. First orders can fill at the Monday 2 November 2026 open.
+
+**D-047 — Fix: swing stops and targets now stay working (good till cancelled)** (2026-11-03)
+The owner noticed positions sitting and sells not filling. Cause found: swing buys were sent as "day" bracket orders,
+so Alpaca cancelled each position's stop and target at the close of the day it was bought; and the evening run could
+not read the account because GitHub still had the old Alpaca keys. Fixes: swing brackets are now good till cancelled;
+the evening run re-attaches a stop and target (one-cancels-other) to any swing position without them; unfilled swing
+entries from an earlier day are cancelled (risk-reducing, Aurum's own entry orders only); exits cancel a position's
+working stop/target before selling. Target levels (2R) are unchanged: one day is far too little evidence to judge them.

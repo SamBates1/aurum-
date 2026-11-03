@@ -113,7 +113,14 @@ class OrderRequest:
             p["limit_price"] = str(self.limit_price)
         if self.type in ("stop", "stop_limit"):
             p["stop_price"] = str(self.stop_price)
-        if self.take_profit and self.stop_loss:
+        if self.take_profit and self.stop_loss and self.side == "sell":
+            # protect a position that is already held: one-cancels-other (target limit + stop), no new buy
+            p["order_class"] = "oco"
+            p["type"] = "limit"
+            p["take_profit"] = {"limit_price": str(self.take_profit)}
+            p["stop_loss"] = {"stop_price": str(self.stop_loss)}
+            p.pop("limit_price", None)
+        elif self.take_profit and self.stop_loss:
             p["order_class"] = "bracket"
             p["take_profit"] = {"limit_price": str(self.take_profit)}
             p["stop_loss"] = {"stop_price": str(self.stop_loss)}
@@ -258,6 +265,22 @@ class PaperBroker:
             {"event": "submitted", "client_order_id": req.client_id(), "id": res.get("id"), "status": res.get("status")}
         )
         return res
+
+    def cancel_open(self, symbol: str, side: str) -> int:
+        """Cancel Aurum's open orders for one symbol and side (e.g. a stop/target pair before selling the position)."""
+        n = 0
+        for o in self.orders("open"):
+            if o.get("symbol") == symbol and o.get("side") == side and pot_of(o.get("client_order_id")):
+                self.cancel(o["id"])
+                n += 1
+        return n
+
+    def submit_exit(
+        self, req: OrderRequest, price: float, price_time, approved: bool, market_open: bool | None = None
+    ) -> dict:
+        """Sell a held position: first cancel its working stop/target (they hold the shares), then sell."""
+        self.cancel_open(req.symbol, "sell")
+        return self.submit(req, price, price_time, approved, market_open)
 
     def cancel(self, order_id: str) -> None:
         self.t("DELETE", f"/v2/orders/{order_id}", None)

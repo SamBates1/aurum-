@@ -36,8 +36,12 @@ class FakeAlpaca:
             self.history.append(o)
             self.open.append(o)
             return o
-        if method == "DELETE":
+        if method == "DELETE" and path == "/v2/orders":
             self.open = []
+            return {}
+        if method == "DELETE" and path.startswith("/v2/orders/"):
+            oid = path.rsplit("/", 1)[-1]
+            self.open = [o for o in self.open if o["id"] != oid]
             return {}
         raise AssertionError(path)
 

@@ -2,26 +2,26 @@
 
 ## A: 70/30 SPY/GLD, monthly rebalance (MAIN)
 
-- Equity **$9,914.88** (-0.85% since 2026-10-29), cash $0.00
+- Equity **$10,139.18** (+1.39% since 2026-10-29), cash $0.00
 - Holdings: GLD 30%, SPY 70%
-- Last processed close: 2026-11-03; next decision day: 2026-12-01
+- Last processed close: 2026-11-04; next decision day: 2026-12-01
 - Pending orders: none
 - Orders so far: 2; fees $2.30
 
 ## B: 70/30 SPY/GLD with 20% risk cap (SHADOW, evidence only)
 
-- Equity **$9,914.88** (-0.85% since 2026-10-29), cash $0.00
+- Equity **$10,139.18** (+1.39% since 2026-10-29), cash $0.00
 - Holdings: GLD 30%, SPY 70%
-- Last processed close: 2026-11-03; next decision day: 2026-11-04
-- Pending orders: SPY 70%, GLD 28% (decided 2026-11-03)
+- Last processed close: 2026-11-04; next decision day: 2026-11-05
+- Pending orders: SPY 70%, GLD 24% (decided 2026-11-04)
 - Orders so far: 2; fees $2.30
 
 ## C: 70/30 SPY/GLD, rebalanced every day (SHADOW, evidence only)
 
-- Equity **$9,914.99** (-0.85% since 2026-10-29), cash $0.00
+- Equity **$10,138.77** (+1.39% since 2026-10-29), cash $-0.00
 - Holdings: GLD 30%, SPY 70%
-- Last processed close: 2026-11-03; next decision day: 2026-11-04
-- Pending orders: SPY 70%, GLD 30% (decided 2026-11-03)
-- Orders so far: 6; fees $2.31
+- Last processed close: 2026-11-04; next decision day: 2026-11-05
+- Pending orders: SPY 70%, GLD 30% (decided 2026-11-04)
+- Orders so far: 8; fees $2.32
 
 Decisions use completed daily prices and fill at the next official open, exactly as backtested.

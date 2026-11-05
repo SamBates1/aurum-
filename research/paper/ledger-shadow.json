@@ -1,11 +1,11 @@
 {
-  "cash": 0.0,
+  "cash": 742.0374506628067,
   "positions": {
     "GLD": {
-      "qty": 8.297321891208222,
+      "qty": 6.331590649938239,
       "entry_price": 361.4540100097656,
-      "entry_fee": 0.8997300809757073,
-      "last_price": 372.489990234375,
+      "entry_fee": 0.6865736490481544,
+      "last_price": 375.489990234375,
       "stop": 0.0,
       "opened": "2026-10-30T22:55:53"
     },
@@ -13,7 +13,7 @@
       "qty": 9.191993794243649,
       "entry_price": 761.3800048828125,
       "entry_fee": 1.3997200559888023,
-      "last_price": 766.8099975585938,
+      "last_price": 733.0,
       "stop": 0.0,
       "opened": "2026-10-30T22:55:53"
     }
@@ -38,6 +38,16 @@
       "fee": 1.3997,
       "pnl": null,
       "reason": "spy-gld-70-30-risk-cap rebalance 0% -> 70% (decided 2026-10-29)"
+    },
+    {
+      "time": "2026-11-05 (official open)",
+      "ticker": "GLD",
+      "side": "SELL",
+      "qty": 1.965731,
+      "price": 377.6,
+      "fee": 0.2227,
+      "pnl": 31.3,
+      "reason": "spy-gld-70-30-risk-cap rebalance 31% -> 24% (decided 2026-11-04)"
     }
   ],
   "history": [
@@ -60,31 +70,38 @@
     {
       "time": "2026-11-04",
       "equity": 10139.18
+    },
+    {
+      "time": "2026-11-05",
+      "equity": 9857.22
     }
   ],
   "stopped_out": {},
-  "fees": 2.2994501369645097,
-  "realised_pnl": 0.0,
+  "fees": 2.522128175574935,
+  "realised_pnl": 31.302854472369553,
   "spec_hash": "6cd979072a5f",
   "strategy_id": "spy-gld-70-30-risk-cap",
   "role": "shadow",
   "pending": {
-    "decided": "2026-11-04",
+    "decided": "2026-11-05",
     "targets": {
       "SPY": 0.7,
-      "GLD": 0.23510144529934315
+      "GLD": 0.23951541067107757
     },
     "signals": []
   },
-  "last_decided": "2026-11-04",
-  "peak_equity": 10139.182089150197,
-  "last_processed": "2026-11-04",
+  "last_decided": "2026-11-05",
+  "peak_equity": 10169.264017146052,
+  "last_processed": "2026-11-05",
   "started": "2026-10-29",
   "orders_by_day": {
     "2026-10-30": {
       "GLD": "BUY 0%->30%",
       "SPY": "BUY 0%->70%"
+    },
+    "2026-11-05": {
+      "GLD": "SELL 31%->24%"
     }
   },
-  "last_executed": "2026-11-04T23:04:45"
+  "last_executed": "2026-11-05T23:04:44"
 }

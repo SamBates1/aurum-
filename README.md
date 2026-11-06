@@ -1,11 +1,38 @@
 # Aurum
 
-**A research system for gold, silver and gold-mining equities:** walk-forward machine learning, macro drivers, a
-cost-aware backtester, honest benchmarks and a paper-trading dashboard.
+**A personal project that tests investment strategies on 20 years of market data, then trades them with simulated
+money, inside a set of controls that stop mistakes before an order is placed.**
 
 [![CI](https://github.com/SamBates1/aurum-/actions/workflows/ci.yml/badge.svg)](https://github.com/SamBates1/aurum-/actions/workflows/ci.yml)
 
-> Educational research project. Nothing here is investment advice, and paper trading uses simulated money only.
+> Educational research project. Nothing here is investment advice. All trading is paper trading with simulated
+> money; Aurum cannot place a real-money order.
+
+## In brief
+
+**What it does.** Aurum asks a simple question honestly: can a rule-based strategy do better than just buying and
+holding? It started with gold and has grown to cover the S&P 500 and US stocks. Each idea is written down with its
+pass/fail rule *before* it is tested, run on real historical prices after trading costs, and compared with simple
+alternatives. About 100 ideas have been tested; most failed, and the write-ups say so.
+
+**What it found.** No timing or prediction rule reliably beat buying and holding. A simple 70% S&P 500 / 30% gold mix
+earned about the same as the S&P 500 alone over 2006–2026, with a much smaller worst fall (−38% vs −55%). That mix
+is now being paper-traded, alongside a labelled stock-picking experiment on an Alpaca paper account.
+
+**Controls built in** (because a strategy is only as safe as the process around it):
+
+| Control | What it does |
+|---|---|
+| Pre-trade checks | Blocks any order on stale or missing data, implausible prices, duplicates, or above position and order-size limits |
+| Human approval | Every paper order must be approved by the owner; nothing is sent automatically |
+| Emergency stop | One switch (or a `STOP_TRADING` file) halts all trading |
+| Audit trail | Every decision and order is recorded with the strategy version and data that produced it; recommendation logs are hash-chained so they cannot be quietly edited |
+| Reconciliation | Aurum's own records are checked against the broker's every day, and differences are flagged |
+| Pre-registration | Tests and their pass/fail rules are written before the results are seen, so results cannot be cherry-picked |
+| Automated testing | 304 automatic tests (look-ahead bias, accounting, risk limits, data handling) run on every change |
+
+**Built with** Python, pandas, scikit-learn, Streamlit, GitHub Actions and the Alpaca paper-trading API.
+The sections below are the full technical detail.
 
 ## Objective
 
@@ -70,7 +97,7 @@ run_lab.py       runs the research lab → research/experiments/results/<time>-l
 research/        knowledge base: framework source-code notes, evidence reviews, decisions, experiments
 run_backtest.py  quick per-ticker backtest
 run_bot.py       headless signal loop, optional paper trading
-tests/           99 tests: look-ahead, accounting, metrics, risk controls, data handling, research tools
+tests/           304 tests: look-ahead, accounting, metrics, risk controls, data handling, research tools
 ```
 
 ## Setup
@@ -112,7 +139,7 @@ repository Secrets. Aurum never places real orders.
 Configuration is in [`config.yaml`](config.yaml): universe, macro series, model settings, strategy weights and
 thresholds, risk limits, cost assumptions and the holdout date.
 
-## Market platform (v1.0, built 30 Oct 2026; paper orders off)
+## Market platform (v1.0, built 30 Oct 2026; paper orders switched on 30 Oct, D-046)
 
 Approved plan: D-042; what was built: D-043. US stocks and ETFs first.
 
@@ -124,11 +151,11 @@ Approved plan: D-042; what was built: D-043. US stocks and ETFs first.
 | Assessments | Long-term and swing verdicts with evidence for/against, risks, invalidation | `aurum/assessment.py` |
 | Portfolio | Exposures, risk contribution, duplicates, four allocation methods, cash allowed | `aurum/portfolio_opt.py`, Portfolio page |
 | Plans | Entry zone, stop, targets, shares, max loss, costs in $ and £, UK tax notes | `aurum/investplan.py` |
-| Paper broker | Alpaca **paper** only, **off** until the owner says OK, approval per order, emergency stop | `aurum/broker.py`, `paper_orders:` in config |
+| Paper broker | Alpaca **paper** only, switched on by the owner (D-046), approval per order, emergency stop | `aurum/broker.py`, `paper_orders:` in config |
 | Monitoring | Position alerts, 1/5/20/60-day grading, paper-vs-backtest drift | `aurum/monitoring.py`, `research/orders/monitor.md` |
 
-The 50/50 experiment (long-term vs swing, $50,000 each of the Alpaca paper account's $100,000) starts only once
-paper orders are switched on; its rules are in config `experiment:` and D-042.
+The 50/50 experiment (long-term vs swing, $50,000 each of the Alpaca paper account's $100,000) has been running
+since 2 November 2026; its rules are in config `experiment:` and D-042.
 
 ## Live Analysis (v0.9)
 
@@ -266,7 +293,7 @@ Paper trading is the next test.
 
 ## Tests
 
-`pytest` runs 72 tests offline in about 30 seconds. Highlights:
+`pytest` runs 304 tests offline. Highlights:
 
 * **Look-ahead:** features are identical with the future removed; walk-forward predictions don't change when later
   data is added; the purge gap holds; FRED dates shift to publication; partial bars are dropped; model skill only
@@ -315,5 +342,5 @@ acceptance rules written before any results. Changes adopted from the review:
 
 ## Possible extensions
 
-Broker paper trading via API (e.g. Alpaca), ALFRED point-in-time macro vintages, point-in-time fundamentals, separate
+ALFRED point-in-time macro vintages, point-in-time fundamentals, separate
 risk budgets for ETFs vs single miners, an LLM-based headline classifier evaluated on a labelled history.

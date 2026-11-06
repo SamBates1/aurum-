@@ -4,6 +4,7 @@ Return of the ticker over the next 1 / 5 / 20 / 60 trading days after a round-tr
 
 | | Days | Recommendations | Avg return | Avg vs SPY | Share positive |
 |---|---|---|---|---|---|
-| strategy holds | 1 | 6 | +0.38% | +1.46% | 67% |
+| strategy holds | 1 | 8 | +0.20% | +0.93% | 62% |
+| strategy holds | 5 | 2 | +0.90% | +3.60% | 50% |
 
 Small samples are noise: judge only after many months.

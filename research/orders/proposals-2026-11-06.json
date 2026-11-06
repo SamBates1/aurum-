@@ -1,0 +1,295 @@
+{
+ "asof": "2026-11-06",
+ "created": "2026-11-06 23:28:06+00:00",
+ "notes": [
+  "long-term: value $47,925, cash $37,457, 12 positions, 0 proposals (live-test)",
+  "swing: value $48,599, cash $16,697, 7 positions, 11 proposals (live-test)"
+ ],
+ "mode": "manual",
+ "proposals": [
+  {
+   "pot": "swing",
+   "symbol": "GILD",
+   "side": "sell",
+   "qty": 29.0,
+   "type": "limit",
+   "limit_price": null,
+   "take_profit": 189.95,
+   "stop_loss": 161.05,
+   "reason": "re-attach stop and target (none working at Alpaca)",
+   "plan": {
+    "reference_price": 166.89
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "swing",
+   "symbol": "SLDE",
+   "side": "sell",
+   "qty": 180.0,
+   "type": "limit",
+   "limit_price": null,
+   "take_profit": 31.49,
+   "stop_loss": 25.85,
+   "reason": "re-attach stop and target (none working at Alpaca)",
+   "plan": {
+    "reference_price": 25.94
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "swing",
+   "symbol": "PSX",
+   "side": "sell",
+   "qty": 17.0,
+   "type": "limit",
+   "limit_price": null,
+   "take_profit": 324.43,
+   "stop_loss": 262.03,
+   "reason": "re-attach stop and target (none working at Alpaca)",
+   "plan": {
+    "reference_price": 245.72
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "swing",
+   "symbol": "ICLR",
+   "side": "sell",
+   "qty": 18.0,
+   "type": "limit",
+   "limit_price": null,
+   "take_profit": 252.45,
+   "stop_loss": 190.82,
+   "reason": "re-attach stop and target (none working at Alpaca)",
+   "plan": {
+    "reference_price": 204.74
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "swing",
+   "symbol": "RXO",
+   "side": "sell",
+   "qty": 181.0,
+   "type": "limit",
+   "limit_price": null,
+   "take_profit": 30.02,
+   "stop_loss": 26.23,
+   "reason": "re-attach stop and target (none working at Alpaca)",
+   "plan": {
+    "reference_price": 27.6
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "swing",
+   "symbol": "MANH",
+   "side": "sell",
+   "qty": 20.0,
+   "type": "limit",
+   "limit_price": null,
+   "take_profit": 283.3,
+   "stop_loss": 230.93,
+   "reason": "re-attach stop and target (none working at Alpaca)",
+   "plan": {
+    "reference_price": 252.78
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "swing",
+   "symbol": "GDDY",
+   "side": "sell",
+   "qty": 40.0,
+   "type": "limit",
+   "limit_price": null,
+   "take_profit": 135.53,
+   "stop_loss": 108.09,
+   "reason": "re-attach stop and target (none working at Alpaca)",
+   "plan": {
+    "reference_price": 114.38
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "swing",
+   "symbol": "GMAB",
+   "side": "buy",
+   "qty": 60.0,
+   "type": "limit",
+   "limit_price": 54.39,
+   "take_profit": 65.72,
+   "stop_loss": 47.59,
+   "reason": "BUY (live-test): Score 100/100; setup: strong trend (ADX above 25, above the 50-day average); LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 47.59,
+    "targets": [
+     [
+      "resistance",
+      59.97,
+      1.0489642718703611
+     ],
+     [
+      "2R",
+      65.72,
+      2.0
+     ],
+     [
+      "3R",
+      71.76,
+      3.0
+     ]
+    ],
+    "entry_zone": [
+     52.87,
+     54.39
+    ],
+    "tranches": [],
+    "max_loss_usd": 364.5,
+    "reasons": {
+     "stop": "two daily ranges ($6.04) below the entry: the setup has failed there",
+     "entry": "the next open, if it is within a quarter of a daily range of the last close",
+     "size": "risk budget: 0.75% of the pot ($364) lost if the stop is hit",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)",
+     "setup": "strong trend (ADX above 25, above the 50-day average)"
+    },
+    "reference_price": 53.63
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "swing",
+   "symbol": "EPAM",
+   "side": "buy",
+   "qty": 30.0,
+   "type": "limit",
+   "limit_price": 161.44,
+   "take_profit": 172.19,
+   "stop_loss": 152.87,
+   "reason": "BUY (live-test): Score 100/100; setup: strong trend (ADX above 25, above the 50-day average); LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 152.87,
+    "targets": [
+     [
+      "2R",
+      172.19,
+      2.0
+     ],
+     [
+      "3R",
+      178.63,
+      3.0
+     ],
+     [
+      "resistance",
+      183.83,
+      3.8069498904453836
+     ]
+    ],
+    "entry_zone": [
+     157.18,
+     161.44
+    ],
+    "tranches": [],
+    "max_loss_usd": 196.49,
+    "reasons": {
+     "stop": "under support at $155.00 by a quarter of a daily range",
+     "entry": "the next open, if it is within a quarter of a daily range of the last close",
+     "size": "position limit: at most 10% of the pot in one position",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)",
+     "setup": "strong trend (ADX above 25, above the 50-day average)"
+    },
+    "reference_price": 159.31
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "swing",
+   "symbol": "CERT",
+   "side": "buy",
+   "qty": 281.0,
+   "type": "limit",
+   "limit_price": 12.21,
+   "take_profit": 14.64,
+   "stop_loss": 10.76,
+   "reason": "BUY (live-test): Score 99/100; setup: strong trend (ADX above 25, above the 50-day average); LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 10.76,
+    "targets": [
+     [
+      "2R",
+      14.64,
+      2.0
+     ],
+     [
+      "3R",
+      15.93,
+      3.0
+     ]
+    ],
+    "entry_zone": [
+     11.89,
+     12.21
+    ],
+    "tranches": [],
+    "max_loss_usd": 364.5,
+    "reasons": {
+     "stop": "two daily ranges ($1.29) below the entry: the setup has failed there",
+     "entry": "the next open, if it is within a quarter of a daily range of the last close",
+     "size": "risk budget: 0.75% of the pot ($364) lost if the stop is hit",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)",
+     "setup": "strong trend (ADX above 25, above the 50-day average)"
+    },
+    "reference_price": 12.05
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "swing",
+   "symbol": "ATRC",
+   "side": "buy",
+   "qty": 83.0,
+   "type": "limit",
+   "limit_price": 59.25,
+   "take_profit": 66.73,
+   "stop_loss": 54.45,
+   "reason": "BUY (live-test): Score 98/100; setup: strong trend (ADX above 25, above the 50-day average); LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 54.45,
+    "targets": [
+     [
+      "resistance",
+      61.7,
+      0.7717595996758749
+     ],
+     [
+      "2R",
+      66.73,
+      2.0
+     ],
+     [
+      "3R",
+      70.82,
+      3.0
+     ]
+    ],
+    "entry_zone": [
+     57.83,
+     59.25
+    ],
+    "tranches": [],
+    "max_loss_usd": 339.93,
+    "reasons": {
+     "stop": "under support at $55.16 by a quarter of a daily range",
+     "entry": "the next open, if it is within a quarter of a daily range of the last close",
+     "size": "position limit: at most 10% of the pot in one position",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)",
+     "setup": "strong trend (ADX above 25, above the 50-day average)"
+    },
+    "reference_price": 58.54
+   },
+   "status": "proposed"
+  }
+ ]
+}

@@ -1,40 +1,40 @@
 {
  "scanner": "swing",
- "asof": "2026-11-06 00:00:00",
+ "asof": "2026-11-09 00:00:00",
  "stages": [
   [
    "1. validate",
-   3924,
+   3967,
    "eligible in the universe snapshot"
   ],
   [
    "2. filter: kind",
-   3865,
+   3905,
    "kinds: stock, etf"
   ],
   [
    "2. filter: price",
-   3581,
+   3605,
    "price at least $10"
   ],
   [
    "2. filter: volume",
-   2458,
+   2527,
    "at least $20M traded a day"
   ],
   [
    "2. filter: volatility band",
-   1847,
+   1933,
    "daily range 1% to 6%"
   ],
   [
    "3. analyse",
-   1834,
+   1911,
    "200+ days of history, signals computed"
   ],
   [
    "4. rank",
-   1834,
+   1911,
    "equal weights (untested)"
   ],
   [

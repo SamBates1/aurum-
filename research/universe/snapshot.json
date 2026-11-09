@@ -1,12 +1,12 @@
 {
-  "taken": "2026-10-30 19:30:28+00:00",
+  "taken": "2026-11-09 00:14:52+00:00",
   "source": "Alpaca asset list + SIP daily bars",
   "counts": {
-    "listed": 14409,
-    "eligible": 3924,
-    "stocks": 2711,
-    "etfs": 1213,
-    "commodity_etfs": 59
+    "listed": 14390,
+    "eligible": 3967,
+    "stocks": 2733,
+    "etfs": 1234,
+    "commodity_etfs": 62
   },
   "rules": {
     "min_price": 5.0,

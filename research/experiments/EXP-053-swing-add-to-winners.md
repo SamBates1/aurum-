@@ -2,7 +2,7 @@
 
 | Field | |
 |---|---|
-| Status | Pre-registered 2026-11-10, before any run |
+| Status | Pre-registered 2026-11-10, before any run. **Run 2026-11-10: both FAILED; no adding** |
 | Origin | Owner: "evaluate which stocks are doing well and buy more". EXP-052 found swing profits come from a few trades that run far, which makes adding plausible; EXP-032 (gold assets, +25% in uptrends) found no gain |
 | Scope | Swing pot only |
 
@@ -32,3 +32,18 @@ chosen. Otherwise the swing pot does not add.
 
 ## Limitations
 As EXP-052: daily bars, survivorship bias (equal for all variants), and the entry signal itself failed EXP-051a.
+
+## Results (real data, run 2026-11-10; `results/2026-11-10-1439-addlab-real/`)
+1,487 trades (the EXP-052 entries). Profit per trade as a share of the original position, after costs.
+
+| Variant | Mean | Median | Win rate | Avg win | Avg loss | Worst | Added on | Difference vs A | NW t | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|
+| A no add (control) | +2.21% | −2.58% | 44% | +16.9% | −9.3% | −55.6% | | | | **kept** |
+| B add half | +1.61% | −4.40% | 34% | +21.3% | −8.7% | −55.6% | 46% of trades | −0.39% | −1.53 | **FAILED** |
+| C add full | +1.72% | −5.60% | 33% | +25.5% | −10.1% | −66.4% | 46% of trades | −0.14% | −0.39 | **FAILED** |
+
+Adding made the winners bigger, but raising the stop to the entry price turned about 18% of all trades into
+breakeven exits with a loss on the added shares: the price reached +1R, then fell back to the entry before reaching
+the target. Neither variant beat A in the recent period, and C also had a worse worst trade. **Decision:** the swing
+pot does not add to winners. No further add variants will be run on these data (each extra try weakens the next
+test); a new version would need new data (months after 2026-11-10).

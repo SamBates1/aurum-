@@ -143,7 +143,9 @@ def propose(
                     )
                 )
     # 2. entries and staged top-ups
-    open_slots = lim["max_positions"] - (len(held) - sum(1 for p in out if p.side == "sell"))
+    # only real exits free a slot: a protective stop/target order (a "sell" with both legs) keeps the position open
+    exits = sum(1 for p in out if p.side == "sell" and not (p.take_profit and p.stop_loss))
+    open_slots = lim["max_positions"] - (len(held) - exits)
     cash = pot_cash
     for s in ranks[: lim["candidates"]]:
         if s in held:

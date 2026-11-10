@@ -117,18 +117,32 @@ else:
         req = EX.Proposal(**{k: p[k] for k in EX.Proposal.__dataclass_fields__}).request(EX.plan_id(props["asof"], p))
         if req.client_id() in done:
             return "already sent from this page"
+        # price for the safety checks: the latest trade if Alpaca gives one, otherwise the last close the proposal was
+        # prepared from, dated at that close (so the freshness check still applies honestly while the market is open)
+        price, when, src = None, None, ""
         try:
             lt = provider().latest_trade(p["symbol"]) if hasattr(provider(), "latest_trade") else {}
-            price = lt.get("price") or p.get("plan", {}).get("reference_price") or p.get("limit_price") or 0
-            when = lt.get("time") or pd.Timestamp.now(tz="UTC")
+            if lt.get("price") and lt["price"] == lt["price"] and lt.get("time"):
+                price, when, src = float(lt["price"]), lt["time"], "latest IEX trade"
+        except Exception as e:  # a failed price lookup must never crash the page or silently drop the approval
+            src = f"latest price unavailable ({type(e).__name__}); "
+        if price is None:
+            ref = p.get("plan", {}).get("reference_price") or p.get("limit_price")
+            if not ref:
+                return src + "blocked: no price to check the order against"
+            price, when = float(ref), pd.Timestamp(f"{props['asof']} 21:00", tz="UTC")
+            src += f"used the {props['asof']} close"
+        try:
             b = BR.PaperBroker()
-            (b.submit_exit if (p["side"] == "sell" and p["type"] == "market") else b.submit)(
+            res = (b.submit_exit if (p["side"] == "sell" and p["type"] == "market") else b.submit)(
                 req, float(price), when, approved=True
             )
             done.add(req.client_id())
-            return "sent to Alpaca (paper)"
+            return f"sent to Alpaca (paper), status {res.get('status', '?')} · price check: {src}"
         except BR.BrokerError as e:
-            return f"blocked: {e}"
+            return f"blocked: {e} · price check: {src}"
+        except Exception as e:
+            return f"failed: {type(e).__name__}: {str(e)[:200]}"
 
     rows = []
     for i, p in enumerate(waiting):
@@ -141,10 +155,29 @@ else:
         c[5].markdown(f"stop ${p['stop_loss']:,.2f}" if p.get("stop_loss") else "-")
         c[6].caption(p["reason"][:220].replace("$", "\\$"))
         if c[7].button("Approve", key=f"ap-{i}", disabled=not can_send):
-            st.toast(f"{p['symbol']}: {send(p)}")
+            msg = send(p)
+            st.session_state.setdefault("approval_log", []).append(
+                {
+                    "time (UK)": f"{pd.Timestamp.now(tz='Europe/London'):%H:%M:%S}",
+                    "symbol": p["symbol"],
+                    "side": p["side"],
+                    "result": msg,
+                }
+            )
+            st.toast(f"{p['symbol']}: {msg}")
     if st.button(f"Approve all {len(waiting)}", type="primary", disabled=not can_send):
-        res = [f"{p['symbol']}: {send(p)}" for p in waiting]
-        st.success(" · ".join(res))
+        for p in waiting:
+            st.session_state.setdefault("approval_log", []).append(
+                {
+                    "time (UK)": f"{pd.Timestamp.now(tz='Europe/London'):%H:%M:%S}",
+                    "symbol": p["symbol"],
+                    "side": p["side"],
+                    "result": send(p),
+                }
+            )
+    if st.session_state.get("approval_log"):
+        st.markdown("**What happened to your approvals** (this session; newest last)")
+        st.dataframe(pd.DataFrame(st.session_state["approval_log"]), use_container_width=True, hide_index=True)
     with st.expander("Emergency stop"):
         st.caption("Pauses all new orders and cancels every open order in the paper account.")
         if st.button("Stop everything", disabled=not alpaca_keys()):

@@ -65,3 +65,34 @@ def test_paired_stats_detects_a_consistent_gain():
     rows = [{"week": w, "a": x, "b": x + 0.01} for w in weeks for x in rng.normal(0, 0.05, 5)]
     s = SL.paired_stats(pd.DataFrame(rows), "a", "b")
     assert abs(s["mean_diff"] - 0.01) < 1e-9 and s["t"] > 10
+
+
+def run_add(bars, frac, order="conservative", time_idx=None):
+    o, h, lo, c = (np.array(x, float) for x in zip(*bars))
+    return SL.simulate_add(o, h, lo, c, time_idx, 100.0, 90.0, frac, order=order, cost=0.0)
+
+
+def test_no_add_matches_single_target():
+    bars = [(100, 101, 99, 100), (100, 121, 99, 120)]
+    assert abs(run_add(bars, 0.0)[0] - run(bars, A).ret) < 1e-12
+
+
+def test_add_half_then_target():
+    # add 0.5 at 110, target 120 for 1.5 units: profit 20 + 0.5 x 10 = 25 on 100
+    ret, kind, added = run_add([(100, 101, 99, 100), (100, 111, 100.5, 110), (110, 121, 109, 120)], 0.5)
+    assert added and kind == "target" and abs(ret - 0.25) < 1e-12
+
+
+def test_add_then_fall_to_breakeven_loses_only_on_the_add():
+    ret, kind, added = run_add([(100, 101, 99, 100), (100, 111, 100.5, 110), (108, 108, 95, 96)], 1.0)
+    assert added and kind == "breakeven" and abs(ret - (-0.10)) < 1e-12  # 1 unit x (100 - 110) on 100
+
+
+def test_add_same_day_low_hits_raised_stop_worst_case():
+    ret, kind, added = run_add([(100, 101, 99, 100), (101, 111, 99.5, 100)], 0.5)
+    assert added and kind == "breakeven" and abs(ret - (-0.05)) < 1e-12
+
+
+def test_stop_before_add_level_never_adds():
+    ret, kind, added = run_add([(100, 101, 99, 100), (99, 100, 85, 86)], 1.0)
+    assert not added and kind == "stop" and abs(ret - (-0.10)) < 1e-12

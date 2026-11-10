@@ -28,7 +28,9 @@ HALVES = ("2020-12-31", "2021-01-01")
 RECENT = "2024-01-01"
 
 
-def trades_for(p: FL.Panels) -> pd.DataFrame:
+def trades_for(p: FL.Panels, score=None) -> pd.DataFrame:
+    """One row per trade; `score(row, o, h, lo, c, ti, C, stop)` fills the variant columns (default: EXP-052)."""
+    score = score or score_exp052
     sig = FL.swing_signals(p)["trend_strength"]
     fridays = FL.rank_days(p.close.index, "weekly")
     fridays = fridays[fridays >= pd.Timestamp(START_TRADES)]
@@ -71,18 +73,22 @@ def trades_for(p: FL.Panels) -> pd.DataFrame:
         o, h, lo, c = (window[k].to_numpy(float) for k in ("Open", "High", "Low", "Close"))
         ti = t_idx if t_idx < len(window) else None
         row = {"week": d, "symbol": s, "entry_day": entry_day, "ref": C, "stop": stop, "R_pct": (C - stop) / C}
-        for name, v in SL.VARIANTS.items():
-            for order in ("conservative", "optimistic"):
-                tr = SL.simulate(o, h, lo, c, ti, C, stop, v["targets"], v["breakeven"], order)
-                suffix = "" if order == "conservative" else "_opt"
-                row[name + suffix] = tr.ret
-                row[name + suffix + "_R"] = tr.r_multiple
-                row[name + suffix + "_exit"] = tr.exit_kind
+        score(row, o, h, lo, c, ti, C, stop)
         rows.append(row)
         busy_until[s] = window.index[-1]
     out = pd.DataFrame(rows)
     out.attrs["skipped"] = skipped
     return out
+
+
+def score_exp052(row, o, h, lo, c, ti, C, stop) -> None:
+    for name, v in SL.VARIANTS.items():
+        for order in ("conservative", "optimistic"):
+            tr = SL.simulate(o, h, lo, c, ti, C, stop, v["targets"], v["breakeven"], order)
+            suffix = "" if order == "conservative" else "_opt"
+            row[name + suffix] = tr.ret
+            row[name + suffix + "_R"] = tr.r_multiple
+            row[name + suffix + "_exit"] = tr.exit_kind
 
 
 def describe(tr: pd.DataFrame, name: str) -> dict:

@@ -1,6 +1,6 @@
 {
  "scanner": "cross-asset",
- "asof": "2026-11-09 00:00:00",
+ "asof": "2026-11-10 00:00:00",
  "stages": [
   [
    "1. validate",
@@ -24,17 +24,17 @@
   ],
   [
    "3. analyse",
-   1185,
+   1186,
    "252+ days of history, signals computed"
   ],
   [
    "4. rank",
-   1185,
+   1186,
    "equal weights (untested)"
   ],
   [
    "5. risk check",
-   1185,
+   1186,
    "portfolio checks added in phase 5"
   ]
  ],

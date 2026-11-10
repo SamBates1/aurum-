@@ -1,8 +1,12 @@
-name: Swing lab (EXP-052)
+name: Swing lab (EXP-052, EXP-053)
 
 # Pre-registered swing exit test on real data (Alpaca prices read-only). Commits the results folder.
 on:
   workflow_dispatch:
+    inputs:
+      exp:
+        description: "052 (ladder exits) or 053 (add to winners)"
+        default: "052"
 
 permissions:
   contents: write
@@ -19,11 +23,11 @@ jobs:
           cache: pip
       - name: Install
         run: pip install -r requirements.txt
-      - name: Run EXP-052
+      - name: Run the experiment
         env:
           ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
           ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
-        run: python scripts/run_swinglab.py
+        run: if [ "${{ inputs.exp }}" = "053" ]; then python scripts/run_addlab.py; else python scripts/run_swinglab.py; fi
       - name: Commit results
         if: always()
         run: |
@@ -31,6 +35,6 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A -- research/experiments/results
           git diff --cached --quiet && { echo "Nothing to commit"; exit 0; }
-          git commit -m "EXP-052 swing lab results (real data)"
+          git commit -m "EXP-${{ inputs.exp }} swing lab results (real data)"
           git pull --rebase origin main
           git push origin HEAD:main

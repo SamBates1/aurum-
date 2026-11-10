@@ -131,3 +131,80 @@ def paired_stats(trades: pd.DataFrame, a: str, b: str, halves=("2020-12-31", "20
         "recent": float(d[idx >= pd.Timestamp(recent)].mean()),
         "weeks": int(len(y)),
     }
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# EXP-053: adding to a trade that is working
+# ---------------------------------------------------------------------------------------------------------------
+ADD_VARIANTS: dict[str, float] = {"A_no_add": 0.0, "B_add_half": 0.5, "C_add_full": 1.0}
+
+
+def simulate_add(
+    o: np.ndarray,
+    h: np.ndarray,
+    lo: np.ndarray,
+    c: np.ndarray,
+    time_idx: int | None,
+    ref: float,
+    stop: float,
+    add_frac: float,
+    add_at: float = 1.0,
+    target_mult: float = 2.0,
+    order: str = "conservative",
+    cost: float = COST,
+) -> tuple[float, str, bool]:
+    """One swing trade with an optional single add. Returns (profit after costs as a share of the original position's
+    value, exit kind, whether the add happened). The add buys `add_frac` x the original shares the first time the price
+    reaches ref + add_at x R after entry, and moves the stop for the whole position up to `ref`."""
+    entry = float(o[0])
+    R = ref - stop
+    add_level, target = ref + add_at * R, ref + target_mult * R
+    units, spent, proceeds = 1.0, entry * (1 + cost), 0.0
+    stp, added, kind = float(stop), False, "end"
+
+    def buy_add(px: float) -> None:
+        nonlocal units, spent, stp, added
+        units += add_frac
+        spent += add_frac * px * (1 + cost)
+        stp, added = max(stp, ref), True
+
+    def out(px: float) -> None:
+        nonlocal proceeds
+        proceeds += units * px * (1 - cost)
+
+    def stop_kind() -> str:
+        return "breakeven" if stp > stop else "stop"
+
+    for i in range(len(o)):
+        if time_idx is not None and i == time_idx and i > 0:
+            out(float(o[i]))
+            kind = "time"
+            break
+        if o[i] <= stp:
+            kind = stop_kind()
+            out(float(o[i]))
+            break
+        if o[i] >= target and i > 0:
+            out(float(o[i]))
+            kind = "target"
+            break
+        if add_frac and not added and i > 0 and o[i] >= add_level:
+            buy_add(float(o[i]))
+        add_hit = bool(add_frac) and not added and h[i] >= add_level
+        if lo[i] <= stp and (order == "conservative" or not (add_hit or h[i] >= target)):
+            kind = stop_kind()
+            out(stp)
+            break
+        if add_hit:
+            buy_add(add_level)
+        if h[i] >= target:
+            out(target)
+            kind = "target"
+            break
+        if lo[i] <= stp:  # the raised stop reached later the same day (worst case)
+            kind = stop_kind()
+            out(stp)
+            break
+    else:
+        out(float(c[-1]))
+    return (proceeds - spent) / entry, kind, added

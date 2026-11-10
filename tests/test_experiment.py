@@ -205,3 +205,18 @@ def test_exit_cancels_working_stop_and_target_first(tmp_path):
     assert len([o for o in fake.open if o["type"] == "market"]) == 1 and not [
         o for o in fake.open if o.get("order_class") == "oco"
     ]
+
+
+def test_protective_reattach_orders_do_not_free_position_slots():
+    # 7 swing positions held with no working stop: the re-attach orders keep them open, so at most 1 new buy
+    held_syms = [f"H{i}" for i in range(7)]
+    new_syms = [f"N{i}" for i in range(10)]
+    daily = {s: _daily(0.003, 30 + i) for i, s in enumerate(held_syms + new_syms)}
+    held = {s: {"qty": 10, "cost": 1000.0} for s in held_syms}
+    st = {s: {"opened": "2026-10-27"} for s in held_syms}
+    ps = EX.propose("swing", 50_000, 40_000, held, _ranking(new_syms + held_syms), "live-test", daily, 1.3, st, TODAY)
+    reattach = [p for p in ps if p.side == "sell" and p.take_profit and p.stop_loss]
+    exits = [p for p in ps if p.side == "sell" and not (p.take_profit and p.stop_loss)]
+    buys = [p for p in ps if p.side == "buy" and p.symbol not in held]
+    assert reattach  # the positions get their protection back
+    assert len(held) - len(exits) + len(buys) <= EX.LIMITS["swing"]["max_positions"]

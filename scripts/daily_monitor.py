@@ -29,7 +29,7 @@ def main():
     positions = b.positions()
     prices = {p["symbol"]: float(p.get("current_price") or 0) for p in positions}
     exp = CFG.get("experiment", {})
-    pots = BR.ledgers_from_orders(b.orders("all", 500), exp.get("pots", {"long-term": 50_000, "swing": 50_000}))
+    pots = BR.ledgers_from_orders(b.orders_all(), exp.get("pots", {"long-term": 50_000, "swing": 50_000}))
     vals = {
         name: led["cash"] + sum(q["qty"] * prices.get(s, 0.0) for s, q in led["positions"].items())
         for name, led in pots.items()

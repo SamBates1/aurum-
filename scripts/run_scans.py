@@ -26,6 +26,9 @@ from aurum.indicators import compute  # noqa: E402
 from aurum.providers import get_provider  # noqa: E402
 
 TOP_SHOWN = 50
+# rows saved per scanner. The long-term pot sells a holding ranked below 150 (experiment.LIMITS), so its saved ranking
+# must reach well past that: the whole 300-name shortlist is kept (audit F4).
+SAVED_ROWS = {"long-term": 300, "swing": TOP_SHOWN * 2, "cross-asset": TOP_SHOWN * 2}
 
 
 def panels(symbols: list[str]) -> FL.Panels:
@@ -116,7 +119,7 @@ def run_one(name: str, snap: U.Snapshot, p: FL.Panels, atr: pd.Series, weights: 
         res.stages.append(("5. risk check", len(table), f"{dropped} dropped: earnings within 8 weeks"))
     else:
         res.stages.append(("5. risk check", len(table), "portfolio checks added in phase 5"))
-    res.ranking, res.weights, res.evidence = table.head(TOP_SHOWN * 2), used, status
+    res.ranking, res.weights, res.evidence = table.head(SAVED_ROWS[name]), used, status
     return res
 
 

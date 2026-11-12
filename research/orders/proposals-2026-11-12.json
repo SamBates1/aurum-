@@ -1,0 +1,10 @@
+{
+ "asof": "2026-11-12",
+ "created": "2026-11-12 23:32:59+00:00",
+ "notes": [
+  "long-term: value $49,149, cash $37,457, 12 positions, 0 proposals (live-test)",
+  "swing: value $48,841, cash $11,436, 9 positions, 0 proposals (live-test)"
+ ],
+ "mode": "manual",
+ "proposals": []
+}

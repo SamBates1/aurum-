@@ -1,11 +1,11 @@
-name: Swing lab (EXP-052, EXP-053)
+name: Swing lab (EXP-052, EXP-053, EXP-054)
 
 # Pre-registered swing exit test on real data (Alpaca prices read-only). Commits the results folder.
 on:
   workflow_dispatch:
     inputs:
       exp:
-        description: "052 (ladder exits) or 053 (add to winners)"
+        description: "052 (ladder exits), 053 (add to winners) or 054 (long-term loss limit)"
         default: "052"
       live:
         description: "true = corrected re-run with the live scanner's filters and entry (D-048)"
@@ -32,6 +32,7 @@ jobs:
           ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
         run: |
           FLAG=""; if [ "${{ inputs.live }}" = "true" ]; then FLAG="--live"; fi
+          if [ "${{ inputs.exp }}" = "054" ]; then python scripts/run_ltlab.py; exit 0; fi
           if [ "${{ inputs.exp }}" = "053" ]; then python scripts/run_addlab.py $FLAG; else python scripts/run_swinglab.py $FLAG; fi
       - name: Commit results
         if: always()

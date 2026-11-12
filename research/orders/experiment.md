@@ -2,8 +2,10 @@
 
 Prepared from the close of 2026-11-11. Mode: manual; paper orders ON.
 
-- long-term: value $49,387, cash $37,457, 12 positions, 0 proposals (live-test)
-- swing: value $49,156, cash $11,436, 9 positions, 0 proposals (live-test)
+Purpose (owner decision D-048, 11 Nov 2026): a test of ORDER HANDLING, and a labelled live test of two ranking signals that failed their backtest (EXP-051a). It is not evidence that either pot makes money, and no money is moved between the pots on its results.
+
+- long-term: value $49,389, cash $37,457, 12 positions, 0 proposals (live-test)
+- swing: value $49,195, cash $11,436, 9 positions, 0 proposals (live-test)
 
 | Pot | Side | Symbol | Shares | Limit | Stop | Target | Status | Why |
 |---|---|---|---|---|---|---|---|---|

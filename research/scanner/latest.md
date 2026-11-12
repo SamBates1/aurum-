@@ -100,4 +100,4 @@ Close of 2026-11-11. Alpaca SIP daily prices, 3,151 instruments analysed. What t
 | 14 | LVHI | 82 | 88% | 84% | 75% |
 | 15 | AVLV | 82 | 88% | 90% | 68% |
 
-Run time 170s.
+Run time 134s.

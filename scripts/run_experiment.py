@@ -1,8 +1,9 @@
 """Evening run of the 50/50 experiment on the Alpaca PAPER account (GitHub, after the scanners).
 
 Reads the paper account (orders, fills, positions), rebuilds the two pots, then proposes tomorrow's orders from the
-latest scans. Manual mode (default): proposals wait for the owner's approval on the Portfolio page. Auto mode: they are
-submitted through every independent check. Writes research/orders/ (proposals, state, experiment.md).
+latest scans. Also copies Alpaca's order history to research/orders/orders-log.csv (the lasting record).
+Manual mode (default): proposals wait for the owner's approval on the Portfolio page. Auto mode: they are submitted
+through every independent check. Writes research/orders/ (proposals, state, experiment.md, orders-log.csv).
 """
 
 from __future__ import annotations
@@ -56,22 +57,33 @@ def main(broker: BR.PaperBroker | None = None, frames=None) -> dict:
     b = broker or BR.PaperBroker()
     cfg = EX.settings()
     today = pd.Timestamp.now(tz="America/New_York").normalize().tz_localize(None)
-    orders = b.orders("all", 500)
+    orders = b.orders_all()  # every page: the pots are rebuilt from the whole history (audit F6)
     open_orders = b.orders("open", 500)
     protected = {o.get("symbol") for o in open_orders if o.get("side") == "sell"}
-    # unfilled swing entries from an earlier day: the plan was for that session only, so cancel them (risk-reducing,
-    # only Aurum's own entry orders; positions are never touched here)
-    today_ny = pd.Timestamp.now(tz="America/New_York").date()
+    # unfilled swing entries sent before the latest close: the plan was for that one session (the tested rule), so
+    # cancel them the same evening (risk-reducing, only Aurum's own entry orders; positions are never touched here)
+    now_ny = pd.Timestamp.now(tz="America/New_York")
+    last_close = now_ny.normalize() + pd.Timedelta(hours=16)
+    if now_ny < last_close:
+        last_close -= pd.Timedelta(days=1)
+    cancelled = set()
     for o in open_orders:
         cid = o.get("client_order_id") or ""
-        sub = pd.Timestamp(o.get("submitted_at") or pd.Timestamp.now(tz="UTC")).tz_convert("America/New_York").date()
+        sub = pd.Timestamp(o.get("submitted_at") or pd.Timestamp.now(tz="UTC")).tz_convert("America/New_York")
         if (
             cid.startswith("AUR-SW-")
             and o.get("side") == "buy"
             and float(o.get("filled_qty") or 0) == 0
-            and sub < today_ny
+            and sub < last_close
         ):
             b.cancel(o["id"])
+            cancelled.add(o.get("id"))
+    open_buys = {"long-term": set(), "swing": set()}
+    for o in open_orders:
+        pot = BR.pot_of(o.get("client_order_id"))
+        if pot in open_buys and o.get("side") == "buy" and o.get("id") not in cancelled:
+            open_buys[pot].add(o.get("symbol"))
+    known_levels = EX.levels_from_orders(orders)
     pots = BR.ledgers_from_orders(orders, cfg.get("pots", {"long-term": 50_000, "swing": 50_000}))
     positions = b.positions()
     prices = {p["symbol"]: float(p.get("current_price") or 0) for p in positions}
@@ -87,7 +99,7 @@ def main(broker: BR.PaperBroker | None = None, frames=None) -> dict:
         .client_id()
         in sent_ids
     ]
-    state = EX.update_state(EX.load_state(), pots, done, today)
+    state = EX.update_state(EX.load_state(), pots, done, today, known_levels)
     ranks = rankings()
     held_all = {s for led in pots.values() for s in led["positions"]}
     cands = set(held_all) | {"SPY"}
@@ -127,6 +139,9 @@ def main(broker: BR.PaperBroker | None = None, frames=None) -> dict:
             regime,
             fractionable,
             protected,
+            open_buys.get(pot),
+            known_levels,
+            notes,
         )
         for p in ps:
             p.plan["reference_price"] = float(last.get(p.symbol, 0) or 0)
@@ -141,11 +156,15 @@ def main(broker: BR.PaperBroker | None = None, frames=None) -> dict:
     st = BR.settings()
     if st["enabled"] and st["mode"] == "auto":
         for p in proposals:
+            ref = p.plan.get("reference_price")
+            if not ref:  # never check an order against a made-up price (audit G2)
+                p.status = "blocked: no reference price to check the order against"
+                continue
             try:
                 (b.submit_exit if (p.side == "sell" and p.type == "market") else b.submit)(
                     p.request(EX.plan_id(asof, {"pot": p.pot, "symbol": p.symbol, "side": p.side})),
-                    p.plan.get("reference_price") or 1.0,
-                    pd.Timestamp.now(tz="UTC"),
+                    float(ref),
+                    pd.Timestamp(f"{asof} 21:00", tz="UTC"),  # the price really is that close's: say so
                     approved=True,
                 )
                 p.status = "submitted"
@@ -153,10 +172,15 @@ def main(broker: BR.PaperBroker | None = None, frames=None) -> dict:
                 p.status = f"blocked: {e}"
     EX.save(proposals, asof, notes)
     (EX.FOLDER / "state.json").write_text(json.dumps(state, indent=1, default=str))
+    EX.write_orders_log(orders)
     lines = [
         "# Experiment: long-term vs swing (PAPER TRADING)",
         "",
         f"Prepared from the close of {asof}. Mode: {st['mode']}; paper orders {'ON' if st['enabled'] else 'OFF'}.",
+        "",
+        "Purpose (owner decision D-048, 11 Nov 2026): a test of ORDER HANDLING, and a labelled live test of two "
+        "ranking signals that failed their backtest (EXP-051a). It is not evidence that either pot makes money, and "
+        "no money is moved between the pots on its results.",
         "",
     ]
     lines += [f"- {n}" for n in notes]

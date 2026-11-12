@@ -10,7 +10,9 @@ verdict:
 
 The confidence label is an assessment of how much of the evidence agrees, never a probability of profit. While the
 scanner's signals are untested (EXP-051 pending or failed), every verdict carries that label and BUY is capped to
-WAIT: an untested ranking is not a reason to buy.
+WAIT: an untested ranking is not a reason to buy. Exception (owner decision D-045): rankings marked "live-test" in
+config.yaml are allowed to reach BUY even though their signal FAILED EXP-051a; that is how the Alpaca experiment
+trades, and it is labelled as such everywhere.
 """
 
 from __future__ import annotations

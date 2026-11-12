@@ -97,54 +97,68 @@ st.subheader("Orders waiting for your approval")
 from aurum import experiment as EX  # noqa: E402
 
 props = EX.load()
-waiting = [p for p in props.get("proposals", []) if p.get("status") == "proposed"]
+proposed = [p for p in props.get("proposals", []) if p.get("status") == "proposed"]
+# what Alpaca already has: an approved order must not show as "waiting" again after the page is refreshed (audit G3)
+sent_status: dict[str, str] = {}
+if alpaca_keys() and proposed:
+    try:
+        sent_status = {o.get("client_order_id"): str(o.get("status")) for o in BR.PaperBroker().orders("all", 500)}
+    except Exception as exc:
+        st.warning(f"Could not read Alpaca's orders, so already-sent orders may show as waiting: {exc}")
+
+
+def _cid(p: dict) -> str:
+    return EX.Proposal(**{k: p[k] for k in EX.Proposal.__dataclass_fields__}).request(
+        EX.plan_id(props["asof"], p)
+    ).client_id()  # fmt: skip
+
+
+already = [(p, sent_status[_cid(p)]) for p in proposed if _cid(p) in sent_status]
+waiting = [p for p in proposed if _cid(p) not in sent_status]
 if not props:
     st.caption("No proposals yet: they are prepared on GitHub each weekday evening after the US close.")
-elif not waiting:
+elif not proposed:
     st.caption(f"Nothing waiting from the close of {props.get('asof')}.")
+    for n in props.get("notes", []):
+        if n.startswith("ACTION NEEDED"):
+            st.error(n)
 else:
     st.caption(
-        f"Prepared from the close of {props['asof']} ({len(waiting)} orders). Limit orders for the next session; swing "
-        "buys carry their own stop and target at Alpaca. PAPER account only. Notes: "
-        + " · ".join(props.get("notes", []))
+        f"Prepared from the close of {props['asof']} ({len(waiting)} waiting, {len(already)} already sent). Limit "
+        "orders for the next session; swing buys carry their own stop and target at Alpaca. PAPER account only. "
+        "Notes: " + " · ".join(props.get("notes", []))
     )
+    for n in props.get("notes", []):
+        if n.startswith("ACTION NEEDED"):
+            st.error(n)
+    if already:
+        st.caption(
+            "Already at Alpaca: " + ", ".join(f"{p['side']} {p['symbol']} ({status})" for p, status in already) + "."
+        )
     can_send = bool(alpaca_keys()) and po["enabled"]
     if not can_send:
         st.warning("Approving needs the Alpaca keys and paper orders switched on.")
     done = st.session_state.setdefault("approved_ids", set())
 
     def send(p: dict) -> str:
-        req = EX.Proposal(**{k: p[k] for k in EX.Proposal.__dataclass_fields__}).request(EX.plan_id(props["asof"], p))
-        if req.client_id() in done:
+        if _cid(p) in done:
             return "already sent from this page"
-        # price for the safety checks: the latest trade if Alpaca gives one, otherwise the last close the proposal was
-        # prepared from, dated at that close (so the freshness check still applies honestly while the market is open)
-        price, when, src = None, None, ""
-        try:
-            lt = provider().latest_trade(p["symbol"]) if hasattr(provider(), "latest_trade") else {}
-            if lt.get("price") and lt["price"] == lt["price"] and lt.get("time"):
-                price, when, src = float(lt["price"]), lt["time"], "latest IEX trade"
-        except Exception as e:  # a failed price lookup must never crash the page or silently drop the approval
-            src = f"latest price unavailable ({type(e).__name__}); "
-        if price is None:
-            ref = p.get("plan", {}).get("reference_price") or p.get("limit_price")
-            if not ref:
-                return src + "blocked: no price to check the order against"
-            price, when = float(ref), pd.Timestamp(f"{props['asof']} 21:00", tz="UTC")
-            src += f"used the {props['asof']} close"
-        try:
-            b = BR.PaperBroker()
-            res = (b.submit_exit if (p["side"] == "sell" and p["type"] == "market") else b.submit)(
-                req, float(price), when, approved=True
-            )
-            done.add(req.client_id())
-            return f"sent to Alpaca (paper), status {res.get('status', '?')} · price check: {src}"
-        except BR.BrokerError as e:
-            return f"blocked: {e} · price check: {src}"
-        except Exception as e:
-            return f"failed: {type(e).__name__}: {str(e)[:200]}"
+        prov = provider()
+        msg = EX.approve(p, props["asof"], BR.PaperBroker(), getattr(prov, "latest_trade", None))
+        if msg.startswith("sent"):
+            done.add(_cid(p))
+        return msg
 
-    rows = []
+    def log(p: dict, msg: str) -> None:
+        st.session_state.setdefault("approval_log", []).append(
+            {
+                "time (UK)": f"{pd.Timestamp.now(tz='Europe/London'):%H:%M:%S}",
+                "symbol": p["symbol"],
+                "side": p["side"],
+                "result": msg,
+            }
+        )
+
     for i, p in enumerate(waiting):
         c = st.columns([1.1, 0.8, 1, 0.9, 1, 1, 4, 1.2])
         c[0].markdown(f"**{p['pot']}**")
@@ -156,33 +170,38 @@ else:
         c[6].caption(p["reason"][:220].replace("$", "\\$"))
         if c[7].button("Approve", key=f"ap-{i}", disabled=not can_send):
             msg = send(p)
-            st.session_state.setdefault("approval_log", []).append(
-                {
-                    "time (UK)": f"{pd.Timestamp.now(tz='Europe/London'):%H:%M:%S}",
-                    "symbol": p["symbol"],
-                    "side": p["side"],
-                    "result": msg,
-                }
-            )
+            log(p, msg)
             st.toast(f"{p['symbol']}: {msg}")
-    if st.button(f"Approve all {len(waiting)}", type="primary", disabled=not can_send):
+    if waiting and st.button(f"Approve all {len(waiting)}", type="primary", disabled=not can_send):
         for p in waiting:
-            st.session_state.setdefault("approval_log", []).append(
-                {
-                    "time (UK)": f"{pd.Timestamp.now(tz='Europe/London'):%H:%M:%S}",
-                    "symbol": p["symbol"],
-                    "side": p["side"],
-                    "result": send(p),
-                }
-            )
+            log(p, send(p))
     if st.session_state.get("approval_log"):
         st.markdown("**What happened to your approvals** (this session; newest last)")
         st.dataframe(pd.DataFrame(st.session_state["approval_log"]), use_container_width=True, hide_index=True)
-    with st.expander("Emergency stop"):
-        st.caption("Pauses all new orders and cancels every open order in the paper account.")
-        if st.button("Stop everything", disabled=not alpaca_keys()):
-            BR.PaperBroker().cancel_all_and_pause("owner pressed Stop everything on the Portfolio page")
-            st.error("Paused and all open orders cancelled. Delete research/orders/PAUSE to resume.")
+
+with st.expander("Emergency stop"):
+    st.caption(
+        "Blocks every new order (at Alpaca itself, so GitHub's nightly run and this page both see it) and cancels "
+        "unfilled BUY orders. The stops and targets protecting positions you already hold are kept working."
+    )
+    if alpaca_keys():
+        try:
+            _b = BR.PaperBroker()
+            _paused = _b.paused()
+        except Exception:
+            _b, _paused = None, False
+        if _paused:
+            st.error("Trading is PAUSED: no new orders can be sent.")
+            if st.button("Resume trading") and _b is not None:
+                ok = _b.resume()
+                st.success("Resumed." if ok else "Resumed on this machine, but Alpaca did not confirm: check Alpaca.")
+        elif st.button("Stop everything") and _b is not None:
+            r = _b.cancel_all_and_pause("owner pressed Stop everything on the Portfolio page")
+            st.error(
+                f"Paused. {r['buys_cancelled']} unfilled buy orders cancelled; {r['protective_sells_kept']} "
+                "protective stop/target orders kept. "
+                + ("" if r["paused_at_alpaca"] else "Alpaca did NOT confirm the pause: it is set on this machine only.")
+            )
 
 st.subheader("Holdings elsewhere (entered by you)")
 st.caption(
@@ -304,7 +323,7 @@ if not alpaca_keys():
 else:
     try:
         b = BR.PaperBroker()
-        pots = BR.ledgers_from_orders(b.orders("all", 500), exp.get("pots", {"long-term": 50_000, "swing": 50_000}))
+        pots = BR.ledgers_from_orders(b.orders_all(), exp.get("pots", {"long-term": 50_000, "swing": 50_000}))
         rows = []
         for name, led in pots.items():
             mv = sum(p["qty"] * prices.get(s, p["cost"] / max(p["qty"], 1e-9)) for s, p in led["positions"].items())

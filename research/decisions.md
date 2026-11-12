@@ -312,3 +312,17 @@ not read the account because GitHub still had the old Alpaca keys. Fixes: swing 
 the evening run re-attaches a stop and target (one-cancels-other) to any swing position without them; unfilled swing
 entries from an earlier day are cancelled (risk-reducing, Aurum's own entry orders only); exits cancel a position's
 working stop/target before selling. Target levels (2R) are unchanged: one day is far too little evidence to judge them.
+
+**D-048 — Independent audit: order-code fixes, corrected conclusions, and the Alpaca account is a plumbing test** (2026-11-11)
+The owner commissioned an independent reconstruction and audit (reports: project documents `aurum-audit-phase1` to
+`phase4`). Findings: the 70/30 accounts, their simulator and their books are sound; the Alpaca order code had eight
+defects (F1–F8), two serious (an exit could strip a position's stop; the emergency stop cancelled every protective
+stop); no past negative result was caused by a coding error. Owner approved: (1) fixes A1–A10 with a regression test
+each; (2) corrections to the record, added beside the originals: EXP-045 "same return as the S&P" holds for
+2006–2026 only (EXP-047: the S&P alone earned more in 69% of ten-year periods since 1972); EXP-051a's universe
+favours momentum and trend and they still failed; EXP-052's "ladder is worse" comes from high-volatility trades the
+scanner excludes; (3) the Alpaca account is run as a test of order handling and a labelled live test of two failed
+signals. No money moves between pots on its results, and the never-implemented review settings were removed;
+(4) the long-term exit rank stays at 150 as written in D-042 (the code had in effect used 100); (5) corrected
+re-runs of EXP-052 and EXP-053 with the live scanner's filters, under their original pass rules. No new strategy is
+adopted. Manual approval stays until the fixes have run cleanly for at least two weeks.

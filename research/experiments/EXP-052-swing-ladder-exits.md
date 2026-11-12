@@ -72,3 +72,19 @@ trades were stopped at breakeven before they could reach a higher level.
 
 **Decision:** the swing pot keeps one target at 2R. Survivorship bias flatters all three equally (same entries);
 the result says which exit suits these entries, not that the swing signal itself pays (it failed EXP-051a).
+
+## Correction added 2026-11-11 (audit, D-048). The original text above is unchanged.
+The test used all 1,000 stocks. The live swing scanner only allows a daily range of 1–6%, which caps the stop distance
+near 12%. Splitting the same 1,487 trades by stop distance (after-the-fact analysis, a lead and not a result):
+
+| Stop distance | Trades | Single target | Ladder B | B − A |
+|---|---|---|---|---|
+| up to 12% (tradeable live) | 991 | +0.45% | +0.28% | −0.17% (t about −1.2, not significant) |
+| over 12% (excluded live) | 496 | +5.74% | +3.71% | −2.03% (t about −3.9) |
+
+- "The ladder is worse" comes from high-volatility trades the account cannot take. For live-like trades the two exits
+  are statistically indistinguishable. **The decision is unchanged** (the ladder did not pass), but "very unlikely to
+  be luck" was too strong.
+- Live-like trades earned about +0.45% each, in a universe where holding every stock earned about +1.4% per four weeks.
+  Neither EXP-052 nor EXP-053 compared the trades with holding the market.
+- A corrected re-run with the live scanner's filters, under the original pass rule, is recorded below when it has run.

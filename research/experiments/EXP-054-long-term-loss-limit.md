@@ -45,3 +45,18 @@ If both pass, the one with the smaller worst fall is chosen. Otherwise the long-
 
 ## Trials
 Two (B and C). Running total about 116.
+
+## Results (real data, run 2026-11-12; `results/2026-11-12-0025-ltlab-real/`)
+| Variant | Growth a year | Worst fall | Sharpe | Worst fall 2017–20 | Worst fall 2021–26 | Trades | Loss-limit exits | Worst holding | Verdict |
+|---|---|---|---|---|---|---|---|---|---|
+| A none (control) | +30.5% | −61.1% | 0.80 | −45.2% | −61.1% | 145 | 0 | −76.8% | **kept** |
+| B plan level | +32.2% | −59.5% | 0.83 | −42.7% | −59.5% | 147 | 27 | −76.8% | FAILED (fall only 3% smaller; needed 20%) |
+| C fixed 20% | +27.4% | −62.6% | 0.76 | −42.0% | −62.6% | 188 | 100 | −45.5% | FAILED (fall larger; 3 points a year less) |
+
+- **Neither loss limit made the pot's worst fall meaningfully smaller.** The falls come from all twelve momentum
+  stocks dropping together (2022), not from one holding collapsing, so limits on single holdings do little. The fixed
+  20% limit capped the worst single holding (−46% against −77%) but sold 100 times, often before a recovery.
+- **Decision:** the long-term pot keeps no loss limit. The gap a loss limit cannot close is concentration: twelve
+  momentum stocks fell 61% in this test even with survivors only.
+- The growth figures are inflated by survivorship bias (the same universe held equally earned about 20% a year) and
+  are not a forecast. As in EXP-047's lesson for 70/30, this result is one period of history.

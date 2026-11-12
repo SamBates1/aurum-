@@ -326,3 +326,14 @@ signals. No money moves between pots on its results, and the never-implemented r
 (4) the long-term exit rank stays at 150 as written in D-042 (the code had in effect used 100); (5) corrected
 re-runs of EXP-052 and EXP-053 with the live scanner's filters, under their original pass rules. No new strategy is
 adopted. Manual approval stays until the fixes have run cleanly for at least two weeks.
+
+**D-049 — Audit follow-up: corrected re-runs and the long-term loss-limit test change nothing in the rules** (2026-11-12)
+Fixes A1–A10 are live and were checked against the paper account (9 swing positions, each with a working stop and
+target; plans and the order log written; no unintended proposals). Corrected re-runs of EXP-052 and EXP-053 on
+live-like trades (scanner filters, live entry order; original pass rules): the plain ladder is not better (−0.20% a
+trade, t −1.7), the breakeven ladder and adding to winners are worse; the swing pot keeps one 2R target and does not
+add. Those trades averaged +0.58% each against +1.92% for holding every stock for the same 28 days (rough comparison,
+survivors only), which does not support the swing rules beating the market. EXP-054: a loss limit on long-term
+holdings (plan level, or fixed 20%) failed its test; the pot's worst fall was about −61% with or without one, because
+the twelve momentum stocks fall together. No loss limit is adopted. The Alpaca account continues as a plumbing test
+(D-048); nothing new is planned until the paper accounts have several months of results.

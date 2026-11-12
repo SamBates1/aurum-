@@ -127,7 +127,7 @@ AURUM_OFFLINE=1 python run_experiments.py --quick   # synthetic: checks the code
 | [EXP-051](EXP-051-stock-factors.md) | Stock signals for the long-term and swing scanners | platform plan | 051a run: all 7 price signals failed (pullbacks harmful); 051b waits for SEC |
 | [EXP-052](EXP-052-swing-ladder-exits.md) | Swing exits: one 2R target vs a profit-taking ladder | owner (GILD trade) | both ladders FAILED (−0.9% and −2.0% per trade vs one 2R target, t −3.8 and −4.6); single target kept. Corrected re-run 2026-11-12 on live-like trades: ladder −0.20% (t −1.7, not better), breakeven version −0.72% (t −3.2); trades +0.58% each vs +1.92% for holding |
 | [EXP-053](EXP-053-swing-add-to-winners.md) | Swing: add 50% / 100% at +1R with the stop raised to breakeven | owner | both FAILED (−0.39% and −0.14% per trade vs no add); corrected re-run 2026-11-12 on live-like trades: −0.39% (t −3.3) and −0.44% (t −2.7); swing pot does not add |
-| [EXP-054](EXP-054-long-term-loss-limit.md) | Long-term pot: a loss limit on each holding (plan level, or fixed 20%) | audit D-048 | pre-registered 2026-11-12; running |
+| [EXP-054](EXP-054-long-term-loss-limit.md) | Long-term pot: a loss limit on each holding (plan level, or fixed 20%) | audit D-048 | both FAILED: worst fall −59.5% and −62.6% against −61.1% with no limit; no loss limit adopted |
 | [EXP-044](EXP-044-execution-delay.md) | Execution delay and cost sensitivity of the adopted strategy | master brief | Run: robust to delay and costs |
 | EXP-009 | Chandelier trailing stop, confirmatory | EXP-005 result | Answered by EXP-023 (more history, new assets): rejected |
 

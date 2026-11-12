@@ -85,15 +85,15 @@ def main():
     for r in rows:
         ok = "control" if r["v"] == base else ("**yes**" if verdict[r["v"]] else "**no**")
         lines.append(
-            f"| {r['v']} | {r['cagr']:+.1%} | {r['max_dd']:.1%} | {r['sharpe']:.2f} | {r['dd1']:.1%} | {r['dd2']:.1%} | "
-            f"{r['trades']} | {r['limit_exits']} | {r['worst']:+.1%} | {r['invested']:.0%} | {ok} |"
+            f"| {r['v']} | {r['cagr']:+.1%} | {r['max_dd']:.1%} | {r['sharpe']:.2f} | {r['dd1']:.1%} | "
+            f"{r['dd2']:.1%} | {r['trades']} | {r['limit_exits']} | {r['worst']:+.1%} | {r['invested']:.0%} | {ok} |"
         )
     lines += [
         "",
         f"**Decision under the pre-registered rule: {choice}.**",
         "",
-        "Pass rule: worst fall at least 20% smaller than the control's, growth no more than 1.0 point a year lower, and "
-        "the worst fall not larger than the control's in either half.",
+        "Pass rule: worst fall at least 20% smaller than the control's, growth no more than 1.0 point a year lower, "
+        "and the worst fall not larger than the control's in either half.",
         "",
         f"Run time {time.time() - t0:.0f}s.",
     ]

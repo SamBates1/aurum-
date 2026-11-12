@@ -88,3 +88,19 @@ near 12%. Splitting the same 1,487 trades by stop distance (after-the-fact analy
 - Live-like trades earned about +0.45% each, in a universe where holding every stock earned about +1.4% per four weeks.
   Neither EXP-052 nor EXP-053 compared the trades with holding the market.
 - A corrected re-run with the live scanner's filters, under the original pass rule, is recorded below when it has run.
+
+## Corrected re-run, 2026-11-12 (`results/2026-11-12-0012-swinglab-live/`). Original pass rule, unchanged; counts as a correction, not a new trial.
+Only stocks passing the live swing scanner's filters (price at least $10, $20M a day, ATR 1–6%), entered with the
+live one-day limit order at close + 0.25 ATR. 2,025 trades, 2017 to 2026-11-11.
+
+| Variant | Mean per trade | Win rate | Avg win | Avg loss | Difference vs A | NW t | Verdict |
+|---|---|---|---|---|---|---|---|
+| A single 2R | +0.58% | 41% | +10.7% | −6.5% | | | **kept** |
+| B ladder | +0.36% | 47% | +7.0% | −5.6% | −0.20% | −1.66 | FAILED (not better; not significantly worse) |
+| C ladder + breakeven | −0.29% | 55% | +3.7% | −5.2% | −0.72% | −3.18 | FAILED (worse) |
+
+- The decision stands: one target at 2R. For the trades the account can make, the plain ladder is not shown to be
+  worse, only not better; moving the stop to breakeven is clearly worse.
+- **Against simply holding:** these trades averaged +0.58% each, while every stock in the test held for the same 28
+  days averaged +1.92%. Trades often end sooner than 28 days and the universe is survivors only, so this is a rough
+  comparison and not a test. It does not support the idea that the swing rules beat holding.

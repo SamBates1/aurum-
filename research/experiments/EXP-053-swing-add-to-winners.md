@@ -47,3 +47,15 @@ breakeven exits with a loss on the added shares: the price reached +1R, then fel
 the target. Neither variant beat A in the recent period, and C also had a worse worst trade. **Decision:** the swing
 pot does not add to winners. No further add variants will be run on these data (each extra try weakens the next
 test); a new version would need new data (months after 2026-11-10).
+
+## Corrected re-run, 2026-11-12 (`results/2026-11-12-0015-addlab-live/`). Original pass rule, unchanged; counts as a correction, not a new trial.
+Same 2,025 live-like trades as the EXP-052 re-run.
+
+| Variant | Mean | Win rate | Worst | Difference vs A | NW t | Verdict |
+|---|---|---|---|---|---|---|
+| A no add | +0.58% | 41% | −29.7% | | | **kept** |
+| B add half | +0.15% | 31% | −31.4% | −0.39% | −3.28 | FAILED (worse) |
+| C add full | +0.07% | 30% | −45.5% | −0.44% | −2.74 | FAILED (worse) |
+
+On live-like trades, adding to winners was worse in both halves and since 2024, and made the worst trade worse. The
+original conclusion ("no improvement shown") is strengthened: the swing pot does not add.

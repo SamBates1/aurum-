@@ -7,6 +7,9 @@ on:
       exp:
         description: "052 (ladder exits) or 053 (add to winners)"
         default: "052"
+      live:
+        description: "true = corrected re-run with the live scanner's filters and entry (D-048)"
+        default: "false"
 
 permissions:
   contents: write
@@ -27,7 +30,9 @@ jobs:
         env:
           ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
           ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
-        run: if [ "${{ inputs.exp }}" = "053" ]; then python scripts/run_addlab.py; else python scripts/run_swinglab.py; fi
+        run: |
+          FLAG=""; if [ "${{ inputs.live }}" = "true" ]; then FLAG="--live"; fi
+          if [ "${{ inputs.exp }}" = "053" ]; then python scripts/run_addlab.py $FLAG; else python scripts/run_swinglab.py $FLAG; fi
       - name: Commit results
         if: always()
         run: |

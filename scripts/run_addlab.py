@@ -45,7 +45,7 @@ def main():
     a = snap.assets
     stocks = a[(a["kind"] == "stock") & a["eligible"]].sort_values("dollar_volume_20d", ascending=False)
     p = panels(list(stocks.index[:N_STOCKS]))
-    tr = RS.trades_for(p, score_exp053)
+    tr = RS.trades_for(p, score_exp053, live=RS.LIVE)
     names = list(SL.ADD_VARIANTS)
     desc = {}
     for n in names:
@@ -77,7 +77,13 @@ def main():
         pairs[b] = {"conservative": cons, "optimistic": opt, "passes": bool(ok)}
     winners = [b for b in pairs if pairs[b]["passes"]]
     choice = max(winners, key=lambda b: pairs[b]["conservative"]["t"]) if winners else names[0]
-    out = ROOT / "research" / "experiments" / "results" / f"{pd.Timestamp.now(tz='UTC'):%Y-%m-%d-%H%M}-addlab-real"
+    out = (
+        ROOT
+        / "research"
+        / "experiments"
+        / "results"
+        / f"{pd.Timestamp.now(tz='UTC'):%Y-%m-%d-%H%M}-addlab-{'live' if RS.LIVE else 'real'}"
+    )
     out.mkdir(parents=True, exist_ok=True)
     tr.to_csv(out / "trades.csv", index=False)
     (out / "stats.json").write_text(json.dumps({"describe": desc, "pairs": pairs, "choice": choice}, indent=1))
@@ -90,6 +96,13 @@ def main():
         "",
         f"Run {pd.Timestamp.now(tz='UTC'):%Y-%m-%d %H:%M} UTC. {len(tr)} trades (same entries as EXP-052). Profit per "
         "trade as a share of the original position's value, after 5 bps per fill. Same-day ties: stop first.",
+        "",
+        (
+            "**Corrected re-run (audit, D-048):** live scanner filters and the live one-day limit entry; original "
+            "pass rule, unchanged."
+            if RS.LIVE
+            else "Original test: any of the 1,000 stocks."
+        ),
         "",
         "| Variant | Mean | Median | Win rate | Avg win | Avg loss | Worst | Best | Added | Exits |",
         "|---|---|---|---|---|---|---|---|---|---|",

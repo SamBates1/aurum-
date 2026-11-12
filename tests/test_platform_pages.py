@@ -26,4 +26,5 @@ def test_portfolio_page_says_paper_and_shows_approvals():
     at = AppTest.from_file(str(ROOT / "pages/7_Portfolio.py"), default_timeout=300)
     at.run()
     text = " ".join(m.value for m in at.markdown) + " ".join(i.value for i in at.info)
-    assert "PAPER TRADING" in text and "Orders waiting for your approval" in " ".join(h.value for h in at.subheader)
+    heads = " ".join(h.value for h in at.subheader)
+    assert "PAPER TRADING" in text and "Orders yet to be approved" in heads and "Orders already sent" in heads

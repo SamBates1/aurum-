@@ -93,16 +93,18 @@ else:
 
 # ---- holdings elsewhere ---------------------------------------------------------------------------------------
 # ---- orders waiting for approval (the 50/50 experiment) --------------------------------------------------------
-st.subheader("Orders waiting for your approval")
+st.subheader("Orders yet to be approved")
 from aurum import experiment as EX  # noqa: E402
 
 props = EX.load()
 proposed = [p for p in props.get("proposals", []) if p.get("status") == "proposed"]
 # what Alpaca already has: an approved order must not show as "waiting" again after the page is refreshed (audit G3)
 sent_status: dict[str, str] = {}
-if alpaca_keys() and proposed:
+alpaca_orders: list[dict] = []
+if alpaca_keys():
     try:
-        sent_status = {o.get("client_order_id"): str(o.get("status")) for o in BR.PaperBroker().orders("all", 500)}
+        alpaca_orders = BR.PaperBroker().orders("all", 500)
+        sent_status = {o.get("client_order_id"): str(o.get("status")) for o in alpaca_orders}
     except Exception as exc:
         st.warning(f"Could not read Alpaca's orders, so already-sent orders may show as waiting: {exc}")
 
@@ -131,10 +133,8 @@ else:
     for n in props.get("notes", []):
         if n.startswith("ACTION NEEDED"):
             st.error(n)
-    if already:
-        st.caption(
-            "Already at Alpaca: " + ", ".join(f"{p['side']} {p['symbol']} ({status})" for p, status in already) + "."
-        )
+    if not waiting:
+        st.success("Nothing left to approve: every order from this set has been sent (see below).")
     can_send = bool(alpaca_keys()) and po["enabled"]
     if not can_send:
         st.warning("Approving needs the Alpaca keys and paper orders switched on.")
@@ -178,6 +178,56 @@ else:
     if st.session_state.get("approval_log"):
         st.markdown("**What happened to your approvals** (this session; newest last)")
         st.dataframe(pd.DataFrame(st.session_state["approval_log"]), use_container_width=True, hide_index=True)
+
+st.subheader("Orders already sent")
+STATUS_WORDS = {
+    "new": "working at Alpaca", "accepted": "working at Alpaca", "pending_new": "working at Alpaca",
+    "held": "working at Alpaca (waits for its partner order)", "partially_filled": "partly filled",
+    "filled": "filled", "canceled": "cancelled", "expired": "expired unfilled", "rejected": "rejected by Alpaca",
+    "replaced": "replaced", "done_for_day": "done for the day", "pending_cancel": "being cancelled",
+}  # fmt: skip
+if already:
+    st.caption(f"From the set prepared at the close of {props['asof']}. These need nothing more from you.")
+    st.dataframe(
+        pd.DataFrame(
+            [
+                {
+                    "Pot": p["pot"],
+                    "Side": p["side"].upper(),
+                    "Symbol": p["symbol"],
+                    "Shares": p["qty"],
+                    "Limit $": p.get("limit_price"),
+                    "Stop $": p.get("stop_loss"),
+                    "Target $": p.get("take_profit"),
+                    "At Alpaca": STATUS_WORDS.get(status, status),
+                    "Why": p["reason"][:120],
+                }
+                for p, status in already
+            ]
+        ),
+        use_container_width=True,
+        hide_index=True,
+    )
+else:
+    st.caption("None of the latest set has been sent yet.")
+if alpaca_orders:
+    with st.expander("Everything sent to Alpaca recently (newest first)"):
+        recent = [
+            {
+                "Sent (UK)": f"{pd.Timestamp(o['submitted_at']).tz_convert('Europe/London'):%d %b %H:%M}"
+                if o.get("submitted_at")
+                else "",
+                "Pot": BR.pot_of(o.get("client_order_id")) or "not Aurum",
+                "Side": str(o.get("side", "")).upper(),
+                "Symbol": o.get("symbol"),
+                "Shares": o.get("qty"),
+                "Type": o.get("order_class") or o.get("type"),
+                "Status": STATUS_WORDS.get(str(o.get("status")), str(o.get("status"))),
+                "Filled at $": o.get("filled_avg_price"),
+            }
+            for o in alpaca_orders[:40]
+        ]
+        st.dataframe(pd.DataFrame(recent), use_container_width=True, hide_index=True)
 
 with st.expander("Emergency stop"):
     st.caption(

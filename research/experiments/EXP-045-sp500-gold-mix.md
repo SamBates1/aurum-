@@ -60,3 +60,12 @@ Whole period 2006-06-30 → 2026-10-29, net of costs (next-open fills; close fil
 a much shallower worst fall and shorter drawdowns, at every mix, rebalancing frequency and fill convention tested. It is
 diversification, not prediction, and it relies on gold and shares continuing to move fairly independently. Gold here
 returned roughly as much as shares over 2006–2026; if gold lags shares badly for a decade, the mix will trail the S&P.
+
+## Correction added 2026-11-11 (audit, D-048). The original text above is unchanged.
+- **This was a robustness check, not an independent test.** 70/30 was noticed in EXP-037 after seeing results, and
+  EXP-045 used the same 2006–2026 data. It shows the result does not depend on the exact mix or rebalancing date.
+- **"About the same return" is specific to 2006–2026**, when gold happened to return about as much as shares. The
+  independent check is EXP-047 (1972–2026): the mix fell less in 6 of 7 bear markets, but the S&P 500 alone earned more
+  in 69% of ten-year periods. The Fair Test verdict was INCONCLUSIVE (deflated Sharpe 0.40).
+- **Fair summary:** 70/30 is a sensible lower-risk way to hold shares; expect it to earn somewhat less than the S&P
+  over most long periods. The simulator behind this result was re-computed independently and matched exactly.

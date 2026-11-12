@@ -178,7 +178,7 @@ def main(broker: BR.PaperBroker | None = None, frames=None) -> dict:
         "",
         f"Prepared from the close of {asof}. Mode: {st['mode']}; paper orders {'ON' if st['enabled'] else 'OFF'}.",
         "",
-        "Purpose (owner decision D-047, 11 Nov 2026): a test of ORDER HANDLING, and a labelled live test of two "
+        "Purpose (owner decision D-048, 11 Nov 2026): a test of ORDER HANDLING, and a labelled live test of two "
         "ranking signals that failed their backtest (EXP-051a). It is not evidence that either pot makes money, and "
         "no money is moved between the pots on its results.",
         "",

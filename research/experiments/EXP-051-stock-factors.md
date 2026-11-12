@@ -87,3 +87,14 @@ strong enough to clear the pre-registered bar, which was raised to 3% a year and
 today's survivors (that bias flatters them further). Buying pullbacks in uptrends lost money reliably (t = -2.4), so
 the swing scanner labels it as a warning, not a reason to buy. Scanner weights stay empty: every ranking is labelled
 "not supported by evidence" and no assessment can say BUY. EXP-051b (quality, value, combined) waits for SEC access.
+
+## Notes added 2026-11-11 (audit, D-048). The original text above is unchanged.
+- **The universe favours the two live-test signals.** It is the 1,000 stocks with the highest trading volume *today*,
+  looked back to 2016. The equal-weight benchmark earned 20.2% a year, far above the real market. A stock that rose
+  strongly and then collapsed is no longer in today's top 1,000, so the test never sees momentum's and trend's worst
+  outcomes. Momentum (t 1.98) and trend strength (t 1.63) failed **even with that help**; "the two closest to
+  passing" understates how weak the case is.
+- **EXP-051b never ran** (the SEC download found accounts for 0 companies). Quality and value are untested, not failed.
+- **The account does not trade what was tested.** The test held the top fifth (about 177 names for momentum, 42 for
+  trend strength), rebalanced monthly or weekly. The account holds the top 12 and 8, chosen daily, with extra filters
+  and, for swing, stops and targets.

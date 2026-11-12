@@ -123,13 +123,13 @@ paper_orders:                   # Alpaca PAPER account only (aurum/broker.py). S
   max_position_pct: 0.25
   max_data_age_minutes: 30
 
-experiment:                     # 50/50 long-term vs swing (D-042); starts only once paper orders are switched on
+experiment:                     # two $50,000 pots on the Alpaca paper account (D-042), running since 2 Nov 2026
+  # Purpose (D-048, 11 Nov 2026): a test of order handling and a labelled live test of two failed signals. No money
+  # moves between the pots on results: the old review settings (review_every_months, shift_step, max_split,
+  # min_swing_trades) were never read by any code and were removed. Telling a 1%-per-trade edge from luck needs
+  # about 400 swing trades, so the strategy question is not reviewed before then.
   start_cash_usd: 100000
   pots: {long-term: 50000, swing: 50000}
-  review_every_months: 3
-  shift_step: 0.10
-  max_split: 0.70
-  min_swing_trades: 30
   live_test_signals:            # owner decision D-045: while no signal has passed (EXP-051a), rank by the two closest
     long-term: momentum         # +6.4%/yr, t 1.98 (failed). Clearly labelled LIVE TEST everywhere; remove to stop
     swing: trend_strength       # +10.6%/yr, t 1.63 (failed)

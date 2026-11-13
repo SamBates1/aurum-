@@ -46,7 +46,7 @@ Close of 2026-11-12. Alpaca SIP daily prices, 3,151 instruments analysed. What t
 | 2. filter: volatility band | 1,920 | daily range 1% to 6% |
 | 3. analyse | 1,899 | 200+ days of history, signals computed |
 | 4. rank | 1,899 | equal weights (untested) |
-| 5. risk check | 80 | 20 dropped: earnings within 8 weeks |
+| 5. risk check | 79 | 21 dropped: earnings within 8 weeks |
 
 **Live test (owner decision D-045):** ranked by trend_strength alone. This signal did NOT pass its test (EXP-051a); it is being tried with paper money to learn, not because it is proven.
 
@@ -95,9 +95,9 @@ Close of 2026-11-12. Alpaca SIP daily prices, 3,151 instruments analysed. What t
 | 9 | PVAL | 84 | 93% | 87% | 71% |
 | 10 | HDV | 84 | 96% | 89% | 66% |
 | 11 | LVHI | 84 | 90% | 85% | 75% |
-| 12 | FNDX | 83 | 91% | 86% | 73% |
+| 12 | FNDX | 83 | 91% | 86% | 72% |
 | 13 | DFUV | 83 | 89% | 88% | 72% |
 | 14 | PRF | 83 | 90% | 86% | 72% |
 | 15 | AVLV | 82 | 88% | 91% | 69% |
 
-Run time 250s.
+Run time 152s.

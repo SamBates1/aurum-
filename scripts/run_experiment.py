@@ -196,7 +196,36 @@ def main(broker: BR.PaperBroker | None = None, frames=None) -> dict:
         )
     (EX.FOLDER / "experiment.md").write_text("\n".join(lines) + "\n")
     print("\n".join(lines))
+    write_today(b, proposals, notes, orders, spy=None if frames is None else frames.get("SPY"))
     return {"proposals": proposals, "notes": notes}
+
+
+def write_today(b, proposals, notes, orders, spy=None) -> None:
+    """research/orders/today.md: the one-page answer to "how is it doing and what needs me?" (daily_summary).
+    Never stops the evening run: a failure here is reported in the file instead."""
+    from aurum import daily_summary as DS
+
+    path = EX.FOLDER / "today.md"
+    try:
+        eq_file = EX.FOLDER / "equity.csv"
+        if not eq_file.is_file():
+            return
+        eq = pd.read_csv(eq_file, index_col=0, parse_dates=True)
+        if spy is None:
+            spy = get_provider().daily_many(["SPY"], start=DS.START).get("SPY")
+        s = DS.build(
+            eq,
+            spy,
+            orders,
+            b.positions(),
+            b.orders("open", 500),
+            waiting=sum(1 for p in proposals if p.status == "proposed"),
+            notes=notes,
+            start_cash=EX.settings().get("pots") or None,
+        )
+        path.write_text(DS.to_markdown(s))
+    except Exception as e:  # the summary is a convenience; the proposals above are what matter
+        path.write_text(f"# Today\n\nThe summary could not be built tonight: {type(e).__name__}: {e}\n")
 
 
 if __name__ == "__main__":

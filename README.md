@@ -38,7 +38,7 @@ documents and the corrections are recorded beside the original experiment write-
 | Records | Alpaca's own order history is the lasting record; it is copied to `research/orders/orders-log.csv` every evening. The 70/30 ledgers and the hash-chained recommendation log are committed nightly |
 | Reconciliation | Aurum's own records are checked against the broker's every day, and differences are flagged |
 | Pre-registration | Tests and their pass/fail rules are written before the results are seen, so results cannot be cherry-picked |
-| Automated testing | 341 automatic tests (look-ahead bias, accounting, risk limits, data handling, order handling) run on every change |
+| Automated testing | 346 automatic tests (look-ahead bias, accounting, risk limits, data handling, order handling) run on every change |
 
 **Built with** Python, pandas, scikit-learn, Streamlit, GitHub Actions and the Alpaca paper-trading API.
 The sections below are the full technical detail.
@@ -106,7 +106,7 @@ run_lab.py       runs the research lab → research/experiments/results/<time>-l
 research/        knowledge base: framework source-code notes, evidence reviews, decisions, experiments
 run_backtest.py  quick per-ticker backtest
 run_bot.py       headless signal loop, optional paper trading
-tests/           341 tests: look-ahead, accounting, metrics, risk controls, data handling, research tools
+tests/           346 tests: look-ahead, accounting, metrics, risk controls, data handling, research tools
 ```
 
 ## Setup
@@ -302,7 +302,7 @@ Paper trading is the next test.
 
 ## Tests
 
-`pytest` runs 341 tests offline. Highlights:
+`pytest` runs 346 tests offline. Highlights:
 
 * **Look-ahead:** features are identical with the future removed; walk-forward predictions don't change when later
   data is added; the purge gap holds; FRED dates shift to publication; partial bars are dropped; model skill only

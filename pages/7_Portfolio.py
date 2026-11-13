@@ -1,7 +1,7 @@
 """Portfolio: the Alpaca PAPER account plus anything held elsewhere, analysed as one portfolio (platform phase 8).
 
-Read-only towards Alpaca: this page never places an order. Paper orders are switched off until the owner approves
-(config `paper_orders.enabled`). Holdings entered by hand are kept in holdings.yaml on this computer (git-ignored;
+Orders reach Alpaca only when the owner presses Approve (config `paper_orders`, PAPER account only).
+Holdings entered by hand are kept in holdings.yaml on this computer (git-ignored;
 on the free online server they last until it restarts).
 """
 
@@ -52,7 +52,8 @@ def load_manual() -> pd.DataFrame:
 
 
 st.title("💼 Portfolio")
-st.markdown("**PAPER TRADING** · simulated money only. Nothing on this page places an order.")
+st.markdown("**PAPER TRADING** · simulated money only. Orders are sent only when you press Approve.")
+today_box = st.container(border=True)  # filled at the end of the approvals section, once "waiting" is known
 po = BR.settings()
 if not po["enabled"]:
     st.info(
@@ -228,6 +229,47 @@ if alpaca_orders:
             for o in alpaca_orders[:40]
         ]
         st.dataframe(pd.DataFrame(recent), use_container_width=True, hide_index=True)
+
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def spy_daily(hour: int) -> pd.DataFrame:
+    from aurum import daily_summary as DS
+
+    return provider().bars("SPY", "1d", start=pd.Timestamp(DS.START, tz="America/New_York") - pd.Timedelta(days=3))
+
+
+with today_box:
+    from aurum import daily_summary as DS
+
+    st.subheader("Today")
+    eq_file = BR.FOLDER / "equity.csv"
+    try:
+        if not (alpaca_keys() and eq_file.is_file()):
+            raise RuntimeError("no Alpaca keys or no equity history here")
+        _b = BR.PaperBroker()
+        summary = DS.build(
+            pd.read_csv(eq_file, index_col=0, parse_dates=True),
+            spy_daily(pd.Timestamp.now(tz="UTC").hour),
+            alpaca_orders,
+            _b.positions(),
+            _b.orders("open", 500),
+            waiting=len(waiting),
+            notes=props.get("notes", []),
+            start_cash=CFG.get("experiment", {}).get("pots"),
+        )
+        acct_now = float(_b.account().get("equity") or 0)
+        st.markdown(DS.to_markdown(summary).split("\n", 2)[2])  # drop the file's title line
+        st.caption(
+            f"Figures are at the close of {summary['date']}. Right now the account is worth ${acct_now:,.0f} "
+            "(Alpaca, live). Bought/sold, stops and approvals are live."
+        )
+    except Exception as exc:
+        saved = BR.FOLDER / "today.md"
+        if saved.is_file():
+            st.markdown(saved.read_text().split("\n", 2)[2])
+            st.caption(f"From last night's run (live figures unavailable: {exc}).")
+        else:
+            st.caption(f"No summary yet: it is written each weekday evening after the US close ({exc}).")
 
 with st.expander("Emergency stop"):
     st.caption(

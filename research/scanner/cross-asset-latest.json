@@ -1,40 +1,40 @@
 {
  "scanner": "cross-asset",
- "asof": "2026-11-13 00:00:00",
+ "asof": "2026-11-16 00:00:00",
  "stages": [
   [
    "1. validate",
-   3967,
+   3954,
    "eligible in the universe snapshot"
   ],
   [
    "2. filter: kind",
-   1234,
+   1228,
    "kinds: etf, commodity etf"
   ],
   [
    "2. filter: price",
-   1234,
+   1228,
    "price at least $5"
   ],
   [
    "2. filter: volume",
-   1234,
+   1228,
    "at least $5M traded a day"
   ],
   [
    "3. analyse",
-   1186,
+   1181,
    "252+ days of history, signals computed"
   ],
   [
    "4. rank",
-   1186,
+   1181,
    "equal weights (untested)"
   ],
   [
    "5. risk check",
-   1186,
+   1181,
    "portfolio checks added in phase 5"
   ]
  ],

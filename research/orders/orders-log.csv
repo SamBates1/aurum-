@@ -43,8 +43,7 @@ submitted_at,symbol,side,qty,type,order_class,limit_price,stop_price,time_in_for
 2026-11-10T13:11:37.981428Z,MANH,sell,20,stop,oco,,230.93,gtc,held,0,,,swing,f662c0ff-dbea-4980-85e9-0cc3e89d87d7,5c298943-cef0-409d-b220-8f8de3a36120,76b61b06-e23e-452a-89db-f2d7bbb50954
 2026-11-10T13:11:37.985783Z,MANH,sell,20,limit,oco,283.3,,gtc,new,0,,,swing,AUR-SW-be27b0eba68f3cacb69e,76b61b06-e23e-452a-89db-f2d7bbb50954,
 2026-11-10T13:12:27.934768Z,PSX,sell,17,limit,oco,324.43,,gtc,canceled,0,,,swing,AUR-SW-57fe37a3b5238701ae67,25477178-fdc2-4e01-8f71-1976f84d578d,
-2026-11-10T13:12:29.361899Z,ICLR,sell,18,stop,oco,,190.82,gtc,held,0,,,swing,0b1ef686-dc30-498c-9187-71d65ba76de3,fb4031c2-86a7-451f-9ba3-a1887a18bfcf,2ee35c11-f6e9-42bc-955c-e36a359bc2b8
-2026-11-10T13:12:29.367886Z,ICLR,sell,18,limit,oco,252.45,,gtc,new,0,,,swing,AUR-SW-f5ae0636b28874bb04e4,2ee35c11-f6e9-42bc-955c-e36a359bc2b8,
+2026-11-10T13:12:29.367886Z,ICLR,sell,18,limit,oco,252.45,,gtc,canceled,0,,,swing,AUR-SW-f5ae0636b28874bb04e4,2ee35c11-f6e9-42bc-955c-e36a359bc2b8,
 2026-11-10T13:12:30.840177Z,GDDY,sell,40,stop,oco,,108.09,gtc,held,0,,,swing,5a2546aa-7e02-462c-9c24-6ca1aad2cce3,ab22d425-095a-4051-9067-fe8dcb0ad889,7b593b8e-453a-4519-95b7-e7b33b6f0ee3
 2026-11-10T13:12:30.845061Z,GDDY,sell,40,limit,oco,135.53,,gtc,new,0,,,swing,AUR-SW-f4fe0f286fc89303cb03,7b593b8e-453a-4519-95b7-e7b33b6f0ee3,
 2026-11-10T13:12:32.088744Z,GMAB,sell,58,stop,bracket,,49.53,gtc,held,0,,,swing,b91a914c-62a2-4b16-9c26-683428223e0d,cd1fa092-c34d-4273-b863-de1ccf7cb4a4,16b0ade4-77c9-4890-bcdd-9b5837bde414
@@ -61,3 +60,4 @@ submitted_at,symbol,side,qty,type,order_class,limit_price,stop_price,time_in_for
 2026-11-10T14:31:50.720801Z,GMAB,sell,58,limit,bracket,68.35,,gtc,new,0,,,swing,4b7a75ee-0688-4f8c-9632-29f2b699849c,337ca3df-6945-408f-9b3a-2742af4047f8,16b0ade4-77c9-4890-bcdd-9b5837bde414
 2026-11-10T14:34:58.409775Z,FIGS,sell,145,limit,bracket,26.61,,gtc,new,0,,,swing,2c1c658c-f25f-4b48-a64e-bbb2226cb82a,eb84e985-ed89-4ed0-8751-e6a5b5791105,2b5a893a-6226-4645-ab16-d385a37e4bf7
 2026-11-13T15:09:55.411948Z,SLDE,sell,180,stop,oco,,25.85,gtc,filled,180,25.8,2026-11-13T15:09:58.249324Z,swing,4c60bda1-5605-4daf-8163-8becaff4836c,92ed94b0-13f7-4fc4-8cf7-f5e9c6d2f29f,3b54b017-daa3-43b3-9056-ef9164f22594
+2026-11-16T14:48:42.761183Z,ICLR,sell,18,stop,oco,,190.82,gtc,filled,18,190.6,2026-11-16T14:48:44.184135Z,swing,0b1ef686-dc30-498c-9187-71d65ba76de3,fb4031c2-86a7-451f-9ba3-a1887a18bfcf,2ee35c11-f6e9-42bc-955c-e36a359bc2b8

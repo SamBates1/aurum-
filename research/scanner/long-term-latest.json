@@ -1,30 +1,30 @@
 {
  "scanner": "long-term",
- "asof": "2026-11-13 00:00:00",
+ "asof": "2026-11-16 00:00:00",
  "stages": [
   [
    "1. validate",
-   3967,
+   3954,
    "eligible in the universe snapshot"
   ],
   [
    "2. filter: kind",
-   3967,
+   3954,
    "kinds: stock, etf, commodity etf"
   ],
   [
    "2. filter: price",
-   3666,
+   3658,
    "price at least $10"
   ],
   [
    "2. filter: volume",
-   2563,
+   2544,
    "at least $20M traded a day"
   ],
   [
    "3. analyse",
-   2463,
+   2443,
    "252+ days of history, signals computed"
   ],
   [

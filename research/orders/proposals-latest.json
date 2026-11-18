@@ -1,9 +1,9 @@
 {
- "asof": "2026-11-17",
- "created": "2026-11-17 23:40:39+00:00",
+ "asof": "2026-11-18",
+ "created": "2026-11-18 23:41:36+00:00",
  "notes": [
-  "long-term: value $48,042, cash $37,457, 12 positions, 0 proposals (live-test)",
-  "swing: value $48,009, cash $23,841, 6 positions, 2 proposals (live-test)"
+  "long-term: value $47,685, cash $37,457, 12 positions, 0 proposals (live-test)",
+  "swing: value $48,118, cash $23,841, 6 positions, 2 proposals (live-test)"
  ],
  "mode": "manual",
  "proposals": [
@@ -11,91 +11,91 @@
    "pot": "swing",
    "symbol": "VFC",
    "side": "buy",
-   "qty": 236.0,
+   "qty": 212.0,
    "type": "limit",
-   "limit_price": 20.55,
-   "take_profit": 22.64,
-   "stop_loss": 19.19,
+   "limit_price": 21.17,
+   "take_profit": 24.36,
+   "stop_loss": 19.26,
    "reason": "BUY (live-test): Score 99/100; setup: strong trend (ADX above 25, above the 50-day average); LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
    "plan": {
-    "stop": 19.19,
+    "stop": 19.26,
     "targets": [
      [
       "resistance",
       21.24,
-      0.7814474453335623
+      0.16462702739024043
      ],
      [
       "2R",
-      22.64,
+      24.36,
       2.0
      ],
      [
       "3R",
-      23.8,
+      26.06,
       3.0
      ]
     ],
     "entry_zone": [
-     20.13,
-     20.55
+     20.75,
+     21.17
     ],
     "tranches": [],
-    "max_loss_usd": 271.84,
+    "max_loss_usd": 360.88,
     "reasons": {
-     "stop": "under support at $19.40 by a quarter of a daily range",
+     "stop": "two daily ranges ($1.70) below the entry: the setup has failed there",
      "entry": "the next open, if it is within a quarter of a daily range of the last close",
-     "size": "position limit: at most 10% of the pot in one position",
+     "size": "risk budget: 0.75% of the pot ($361) lost if the stop is hit",
      "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)",
      "setup": "strong trend (ADX above 25, above the 50-day average)"
     },
-    "reference_price": 20.34
+    "reference_price": 20.96
    },
    "status": "proposed"
   },
   {
    "pot": "swing",
-   "symbol": "ANDG",
+   "symbol": "ACHC",
    "side": "buy",
-   "qty": 59.0,
+   "qty": 85.0,
    "type": "limit",
-   "limit_price": 63.84,
-   "take_profit": 75.17,
-   "stop_loss": 57.04,
-   "reason": "BUY (live-test): Score 99/100; setup: strong trend (ADX above 25, above the 50-day average); LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "limit_price": 38.12,
+   "take_profit": 46.07,
+   "stop_loss": 33.35,
+   "reason": "BUY (live-test): Score 98/100; setup: strong trend (ADX above 25, above the 50-day average); LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
    "plan": {
-    "stop": 57.04,
+    "stop": 33.35,
     "targets": [
      [
       "resistance",
-      68.41,
-      0.8820456082119367
+      39.7,
+      0.4974068835454976
      ],
      [
       "2R",
-      75.17,
+      46.07,
       2.0
      ],
      [
       "3R",
-      81.21,
+      50.32,
       3.0
      ]
     ],
     "entry_zone": [
-     62.32,
-     63.84
+     37.06,
+     38.12
     ],
     "tranches": [],
-    "max_loss_usd": 360.07,
+    "max_loss_usd": 360.88,
     "reasons": {
-     "stop": "two daily ranges ($6.04) below the entry: the setup has failed there",
+     "stop": "two daily ranges ($4.24) below the entry: the setup has failed there",
      "entry": "the next open, if it is within a quarter of a daily range of the last close",
-     "size": "risk budget: 0.75% of the pot ($360) lost if the stop is hit",
+     "size": "risk budget: 0.75% of the pot ($361) lost if the stop is hit",
      "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)",
      "setup": "strong trend (ADX above 25, above the 50-day average)"
     },
-    "reference_price": 63.08
+    "reference_price": 37.59
    },
    "status": "proposed"
   }

@@ -1,20 +1,66 @@
 {
- "asof": "2026-11-19",
- "created": "2026-11-19 23:34:28+00:00",
+ "asof": "2026-11-20",
+ "created": "2026-11-20 23:35:18+00:00",
  "notes": [
-  "long-term: value $47,410, cash $37,457, 12 positions, 0 proposals (live-test)",
-  "swing: value $47,696, cash $26,871, 5 positions, 3 proposals (live-test)"
+  "long-term: value $45,761, cash $37,457, 12 positions, 0 proposals (live-test)",
+  "swing: value $47,511, cash $26,871, 5 positions, 3 proposals (live-test)"
  ],
  "mode": "manual",
  "proposals": [
   {
    "pot": "swing",
+   "symbol": "GDYN",
+   "side": "buy",
+   "qty": 271.0,
+   "type": "limit",
+   "limit_price": 12.82,
+   "take_profit": 15.28,
+   "stop_loss": 11.35,
+   "reason": "BUY (live-test): Score 100/100; setup: strong trend (ADX above 25, above the 50-day average); LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 11.35,
+    "targets": [
+     [
+      "resistance",
+      14.02,
+      1.0362017545769204
+     ],
+     [
+      "2R",
+      15.28,
+      2.0
+     ],
+     [
+      "3R",
+      16.6,
+      3.0
+     ]
+    ],
+    "entry_zone": [
+     12.5,
+     12.82
+    ],
+    "tranches": [],
+    "max_loss_usd": 356.33,
+    "reasons": {
+     "stop": "two daily ranges ($1.31) below the entry: the setup has failed there",
+     "entry": "the next open, if it is within a quarter of a daily range of the last close",
+     "size": "risk budget: 0.75% of the pot ($356) lost if the stop is hit",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)",
+     "setup": "strong trend (ADX above 25, above the 50-day average)"
+    },
+    "reference_price": 12.66
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "swing",
    "symbol": "OSPN",
    "side": "buy",
-   "qty": 211.0,
+   "qty": 216.0,
    "type": "limit",
-   "limit_price": 22.86,
-   "take_profit": 25.95,
+   "limit_price": 22.21,
+   "take_profit": 24.0,
    "stop_loss": 20.88,
    "reason": "BUY (live-test): Score 99/100; setup: strong trend (ADX above 25, above the 50-day average); LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
    "plan": {
@@ -22,26 +68,26 @@
     "targets": [
      [
       "2R",
-      25.95,
+      24.0,
       2.0
+     ],
+     [
+      "3R",
+      25.04,
+      3.0
      ],
      [
       "resistance",
       27.29,
-      2.7890829855596997
-     ],
-     [
-      "3R",
-      27.65,
-      3.0
+      5.156864930677613
      ]
     ],
     "entry_zone": [
-     22.28,
-     22.86
+     21.63,
+     22.21
     ],
     "tranches": [],
-    "max_loss_usd": 357.63,
+    "max_loss_usd": 225.7,
     "reasons": {
      "stop": "under support at $21.17 by a quarter of a daily range",
      "entry": "the next open, if it is within a quarter of a daily range of the last close",
@@ -49,53 +95,7 @@
      "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)",
      "setup": "strong trend (ADX above 25, above the 50-day average)"
     },
-    "reference_price": 22.57
-   },
-   "status": "proposed"
-  },
-  {
-   "pot": "swing",
-   "symbol": "VFC",
-   "side": "buy",
-   "qty": 239.0,
-   "type": "limit",
-   "limit_price": 20.15,
-   "take_profit": 21.44,
-   "stop_loss": 19.18,
-   "reason": "BUY (live-test): Score 99/100; setup: strong trend (ADX above 25, above the 50-day average); LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
-   "plan": {
-    "stop": 19.18,
-    "targets": [
-     [
-      "resistance",
-      19.95,
-      0.026508436546612883
-     ],
-     [
-      "2R",
-      21.44,
-      2.0
-     ],
-     [
-      "3R",
-      22.19,
-      3.0
-     ]
-    ],
-    "entry_zone": [
-     19.71,
-     20.15
-    ],
-    "tranches": [],
-    "max_loss_usd": 180.56,
-    "reasons": {
-     "stop": "under support at $19.40 by a quarter of a daily range",
-     "entry": "the next open, if it is within a quarter of a daily range of the last close",
-     "size": "position limit: at most 10% of the pot in one position",
-     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)",
-     "setup": "strong trend (ADX above 25, above the 50-day average)"
-    },
-    "reference_price": 19.93
+    "reference_price": 21.92
    },
    "status": "proposed"
   },
@@ -105,38 +105,38 @@
    "side": "buy",
    "qty": 127.0,
    "type": "limit",
-   "limit_price": 35.8,
-   "take_profit": 41.07,
-   "stop_loss": 32.64,
-   "reason": "BUY (live-test): Score 98/100; setup: strong trend (ADX above 25, above the 50-day average); LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "limit_price": 36.06,
+   "take_profit": 41.32,
+   "stop_loss": 32.91,
+   "reason": "BUY (live-test): Score 99/100; setup: strong trend (ADX above 25, above the 50-day average); LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
    "plan": {
-    "stop": 32.64,
+    "stop": 32.91,
     "targets": [
      [
       "2R",
-      41.07,
+      41.32,
       2.0
      ],
      [
       "3R",
-      43.87,
+      44.12,
       3.0
      ]
     ],
     "entry_zone": [
-     35.1,
-     35.8
+     35.36,
+     36.06
     ],
     "tranches": [],
-    "max_loss_usd": 357.72,
+    "max_loss_usd": 356.33,
     "reasons": {
-     "stop": "two daily ranges ($2.81) below the entry: the setup has failed there",
+     "stop": "two daily ranges ($2.80) below the entry: the setup has failed there",
      "entry": "the next open, if it is within a quarter of a daily range of the last close",
-     "size": "risk budget: 0.75% of the pot ($358) lost if the stop is hit",
+     "size": "risk budget: 0.75% of the pot ($356) lost if the stop is hit",
      "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)",
      "setup": "strong trend (ADX above 25, above the 50-day average)"
     },
-    "reference_price": 35.45
+    "reference_price": 35.71
    },
    "status": "proposed"
   }

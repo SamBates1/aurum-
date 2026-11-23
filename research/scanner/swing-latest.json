@@ -1,46 +1,46 @@
 {
  "scanner": "swing",
- "asof": "2026-11-20 00:00:00",
+ "asof": "2026-11-23 00:00:00",
  "stages": [
   [
    "1. validate",
-   3954,
+   3958,
    "eligible in the universe snapshot"
   ],
   [
    "2. filter: kind",
-   3891,
+   3890,
    "kinds: stock, etf"
   ],
   [
    "2. filter: price",
-   3595,
+   3566,
    "price at least $10"
   ],
   [
    "2. filter: volume",
-   2507,
+   2514,
    "at least $20M traded a day"
   ],
   [
    "2. filter: volatility band",
-   1768,
+   1804,
    "daily range 1% to 6%"
   ],
   [
    "3. analyse",
-   1750,
+   1785,
    "200+ days of history, signals computed"
   ],
   [
    "4. rank",
-   1750,
+   1785,
    "equal weights (untested)"
   ],
   [
    "5. risk check",
-   86,
-   "14 dropped: earnings within 8 weeks"
+   87,
+   "13 dropped: earnings within 8 weeks"
   ]
  ],
  "weights": {

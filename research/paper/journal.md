@@ -76,3 +76,8 @@ Newest at the bottom. Times are New York trading days.
 - 2026-11-20 [shadow] spy-gld-70-30-daily: SELL SPY $11.23 (0.0157 @ 713.56)
 - 2026-11-20 [shadow] spy-gld-70-30-daily: BUY GLD $11.22 (0.0343 @ 326.98)
 - 2026-11-20 [shadow] spy-gld-70-30-daily: decided at the close: targets SPY 70%, GLD 30% (fills at the next official open)
+- 2026-11-23 [shadow] spy-gld-70-30-risk-cap: SELL SPY $815.61 (1.1260 @ 724.33)
+- 2026-11-23 [shadow] spy-gld-70-30-risk-cap: decided at the close: targets SPY 45%, GLD 18% (fills at the next official open)
+- 2026-11-23 [shadow] spy-gld-70-30-daily: SELL GLD $36.15 (0.1070 @ 337.98)
+- 2026-11-23 [shadow] spy-gld-70-30-daily: BUY SPY $36.13 (0.0499 @ 724.33)
+- 2026-11-23 [shadow] spy-gld-70-30-daily: decided at the close: targets SPY 70%, GLD 30% (fills at the next official open)

@@ -1,12 +1,12 @@
 # Paper account monitor (PAPER TRADING, read-only)
 
-2026-11-23: account $94,667.07, cash $64,327.36, 17 positions. Paper orders ON.
+2026-11-24: account $94,812.61, cash $64,327.36, 17 positions. Paper orders ON.
 
 | Pot | Value | Cash | Positions | Realised P&L |
 |---|---|---|---|---|
-| long-term | $46,696.32 | $37,456.72 | 12 | $0.00 |
-| swing | $47,971.45 | $26,871.34 | 5 | $-1,903.62 |
+| long-term | $46,367.74 | $37,456.72 | 12 | $0.00 |
+| swing | $48,445.58 | $26,871.34 | 5 | $-1,903.62 |
 
 Reconciliation: Aurum's records match Alpaca.
 
-- INFO: Only 16 days of paper results: too early to compare with the backtest
+- INFO: Only 17 days of paper results: too early to compare with the backtest

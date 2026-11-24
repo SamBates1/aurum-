@@ -2,18 +2,18 @@
   "cash": 0.0,
   "positions": {
     "GLD": {
-      "qty": 8.402478307498617,
-      "entry_price": 360.94147238407743,
-      "entry_fee": 0.909840867595147,
-      "last_price": 333.0199890136719,
+      "qty": 8.44264857419048,
+      "entry_price": 360.8010562575579,
+      "entry_fee": 0.9138349569537876,
+      "last_price": 325.45001220703125,
       "stop": 0.0,
       "opened": "2026-10-30T22:55:53"
     },
     "SPY": {
-      "qty": 9.148239655474637,
+      "qty": 9.12961373587239,
       "entry_price": 760.8275641456055,
-      "entry_fee": 1.3920465786590002,
-      "last_price": 722.2899780273438,
+      "entry_fee": 1.3892123560508103,
+      "last_price": 718.780029296875,
       "stop": 0.0,
       "opened": "2026-10-30T22:55:53"
     }
@@ -358,6 +358,26 @@
       "fee": 0.0072,
       "pnl": null,
       "reason": "spy-gld-70-30-daily rebalance 70% -> 70% (decided 2026-11-20)"
+    },
+    {
+      "time": "2026-11-24 (official open)",
+      "ticker": "SPY",
+      "side": "SELL",
+      "qty": 0.018626,
+      "price": 715.148,
+      "fee": 0.0027,
+      "pnl": -0.86,
+      "reason": "spy-gld-70-30-daily rebalance 70% -> 70% (decided 2026-11-23)"
+    },
+    {
+      "time": "2026-11-24 (official open)",
+      "ticker": "GLD",
+      "side": "BUY",
+      "qty": 0.04017,
+      "price": 331.43,
+      "fee": 0.004,
+      "pnl": null,
+      "reason": "spy-gld-70-30-daily rebalance 30% -> 30% (decided 2026-11-23)"
     }
   ],
   "history": [
@@ -432,31 +452,31 @@
     {
       "time": "2026-11-23",
       "equity": 9405.88
+    },
+    {
+      "time": "2026-11-24",
+      "equity": 9309.84
     }
   ],
   "stopped_out": {},
-  "fees": 2.547044682276404,
-  "realised_pnl": -4.66232727492294,
+  "fees": 2.5537028295035835,
+  "realised_pnl": -5.518649253652945,
   "spec_hash": "9245b2081d68",
   "strategy_id": "spy-gld-70-30-daily",
   "role": "shadow",
   "pending": {
-    "decided": "2026-11-23",
+    "decided": "2026-11-24",
     "targets": {
       "SPY": 0.7,
       "GLD": 0.3
     },
     "signals": []
   },
-  "last_decided": "2026-11-23",
+  "last_decided": "2026-11-24",
   "peak_equity": 10168.191332483366,
-  "last_processed": "2026-11-23",
+  "last_processed": "2026-11-24",
   "started": "2026-10-29",
   "orders_by_day": {
-    "2026-11-10": {
-      "SPY": "SELL 71%->70%",
-      "GLD": "BUY 29%->30%"
-    },
     "2026-11-11": {
       "SPY": "SELL 70%->70%",
       "GLD": "BUY 30%->30%"
@@ -492,7 +512,11 @@
     "2026-11-23": {
       "GLD": "SELL 30%->30%",
       "SPY": "BUY 70%->70%"
+    },
+    "2026-11-24": {
+      "SPY": "SELL 70%->70%",
+      "GLD": "BUY 30%->30%"
     }
   },
-  "last_executed": "2026-11-23T23:15:30"
+  "last_executed": "2026-11-24T23:15:06"
 }

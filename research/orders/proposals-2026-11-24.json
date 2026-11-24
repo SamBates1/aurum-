@@ -1,0 +1,149 @@
+{
+ "asof": "2026-11-24",
+ "created": "2026-11-24 23:39:57+00:00",
+ "notes": [
+  "long-term: value $46,327, cash $37,457, 12 positions, 0 proposals (live-test)",
+  "swing: value $48,472, cash $26,871, 5 positions, 3 proposals (live-test)"
+ ],
+ "mode": "manual",
+ "proposals": [
+  {
+   "pot": "swing",
+   "symbol": "GDYN",
+   "side": "buy",
+   "qty": 294.0,
+   "type": "limit",
+   "limit_price": 14.05,
+   "take_profit": 16.35,
+   "stop_loss": 12.65,
+   "reason": "BUY (live-test): Score 100/100; setup: strong trend (ADX above 25, above the 50-day average); LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 12.65,
+    "targets": [
+     [
+      "resistance",
+      14.02,
+      0.1133973797105464
+     ],
+     [
+      "2R",
+      16.35,
+      2.0
+     ],
+     [
+      "3R",
+      17.58,
+      3.0
+     ]
+    ],
+    "entry_zone": [
+     13.71,
+     14.05
+    ],
+    "tranches": [],
+    "max_loss_usd": 363.54,
+    "reasons": {
+     "stop": "under support at $12.82 by a quarter of a daily range",
+     "entry": "the next open, if it is within a quarter of a daily range of the last close",
+     "size": "risk budget: 0.75% of the pot ($364) lost if the stop is hit",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)",
+     "setup": "strong trend (ADX above 25, above the 50-day average)"
+    },
+    "reference_price": 13.88
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "swing",
+   "symbol": "OSPN",
+   "side": "buy",
+   "qty": 161.0,
+   "type": "limit",
+   "limit_price": 23.64,
+   "take_profit": 27.87,
+   "stop_loss": 21.11,
+   "reason": "BUY (live-test): Score 99/100; setup: strong trend (ADX above 25, above the 50-day average); LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 21.11,
+    "targets": [
+     [
+      "resistance",
+      27.29,
+      1.7439538495673403
+     ],
+     [
+      "2R",
+      27.87,
+      2.0
+     ],
+     [
+      "3R",
+      30.12,
+      3.0
+     ]
+    ],
+    "entry_zone": [
+     23.08,
+     23.64
+    ],
+    "tranches": [],
+    "max_loss_usd": 363.54,
+    "reasons": {
+     "stop": "two daily ranges ($2.25) below the entry: the setup has failed there",
+     "entry": "the next open, if it is within a quarter of a daily range of the last close",
+     "size": "risk budget: 0.75% of the pot ($364) lost if the stop is hit",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)",
+     "setup": "strong trend (ADX above 25, above the 50-day average)"
+    },
+    "reference_price": 23.36
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "swing",
+   "symbol": "VFC",
+   "side": "buy",
+   "qty": 212.0,
+   "type": "limit",
+   "limit_price": 21.12,
+   "take_profit": 24.34,
+   "stop_loss": 19.2,
+   "reason": "BUY (live-test): Score 99/100; setup: strong trend (ADX above 25, above the 50-day average); LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 19.2,
+    "targets": [
+     [
+      "resistance",
+      21.24,
+      0.19252887933189883
+     ],
+     [
+      "2R",
+      24.34,
+      2.0
+     ],
+     [
+      "3R",
+      26.05,
+      3.0
+     ]
+    ],
+    "entry_zone": [
+     20.7,
+     21.12
+    ],
+    "tranches": [],
+    "max_loss_usd": 363.54,
+    "reasons": {
+     "stop": "two daily ranges ($1.71) below the entry: the setup has failed there",
+     "entry": "the next open, if it is within a quarter of a daily range of the last close",
+     "size": "risk budget: 0.75% of the pot ($364) lost if the stop is hit",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)",
+     "setup": "strong trend (ADX above 25, above the 50-day average)"
+    },
+    "reference_price": 20.91
+   },
+   "status": "proposed"
+  }
+ ]
+}

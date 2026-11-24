@@ -1,12 +1,12 @@
-# Today: Alpaca paper account, close of 2026-11-23 (PAPER TRADING)
+# Today: Alpaca paper account, close of 2026-11-24 (PAPER TRADING)
 
 | | Value | Today | Since start | Same money in SPY | Ahead of / behind SPY |
 |---|---|---|---|---|---|
-| whole account | $94,667 | +$1,439 | -5.3% | $95,107 (-4.9%) | -0.4% |
-| long-term pot | $46,696 | +$923 | -6.6% | $47,553 (-4.9%) | -1.7% |
-| swing pot | $47,971 | +$516 | -4.1% | $47,553 (-4.9%) | +0.8% |
+| whole account | $94,813 | +$146 | -5.2% | $94,645 (-5.4%) | +0.2% |
+| long-term pot | $46,368 | -$329 | -7.3% | $47,322 (-5.4%) | -1.9% |
+| swing pot | $48,446 | +$474 | -3.1% | $47,322 (-5.4%) | +2.2% |
 
-SPY bought at the open on 2026-11-02, no costs. 15 trading days so far: far too few to say anything about skill (the account is a test of order handling, D-048).
+SPY bought at the open on 2026-11-02, no costs. 16 trading days so far: far too few to say anything about skill (the account is a test of order handling, D-048).
 
 **Bought and sold since the last close:** nothing.
 

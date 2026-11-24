@@ -1,6 +1,6 @@
 {
  "scanner": "swing",
- "asof": "2026-11-23 00:00:00",
+ "asof": "2026-11-24 00:00:00",
  "stages": [
   [
    "1. validate",
@@ -24,17 +24,17 @@
   ],
   [
    "2. filter: volatility band",
-   1804,
+   1853,
    "daily range 1% to 6%"
   ],
   [
    "3. analyse",
-   1785,
+   1835,
    "200+ days of history, signals computed"
   ],
   [
    "4. rank",
-   1785,
+   1835,
    "equal weights (untested)"
   ],
   [

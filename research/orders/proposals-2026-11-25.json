@@ -1,0 +1,149 @@
+{
+ "asof": "2026-11-25",
+ "created": "2026-11-25 23:39:57+00:00",
+ "notes": [
+  "long-term: value $46,249, cash $37,457, 12 positions, 0 proposals (live-test)",
+  "swing: value $48,647, cash $26,871, 5 positions, 3 proposals (live-test)"
+ ],
+ "mode": "manual",
+ "proposals": [
+  {
+   "pot": "swing",
+   "symbol": "GDYN",
+   "side": "buy",
+   "qty": 261.0,
+   "type": "limit",
+   "limit_price": 14.29,
+   "take_profit": 16.91,
+   "stop_loss": 12.72,
+   "reason": "BUY (live-test): Score 100/100; setup: strong trend (ADX above 25, above the 50-day average); LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 12.72,
+    "targets": [
+     [
+      "resistance",
+      14.14,
+      0.014332514332515305
+     ],
+     [
+      "2R",
+      16.91,
+      2.0
+     ],
+     [
+      "3R",
+      18.31,
+      3.0
+     ]
+    ],
+    "entry_zone": [
+     13.95,
+     14.29
+    ],
+    "tranches": [],
+    "max_loss_usd": 364.85,
+    "reasons": {
+     "stop": "two daily ranges ($1.40) below the entry: the setup has failed there",
+     "entry": "the next open, if it is within a quarter of a daily range of the last close",
+     "size": "risk budget: 0.75% of the pot ($365) lost if the stop is hit",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)",
+     "setup": "strong trend (ADX above 25, above the 50-day average)"
+    },
+    "reference_price": 14.12
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "swing",
+   "symbol": "VFC",
+   "side": "buy",
+   "qty": 205.0,
+   "type": "limit",
+   "limit_price": 21.69,
+   "take_profit": 25.02,
+   "stop_loss": 19.7,
+   "reason": "BUY (live-test): Score 99/100; setup: strong trend (ADX above 25, above the 50-day average); LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 19.7,
+    "targets": [
+     [
+      "resistance",
+      21.54,
+      0.03945821455605502
+     ],
+     [
+      "2R",
+      25.02,
+      2.0
+     ],
+     [
+      "3R",
+      26.79,
+      3.0
+     ]
+    ],
+    "entry_zone": [
+     21.25,
+     21.69
+    ],
+    "tranches": [],
+    "max_loss_usd": 364.85,
+    "reasons": {
+     "stop": "two daily ranges ($1.77) below the entry: the setup has failed there",
+     "entry": "the next open, if it is within a quarter of a daily range of the last close",
+     "size": "risk budget: 0.75% of the pot ($365) lost if the stop is hit",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)",
+     "setup": "strong trend (ADX above 25, above the 50-day average)"
+    },
+    "reference_price": 21.47
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "swing",
+   "symbol": "ADMA",
+   "side": "buy",
+   "qty": 311.0,
+   "type": "limit",
+   "limit_price": 14.38,
+   "take_profit": 16.58,
+   "stop_loss": 13.06,
+   "reason": "BUY (live-test): Score 98/100; setup: strong trend (ADX above 25, above the 50-day average); LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 13.06,
+    "targets": [
+     [
+      "resistance",
+      16.39,
+      1.8370801568551045
+     ],
+     [
+      "2R",
+      16.58,
+      2.0
+     ],
+     [
+      "3R",
+      17.75,
+      3.0
+     ]
+    ],
+    "entry_zone": [
+     14.08,
+     14.38
+    ],
+    "tranches": [],
+    "max_loss_usd": 364.85,
+    "reasons": {
+     "stop": "two daily ranges ($1.17) below the entry: the setup has failed there",
+     "entry": "the next open, if it is within a quarter of a daily range of the last close",
+     "size": "risk budget: 0.75% of the pot ($365) lost if the stop is hit",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)",
+     "setup": "strong trend (ADX above 25, above the 50-day average)"
+    },
+    "reference_price": 14.23
+   },
+   "status": "proposed"
+  }
+ ]
+}

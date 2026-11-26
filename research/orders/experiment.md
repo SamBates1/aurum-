@@ -4,8 +4,8 @@ Prepared from the close of 2026-11-25. Mode: manual; paper orders ON.
 
 Purpose (owner decision D-048, 11 Nov 2026): a test of ORDER HANDLING, and a labelled live test of two ranking signals that failed their backtest (EXP-051a). It is not evidence that either pot makes money, and no money is moved between the pots on its results.
 
-- long-term: value $46,249, cash $37,457, 12 positions, 0 proposals (live-test)
-- swing: value $48,647, cash $26,871, 5 positions, 3 proposals (live-test)
+- long-term: value $46,212, cash $37,457, 12 positions, 0 proposals (live-test)
+- swing: value $48,662, cash $26,871, 5 positions, 3 proposals (live-test)
 
 | Pot | Side | Symbol | Shares | Limit | Stop | Target | Status | Why |
 |---|---|---|---|---|---|---|---|---|

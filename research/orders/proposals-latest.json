@@ -1,9 +1,9 @@
 {
  "asof": "2026-11-25",
- "created": "2026-11-25 23:39:57+00:00",
+ "created": "2026-11-26 23:44:21+00:00",
  "notes": [
-  "long-term: value $46,249, cash $37,457, 12 positions, 0 proposals (live-test)",
-  "swing: value $48,647, cash $26,871, 5 positions, 3 proposals (live-test)"
+  "long-term: value $46,212, cash $37,457, 12 positions, 0 proposals (live-test)",
+  "swing: value $48,662, cash $26,871, 5 positions, 3 proposals (live-test)"
  ],
  "mode": "manual",
  "proposals": [
@@ -41,7 +41,7 @@
      14.29
     ],
     "tranches": [],
-    "max_loss_usd": 364.85,
+    "max_loss_usd": 364.96,
     "reasons": {
      "stop": "two daily ranges ($1.40) below the entry: the setup has failed there",
      "entry": "the next open, if it is within a quarter of a daily range of the last close",
@@ -87,7 +87,7 @@
      21.69
     ],
     "tranches": [],
-    "max_loss_usd": 364.85,
+    "max_loss_usd": 364.96,
     "reasons": {
      "stop": "two daily ranges ($1.77) below the entry: the setup has failed there",
      "entry": "the next open, if it is within a quarter of a daily range of the last close",
@@ -133,7 +133,7 @@
      14.38
     ],
     "tranches": [],
-    "max_loss_usd": 364.85,
+    "max_loss_usd": 364.96,
     "reasons": {
      "stop": "two daily ranges ($1.17) below the entry: the setup has failed there",
      "entry": "the next open, if it is within a quarter of a daily range of the last close",

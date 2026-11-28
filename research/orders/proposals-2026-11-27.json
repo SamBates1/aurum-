@@ -1,0 +1,134 @@
+{
+ "asof": "2026-11-27",
+ "created": "2026-11-28 04:26:24+00:00",
+ "notes": [
+  "long-term: value $46,788, cash $37,457, 12 positions, 0 proposals (live-test)",
+  "swing: value $49,031, cash $26,871, 5 positions, 3 proposals (live-test)"
+ ],
+ "mode": "manual",
+ "proposals": [
+  {
+   "pot": "swing",
+   "symbol": "GDYN",
+   "side": "buy",
+   "qty": 268.0,
+   "type": "limit",
+   "limit_price": 14.59,
+   "take_profit": 17.16,
+   "stop_loss": 13.05,
+   "reason": "BUY (live-test): Score 100/100; setup: strong trend (ADX above 25, above the 50-day average); LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 13.05,
+    "targets": [
+     [
+      "2R",
+      17.16,
+      2.0
+     ],
+     [
+      "3R",
+      18.53,
+      3.0
+     ]
+    ],
+    "entry_zone": [
+     14.25,
+     14.59
+    ],
+    "tranches": [],
+    "max_loss_usd": 367.73,
+    "reasons": {
+     "stop": "two daily ranges ($1.37) below the entry: the setup has failed there",
+     "entry": "the next open, if it is within a quarter of a daily range of the last close",
+     "size": "risk budget: 0.75% of the pot ($368) lost if the stop is hit",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)",
+     "setup": "strong trend (ADX above 25, above the 50-day average)"
+    },
+    "reference_price": 14.42
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "swing",
+   "symbol": "VFC",
+   "side": "buy",
+   "qty": 206.0,
+   "type": "limit",
+   "limit_price": 22.47,
+   "take_profit": 25.82,
+   "stop_loss": 20.47,
+   "reason": "BUY (live-test): Score 99/100; setup: strong trend (ADX above 25, above the 50-day average); LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 20.47,
+    "targets": [
+     [
+      "2R",
+      25.82,
+      2.0
+     ],
+     [
+      "3R",
+      27.6,
+      3.0
+     ]
+    ],
+    "entry_zone": [
+     22.03,
+     22.47
+    ],
+    "tranches": [],
+    "max_loss_usd": 367.73,
+    "reasons": {
+     "stop": "two daily ranges ($1.78) below the entry: the setup has failed there",
+     "entry": "the next open, if it is within a quarter of a daily range of the last close",
+     "size": "risk budget: 0.75% of the pot ($368) lost if the stop is hit",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)",
+     "setup": "strong trend (ADX above 25, above the 50-day average)"
+    },
+    "reference_price": 22.25
+   },
+   "status": "proposed"
+  },
+  {
+   "pot": "swing",
+   "symbol": "KSS",
+   "side": "buy",
+   "qty": 116.0,
+   "type": "limit",
+   "limit_price": 28.16,
+   "take_profit": 34.08,
+   "stop_loss": 24.62,
+   "reason": "BUY (live-test): Score 98/100; setup: strong trend (ADX above 25, above the 50-day average); LIVE TEST: the ranking signal failed its test (EXP-051a) and is being tried with paper money",
+   "plan": {
+    "stop": 24.62,
+    "targets": [
+     [
+      "2R",
+      34.08,
+      2.0
+     ],
+     [
+      "3R",
+      37.23,
+      3.0
+     ]
+    ],
+    "entry_zone": [
+     27.38,
+     28.16
+    ],
+    "tranches": [],
+    "max_loss_usd": 367.73,
+    "reasons": {
+     "stop": "two daily ranges ($3.15) below the entry: the setup has failed there",
+     "entry": "the next open, if it is within a quarter of a daily range of the last close",
+     "size": "risk budget: 0.75% of the pot ($368) lost if the stop is hit",
+     "targets": "2 and 3 times the risk per share, and the nearest resistance (where sellers appeared before)",
+     "setup": "strong trend (ADX above 25, above the 50-day average)"
+    },
+    "reference_price": 27.77
+   },
+   "status": "proposed"
+  }
+ ]
+}
